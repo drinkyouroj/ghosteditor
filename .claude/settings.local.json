@@ -33,7 +33,10 @@
       "Bash(cd \"/Users/justin/Library/Mobile Documents/com~apple~CloudDocs/Projects/ghosteditor-claude-code/backend\" && .venv/bin/python -c \"\nfrom tests.eval.test_story_bible_generation import _load_first_chapter\ntext = _load_first_chapter\\('moby_dick_full.txt'\\)\nprint\\(f'Word count: {len\\(text.split\\(\\)\\)}'\\)\nprint\\(f'First 200 chars: {text[:200]}'\\)\n\" 2>&1)",
       "Bash(cd \"/Users/justin/Library/Mobile Documents/com~apple~CloudDocs/Projects/ghosteditor-claude-code/backend\" && .venv/bin/python -c \"\nfrom tests.eval.test_story_bible_generation import _load_first_chapter, GENRE_MAP\nfor filename, \\(genre, key\\) in GENRE_MAP.items\\(\\):\n    text = _load_first_chapter\\(filename\\)\n    print\\(f'{key}: {len\\(text.split\\(\\)\\)} words — starts with: {text[:80]!r}'\\)\n\" 2>&1)",
       "Bash(cd \"/Users/justin/Library/Mobile Documents/com~apple~CloudDocs/Projects/ghosteditor-claude-code/backend\" && rm -rf tests/eval/bible_results/ && .venv/bin/python -c \"\nimport tests.eval.test_story_bible_generation as t\nt._bibles_cache = None  # reset\n\" 2>&1)",
-      "Bash(cd \"/Users/justin/Library/Mobile Documents/com~apple~CloudDocs/Projects/ghosteditor-claude-code/backend\" && .venv/bin/python -m pytest tests/unit/ tests/eval/test_gutenberg_extraction.py -v 2>&1)"
+      "Bash(cd \"/Users/justin/Library/Mobile Documents/com~apple~CloudDocs/Projects/ghosteditor-claude-code/backend\" && .venv/bin/python -m pytest tests/unit/ tests/eval/test_gutenberg_extraction.py -v 2>&1)",
+      "Bash(cd \"/Users/justin/Library/Mobile Documents/com~apple~CloudDocs/Projects/ghosteditor-claude-code/frontend\" && npm create vite@latest . -- --template react-typescript 2>&1)",
+      "Bash(cd \"/Users/justin/Library/Mobile Documents/com~apple~CloudDocs/Projects/ghosteditor-claude-code/frontend\" && npx create-vite@5 . -- --template react-typescript 2>&1)",
+      "Bash(cd \"/Users/justin/Library/Mobile Documents/com~apple~CloudDocs/Projects/ghosteditor-claude-code/frontend\" && npm install 2>&1)"
     ]
   }
 }

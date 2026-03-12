@@ -90,8 +90,23 @@
 - Fixed bcrypt incompatibility: passlib doesn't work with bcrypt >= 4.1. Pinned to `bcrypt==4.0.1`.
 - All 67 tests passing (52 unit/extraction + 15 API eval)
 
-### Next steps (remaining Week 1)
-- Frontend polling for job status (basic React shell)
+### React Frontend Shell (2026-03-12)
+- Vite 5 + React 18 + TypeScript + React Router 6
+- API client (`src/api/client.ts`): typed fetch wrapper with cookie auth for all backend endpoints
+- Auth pages: Register (email-only provisional flow), Login (email + password)
+- Dashboard: manuscript list with status badges, delete confirmation, links to bible viewer
+- Upload page: file picker (docx/txt/pdf), title + genre form, job polling with progress bar (5s interval)
+- Manuscript detail: chapter table with word counts and status
+- Story Bible viewer: tabbed display (Characters, Timeline, Settings, Voice/World Rules, Plot Threads)
+  - Characters grouped by role (protagonist/supporting/minor) with trait tags and relationship badges
+  - Timeline with dot-connected event list
+  - Voice profile with POV/tense/tone display
+  - Plot threads with open/resolved status
+- Layout with nav header, auth state management, logout
+- Vite dev proxy routes `/auth`, `/manuscripts`, `/bible`, `/health` to backend on :8000
+- TypeScript compiles cleanly, production build succeeds (180KB gzipped JS + 9KB CSS)
+
+### Week 1 Complete
 
 ### Next milestone (Week 2)
 - DECISION for chapter analysis prompt design
