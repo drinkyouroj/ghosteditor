@@ -1,0 +1,352 @@
+{
+  "characters": [
+    {
+      "name": "Mr. Bennet",
+      "aliases": [],
+      "description": "Father of five daughters, characterized as having quick parts, sarcastic humor, reserve, and caprice. Takes ironic delight in his wife's foolishness.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "sarcastic",
+        "witty",
+        "reserved",
+        "capricious",
+        "teasing"
+      ],
+      "physical": {
+        "age": "middle-aged",
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Mrs. Bennet",
+          "type": "husband"
+        },
+        {
+          "to": "Elizabeth Bennet",
+          "type": "father"
+        },
+        {
+          "to": "Jane Bennet",
+          "type": "father"
+        },
+        {
+          "to": "Lydia Bennet",
+          "type": "father"
+        }
+      ]
+    },
+    {
+      "name": "Mrs. Bennet",
+      "aliases": [
+        "his lady",
+        "his wife"
+      ],
+      "description": "Wife of Mr. Bennet and mother of five daughters. A woman of mean understanding, little information, and uncertain temper whose primary concern is getting her daughters married.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "excitable",
+        "impatient",
+        "marriage-obsessed",
+        "shallow",
+        "nervous"
+      ],
+      "physical": {
+        "age": "middle-aged",
+        "gender": "female",
+        "appearance": "formerly handsome, still considers herself attractive"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "wife"
+        },
+        {
+          "to": "Elizabeth Bennet",
+          "type": "mother"
+        },
+        {
+          "to": "Jane Bennet",
+          "type": "mother"
+        },
+        {
+          "to": "Lydia Bennet",
+          "type": "mother"
+        }
+      ]
+    },
+    {
+      "name": "Mr. Bingley",
+      "aliases": [
+        "Bingley"
+      ],
+      "description": "A single young man of large fortune from the north of England who has taken Netherfield Park. Worth four or five thousand a year.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [],
+      "physical": {
+        "age": "young man",
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Elizabeth Bennet",
+      "aliases": [
+        "Lizzy",
+        "little Lizzy"
+      ],
+      "description": "One of the Bennet daughters, favored by her father for having more quickness than her sisters.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "quick-witted",
+        "intelligent"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Jane Bennet",
+          "type": "sister"
+        },
+        {
+          "to": "Lydia Bennet",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Jane Bennet",
+      "aliases": [
+        "Jane"
+      ],
+      "description": "One of the Bennet daughters, described by Mrs. Bennet as more handsome than Elizabeth.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": "handsome"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Elizabeth Bennet",
+          "type": "sister"
+        },
+        {
+          "to": "Lydia Bennet",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Lydia Bennet",
+      "aliases": [
+        "Lydia"
+      ],
+      "description": "One of the Bennet daughters, described by Mrs. Bennet as more good-humored than Elizabeth.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "good-humored"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Elizabeth Bennet",
+          "type": "sister"
+        },
+        {
+          "to": "Jane Bennet",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Mrs. Long",
+      "aliases": [],
+      "description": "A neighbor who brings news about Mr. Bingley taking Netherfield Park.",
+      "first_appearance": "Chapter 1",
+      "role": "minor",
+      "traits": [
+        "gossipy"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Mr. Morris",
+      "aliases": [],
+      "description": "The person with whom Mr. Bingley made the agreement to take Netherfield Park.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Sir William Lucas",
+      "aliases": [],
+      "description": "A neighbor who, along with his wife, is determined to visit Mr. Bingley.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Lady Lucas",
+          "type": "husband"
+        }
+      ]
+    },
+    {
+      "name": "Lady Lucas",
+      "aliases": [],
+      "description": "Wife of Sir William Lucas, determined to visit Mr. Bingley despite generally not visiting newcomers.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Sir William Lucas",
+          "type": "wife"
+        }
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Mr. Bingley comes down in a chaise and four to see Netherfield Park",
+      "chapter": 1,
+      "date_in_story": "Monday",
+      "characters_involved": [
+        "Mr. Bingley",
+        "Mr. Morris"
+      ]
+    },
+    {
+      "event": "Mr. Bingley agrees with Mr. Morris to take Netherfield Park",
+      "chapter": 1,
+      "date_in_story": "Monday",
+      "characters_involved": [
+        "Mr. Bingley",
+        "Mr. Morris"
+      ]
+    },
+    {
+      "event": "Mrs. Long visits Mrs. Bennet and tells her about Mr. Bingley taking Netherfield",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mrs. Long",
+        "Mrs. Bennet"
+      ]
+    },
+    {
+      "event": "Mrs. Bennet informs Mr. Bennet about Mr. Bingley and tries to persuade him to visit",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mrs. Bennet",
+        "Mr. Bennet"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "Netherfield Park",
+      "description": "An estate that has been let to Mr. Bingley, located in the neighborhood. Some of his servants are to be in the house by the end of next week.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Bennet household",
+      "description": "The family home where Mr. and Mrs. Bennet have their conversation about the new neighbor.",
+      "chapter_introduced": 1
+    }
+  ],
+  "world_rules": [
+    "Single men of fortune are expected to marry",
+    "Proper social etiquette requires formal visits to new neighbors before they can visit you",
+    "Fathers must visit new male neighbors before their wives and daughters can do so",
+    "Marriage is the primary business and concern for women with daughters"
+  ],
+  "voice_profile": {
+    "pov": "third person omniscient",
+    "tense": "past",
+    "tone": "ironic and satirical",
+    "style_notes": "Opens with a famous ironic statement, uses free indirect discourse, formal language typical of early 19th century literature"
+  },
+  "plot_threads": [
+    {
+      "thread": "Will Mr. Bennet visit Mr. Bingley to enable proper social introductions?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Which of the Bennet daughters might attract Mr. Bingley's romantic interest?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "How will the arrival of an eligible bachelor affect the neighborhood dynamics?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    }
+  ]
+}

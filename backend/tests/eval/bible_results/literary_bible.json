@@ -1,0 +1,165 @@
+{
+  "characters": [
+    {
+      "name": "Ishmael",
+      "aliases": [],
+      "description": "The narrator and protagonist, a man who turns to seafaring as a sailor when life becomes oppressive. He has worked as both a schoolmaster and merchant sailor before deciding to embark on a whaling voyage.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "philosophical",
+        "introspective",
+        "restless",
+        "independent",
+        "humble",
+        "contemplative"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Cato",
+      "aliases": [],
+      "description": "A historical/philosophical figure referenced by Ishmael as someone who threw himself upon his sword, contrasted with Ishmael's preference for taking to ships.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Gabriel",
+      "aliases": [
+        "archangel Gabriel"
+      ],
+      "description": "The archangel referenced by Ishmael in his philosophical musings about servitude and dignity.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Narcissus",
+      "aliases": [],
+      "description": "A mythological figure who drowned trying to grasp his reflection in water, used by Ishmael as a metaphor for humanity's relationship with the ocean.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Ishmael decides to go to sea due to his melancholy state",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Ishmael"
+      ]
+    },
+    {
+      "event": "Ishmael reflects on his past experiences as a merchant sailor",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Ishmael"
+      ]
+    },
+    {
+      "event": "Ishmael decides to embark on a whaling voyage",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Ishmael"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "Manhattan",
+      "description": "The insular city of the Manhattoes, surrounded by wharves and commerce, with its extreme downtown at the Battery where crowds of water-gazers gather. Streets lead waterward, and thousands of men stand in ocean reveries along the waterfront.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Corlears Hook",
+      "description": "A waterfront location in Manhattan mentioned as part of a walking route around the city.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Coenties Slip",
+      "description": "A waterfront location in Manhattan, part of the route where water-gazers congregate.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Whitehall",
+      "description": "A location in Manhattan mentioned in the walking route around the waterfront.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "The Battery",
+      "description": "Manhattan's extreme downtown area where a noble mole is washed by waves and cooled by ocean breezes.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Valley of the Saco",
+      "description": "A romantic landscape with trees, meadows, cattle, cottages with sleepy smoke, and distant woodlands winding toward mountains, all centered around a magic stream.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Rockaway Beach",
+      "description": "A beach destination mentioned in reference to a poor Tennessee poet's travel dilemma.",
+      "chapter_introduced": 1
+    }
+  ],
+  "world_rules": [
+    "Passengers must pay to travel by ship, while sailors are paid for their work",
+    "Ship hierarchy exists with Commodores and Captains at the top, sailors at the bottom",
+    "All men are essentially slaves in some physical or metaphysical sense",
+    "The Fates act as invisible police officers, secretly influencing human actions",
+    "Providence has a grand programme that determines individual destinies"
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "philosophical and contemplative",
+    "style_notes": "Dense, meandering prose with frequent digressions, rhetorical questions, and literary/mythological allusions. Uses long, complex sentences interspersed with shorter declarative statements. Heavy use of metaphor and philosophical reflection."
+  },
+  "plot_threads": [
+    {
+      "thread": "Why Ishmael has chosen to embark specifically on a whaling voyage rather than another merchant sailing job",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Ishmael's fascination with the great whale and the mysterious perils associated with whaling",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "The identity and significance of the 'grand hooded phantom, like a snow hill in the air' that appears in Ishmael's visions",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    }
+  ]
+}

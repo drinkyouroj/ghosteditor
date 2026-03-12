@@ -1,0 +1,211 @@
+{
+  "characters": [
+    {
+      "name": "Captain Carter",
+      "aliases": [
+        "Uncle Jack"
+      ],
+      "description": "A mysterious man who spent time with the narrator's family and later died under strange circumstances, leaving behind a manuscript about his experiences.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "laughing",
+        "athletic",
+        "courteous",
+        "reckless",
+        "reticent",
+        "wistful",
+        "mysterious"
+      ],
+      "physical": {
+        "age": "middle-aged but apparently ageless",
+        "gender": "male",
+        "appearance": "tall, dark, smooth-faced, athletic man standing over six feet, broad shouldered and narrow hipped, with regular features, black closely cropped hair, and steel gray eyes"
+      },
+      "relationships": [
+        {
+          "to": "Edgar Rice Burroughs",
+          "type": "surrogate uncle/estate beneficiary"
+        }
+      ]
+    },
+    {
+      "name": "Edgar Rice Burroughs",
+      "aliases": [],
+      "description": "The narrator who knew Captain Carter as a child and inherited his estate and manuscript.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "faithful",
+        "observant",
+        "dutiful"
+      ],
+      "physical": {
+        "age": "child of five when first meeting Carter",
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Captain Carter",
+          "type": "surrogate nephew/estate heir"
+        }
+      ]
+    },
+    {
+      "name": "Dejah Thoris",
+      "aliases": [],
+      "description": "A character mentioned in the chapter titles and illustrations, apparently significant to Carter's story.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Tars Tarkas",
+      "aliases": [],
+      "description": "A character mentioned in the chapter titles, apparently part of Carter's adventures.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Captain Carter spends months at narrator's father's home in Virginia before the Civil War",
+      "chapter": 1,
+      "date_in_story": "just prior to the Civil War opening",
+      "characters_involved": [
+        "Captain Carter",
+        "Edgar Rice Burroughs"
+      ]
+    },
+    {
+      "event": "Captain Carter leaves when the war breaks out",
+      "chapter": 1,
+      "date_in_story": "Civil War outbreak",
+      "characters_involved": [
+        "Captain Carter"
+      ]
+    },
+    {
+      "event": "Captain Carter returns after 15-16 years, apparently unchanged",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Captain Carter",
+        "Edgar Rice Burroughs"
+      ]
+    },
+    {
+      "event": "Captain Carter moves to New York and purchases cottage on the Hudson",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Captain Carter"
+      ]
+    },
+    {
+      "event": "Narrator observes Carter writing manuscript during winter visit",
+      "chapter": 1,
+      "date_in_story": "winter of 1885",
+      "characters_involved": [
+        "Captain Carter",
+        "Edgar Rice Burroughs"
+      ]
+    },
+    {
+      "event": "Captain Carter found dead by watchman",
+      "chapter": 1,
+      "date_in_story": "March 4, 1886",
+      "characters_involved": [
+        "Captain Carter"
+      ]
+    },
+    {
+      "event": "Narrator takes charge of Carter's body and estate",
+      "chapter": 1,
+      "date_in_story": "March 4, 1886",
+      "characters_involved": [
+        "Edgar Rice Burroughs",
+        "Captain Carter"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "Virginia family home",
+      "description": "The narrator's father's home in Virginia where Captain Carter stayed before the Civil War",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Arizona",
+      "description": "Where Captain Carter spent time prospecting and mining after the war",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Hudson River cottage",
+      "description": "A small but beautiful cottage on a bluff overlooking the Hudson River in New York, where Captain Carter lived and wrote his manuscript",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Captain Carter's tomb",
+      "description": "A well-ventilated tomb with a massive door equipped with a gold-plated spring lock that can only be opened from the inside",
+      "chapter_introduced": 1
+    }
+  ],
+  "world_rules": [
+    "The manuscript must remain sealed and unread for eleven years after Carter's death",
+    "The manuscript's contents cannot be divulged until twenty-one years after Carter's death",
+    "Carter's tomb door can only be opened from the inside"
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "formal and mysterious",
+    "style_notes": "Frame narrative structure, formal Victorian prose style, building mystery and intrigue around the central character"
+  },
+  "plot_threads": [
+    {
+      "thread": "What is the content of Captain Carter's mysterious manuscript?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Why did Captain Carter appear not to age during his absence?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "What was Carter doing during his mysterious years in Arizona?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Why was Carter's tomb designed to only open from the inside?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "What was Carter reaching toward in the sky during his nighttime vigils?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    }
+  ]
+}

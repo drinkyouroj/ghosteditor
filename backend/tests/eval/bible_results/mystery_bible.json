@@ -1,0 +1,194 @@
+{
+  "characters": [
+    {
+      "name": "Sherlock Holmes",
+      "aliases": [
+        "Mr. Holmes",
+        "Holmes"
+      ],
+      "description": "The famous consulting detective known for his deductive methods and expertise in solving crimes.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "observant",
+        "analytical",
+        "methodical",
+        "proud",
+        "encouraging"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "Has a dolichocephalic skull with well-marked supra-orbital development"
+      },
+      "relationships": [
+        {
+          "to": "Watson",
+          "type": "companion"
+        }
+      ]
+    },
+    {
+      "name": "Watson",
+      "aliases": [
+        "Dr. Watson"
+      ],
+      "description": "Holmes's companion and chronicler, a medical doctor who assists in his investigations.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "eager to learn",
+        "analytical",
+        "proud",
+        "admiring"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Sherlock Holmes",
+          "type": "companion"
+        }
+      ]
+    },
+    {
+      "name": "James Mortimer",
+      "aliases": [
+        "Dr. Mortimer",
+        "Mister"
+      ],
+      "description": "A country medical practitioner and man of science who seeks Holmes's assistance with a serious problem.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "absent-minded",
+        "amiable",
+        "unambitious",
+        "enthusiastic",
+        "precise",
+        "modest"
+      ],
+      "physical": {
+        "age": "under thirty",
+        "gender": "male",
+        "appearance": "Very tall, thin man with a long nose like a beak, keen grey eyes set closely together, gold-rimmed glasses, dingy frock-coat, frayed trousers, long back already bowed, walks with forward thrust of head"
+      },
+      "relationships": [
+        {
+          "to": "Sherlock Holmes",
+          "type": "client"
+        }
+      ]
+    },
+    {
+      "name": "Bertillon",
+      "aliases": [
+        "Monsieur Bertillon"
+      ],
+      "description": "A scientific expert whom Mortimer considers the highest in Europe, above Holmes.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Dr. Mortimer visits Holmes and Watson but they miss him, leaving behind his walking stick",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "James Mortimer",
+        "Sherlock Holmes",
+        "Watson"
+      ]
+    },
+    {
+      "event": "Holmes and Watson examine Mortimer's walking stick at breakfast and deduce information about him",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Sherlock Holmes",
+        "Watson"
+      ]
+    },
+    {
+      "event": "Watson looks up Mortimer in the Medical Directory to verify Holmes's deductions",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Watson"
+      ]
+    },
+    {
+      "event": "Dr. Mortimer returns to retrieve his stick and meets Holmes and Watson",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "James Mortimer",
+        "Sherlock Holmes",
+        "Watson"
+      ]
+    },
+    {
+      "event": "Mortimer reveals he has a serious problem and seeks Holmes's assistance",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "James Mortimer",
+        "Sherlock Holmes"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "Holmes and Watson's lodgings",
+      "description": "A room with a breakfast table, hearth-rug, settee, window with recess, and Watson's medical shelf containing the Medical Directory. Holmes has a favorite corner of the settee.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Charing Cross Hospital",
+      "description": "A London hospital where Mortimer worked as a house-surgeon from 1882 to 1884.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Grimpen, Dartmoor, Devon",
+      "description": "The country location where Dr. Mortimer currently practices, serving as Medical Officer for the parishes of Grimpen, Thorsley, and High Barrow.",
+      "chapter_introduced": 1
+    }
+  ],
+  "world_rules": [
+    "Medical practitioners require specific qualifications (M.R.C.S.) to practice",
+    "Hospital staff hierarchy distinguishes between established staff and house-surgeons/house-physicians",
+    "Professional presentations are customarily given when doctors leave positions",
+    "Country practitioners typically do more walking than town practitioners"
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "analytical and observational",
+    "style_notes": "Formal Victorian prose with detailed dialogue and systematic deductive reasoning sequences"
+  },
+  "plot_threads": [
+    {
+      "thread": "What is the serious and extraordinary problem that Dr. Mortimer needs Holmes's help with?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Why does Mortimer consider this problem serious enough to seek out the famous Sherlock Holmes?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    }
+  ]
+}

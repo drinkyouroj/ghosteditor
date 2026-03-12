@@ -1,0 +1,265 @@
+{
+  "characters": [
+    {
+      "name": "Richard Hannay",
+      "aliases": [],
+      "description": "A thirty-seven-year-old man from South Africa who has returned to England after making his fortune, but finds himself bored and disillusioned with life in London.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "practical",
+        "cautious",
+        "adventurous",
+        "loyal",
+        "straightforward"
+      ],
+      "physical": {
+        "age": "thirty-seven",
+        "gender": "male",
+        "appearance": "sound in wind and limb"
+      },
+      "relationships": [
+        {
+          "to": "Paddock",
+          "type": "employer"
+        },
+        {
+          "to": "Franklin P. Scudder",
+          "type": "temporary host/ally"
+        }
+      ]
+    },
+    {
+      "name": "Franklin P. Scudder",
+      "aliases": [
+        "Captain Theophilus Digby"
+      ],
+      "description": "An American from Kentucky who worked as a war correspondent and became involved in uncovering a conspiracy, now in hiding and presumed dead.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "nervous",
+        "determined",
+        "clever",
+        "desperate",
+        "skilled at disguises"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "slim man, with a short brown beard and small, gimlety blue eyes"
+      },
+      "relationships": [
+        {
+          "to": "Richard Hannay",
+          "type": "temporary guest/ally"
+        }
+      ]
+    },
+    {
+      "name": "Constantine Karolides",
+      "aliases": [],
+      "description": "The Greek Premier who is described as the one big honest man in European politics and is targeted for assassination.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [
+        "honest",
+        "intelligent",
+        "important"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Paddock",
+      "aliases": [],
+      "description": "Hannay's servant, a loyal man whom Hannay helped in Africa and brought to England as his valet.",
+      "first_appearance": "Chapter 1",
+      "role": "minor",
+      "traits": [
+        "loyal",
+        "not talkative",
+        "respectful"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Richard Hannay",
+          "type": "servant"
+        }
+      ]
+    },
+    {
+      "name": "Julia Czechenyi",
+      "aliases": [],
+      "description": "A woman mentioned by Scudder as being involved in the conspiracy against Karolides, intended to serve as a decoy.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": []
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Hannay returns from the City feeling disgusted with life in England",
+      "chapter": 1,
+      "date_in_story": "May afternoon, about three o'clock",
+      "characters_involved": [
+        "Richard Hannay"
+      ]
+    },
+    {
+      "event": "Hannay reads about Karolides in the evening papers at his club",
+      "chapter": 1,
+      "date_in_story": "same May afternoon",
+      "characters_involved": [
+        "Richard Hannay"
+      ]
+    },
+    {
+      "event": "Hannay encounters Scudder outside his flat and lets him in",
+      "chapter": 1,
+      "date_in_story": "same evening",
+      "characters_involved": [
+        "Richard Hannay",
+        "Franklin P. Scudder"
+      ]
+    },
+    {
+      "event": "Scudder tells Hannay about the conspiracy and his fake death",
+      "chapter": 1,
+      "date_in_story": "same evening",
+      "characters_involved": [
+        "Richard Hannay",
+        "Franklin P. Scudder"
+      ]
+    },
+    {
+      "event": "Scudder disguises himself as Captain Digby",
+      "chapter": 1,
+      "date_in_story": "same evening",
+      "characters_involved": [
+        "Franklin P. Scudder"
+      ]
+    },
+    {
+      "event": "Hannay learns about the 'suicide' in No. 15",
+      "chapter": 1,
+      "date_in_story": "next morning",
+      "characters_involved": [
+        "Richard Hannay"
+      ]
+    },
+    {
+      "event": "Hannay attends the inquest",
+      "chapter": 1,
+      "date_in_story": "next day",
+      "characters_involved": [
+        "Richard Hannay"
+      ]
+    },
+    {
+      "event": "Scudder stays hidden in Hannay's flat for several days",
+      "chapter": 1,
+      "date_in_story": "following days",
+      "characters_involved": [
+        "Richard Hannay",
+        "Franklin P. Scudder"
+      ]
+    },
+    {
+      "event": "Hannay discovers Scudder murdered in his flat",
+      "chapter": 1,
+      "date_in_story": "about half-past ten at night, several days later",
+      "characters_involved": [
+        "Richard Hannay",
+        "Franklin P. Scudder"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "London",
+      "description": "The city where Hannay lives, described as busy with crowds on pavements, shop-girls, clerks, and dandies. Includes areas like Portland Place, Oxford Circus, and Langham Place.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Hannay's club",
+      "description": "A rather pot-house club that takes in Colonial members, where Hannay goes to drink and read evening papers.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Caf\u00e9 Royal",
+      "description": "Where Hannay dines before going to a music-hall.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Hannay's flat",
+      "description": "First floor in a new block behind Langham Place, with a common staircase, porter and liftman at entrance, each flat shut off from others. Has a back room for smoking and writing letters, and a smoking-room.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "No. 15",
+      "description": "The flat where Scudder staged his fake death, on the top floor of the same building as Hannay.",
+      "chapter_introduced": 1
+    }
+  ],
+  "world_rules": [
+    "There is an international conspiracy involving anarchists and financiers working to destabilize Europe",
+    "The conspiracy aims to set Russia and Germany against each other",
+    "Political assassinations are orchestrated to look like they come from rival nations to create international incidents",
+    "Intelligence networks operate across European cities, tracking individuals through multiple countries",
+    "British Foreign Office hosts international diplomatic gatherings that serve as opportunities for political operations"
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "dark and suspenseful",
+    "style_notes": "Conversational narrative style with British colonial perspective, building tension through mundane details before revealing dramatic events, uses period-appropriate language and expressions"
+  },
+  "plot_threads": [
+    {
+      "thread": "Who killed Scudder and will they come after Hannay next?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Will the conspiracy to assassinate Karolides on June 15th succeed?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "What role will Hannay play in stopping the conspiracy now that Scudder is dead?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Who are the mysterious figures behind the conspiracy, including the Black Stone and the man who lisps?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "How will Hannay deal with having a murdered man in his flat?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    }
+  ]
+}
