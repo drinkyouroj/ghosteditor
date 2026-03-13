@@ -1,0 +1,77 @@
+{
+  "issues": [
+    {
+      "type": "genre_convention",
+      "severity": "warning",
+      "chapter_location": "beginning",
+      "description": "The chapter opens with pure exposition/dialogue without establishing the fantasy setting or world-building elements. The discussion reads more like science fiction theory than fantasy.",
+      "original_text": "The Time Traveller (for so it will be convenient to speak of him) was expounding a recondite matter to us.",
+      "suggestion": "Consider adding more atmospheric details that establish the fantasy world early, or clarify if this is intended as science fantasy rather than traditional fantasy."
+    },
+    {
+      "type": "worldbuilding",
+      "severity": "warning",
+      "chapter_location": "beginning",
+      "description": "World-building details are minimal and mostly confined to brief mentions of technology ('incandescent lights in lilies of silver', 'chairs, being his patents'). The setting feels more Victorian/scientific than fantastical.",
+      "original_text": "The fire burnt brightly, and the soft radiance of the incandescent lights in the lilies of silver caught the bubbles that flashed and passed in our glasses.",
+      "suggestion": "Expand on unique world elements and weave more fantastical details throughout the dialogue and action rather than front-loading scientific exposition."
+    },
+    {
+      "type": "character",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "Characters are largely interchangeable and defined only by their professions/titles rather than distinct personalities, motivations, or voices.",
+      "original_text": "'I have not,' said the Provincial Mayor.",
+      "suggestion": "Give each character more distinctive dialogue patterns, personal stakes in the discussion, or unique reactions that reveal character depth."
+    },
+    {
+      "type": "pacing",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "The lengthy theoretical discussion about four dimensions creates static pacing with little dramatic tension or forward momentum.",
+      "original_text": "Scientific people,' proceeded the Time Traveller, after the pause required for the proper assimilation of this, 'know very well that Time is only a kind of Space.",
+      "suggestion": "Break up the exposition with more character reactions, physical actions, or hints at higher stakes to maintain reader engagement."
+    },
+    {
+      "type": "genre_convention",
+      "severity": "note",
+      "chapter_location": "end",
+      "description": "While the chapter establishes the protagonist's quest (time travel), it lacks the sense of wonder typically expected in fantasy openings.",
+      "original_text": "Then, still smiling faintly, and with his hands deep in his trousers pockets, he walked slowly out of the room, and we heard his slippers shuffling down the long passage to his laboratory.",
+      "suggestion": "Consider adding more mysterious or wondrous elements to create the atmospheric anticipation typical of fantasy literature."
+    }
+  ],
+  "pacing": {
+    "scene_count": 1,
+    "scene_types": [
+      "dialogue"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "Time Traveller",
+      "Filby",
+      "Psychologist",
+      "Very Young Man",
+      "Provincial Mayor",
+      "Medical Man",
+      "narrator"
+    ],
+    "chapter_summary": "The Time Traveller explains his theory of four dimensions to a gathering of colleagues and friends, arguing that time is merely a fourth spatial dimension and that travel through time should theoretically be possible, much like humans learned to travel vertically through space with balloons. After facing skepticism from his audience, he promises experimental verification and leaves to fetch something from his laboratory, leaving his guests curious and doubtful about what he will demonstrate."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Protagonist's quest/goal established (time travel experimentation)",
+      "Hints at supernatural/scientific elements beyond normal reality",
+      "Foreshadowing of demonstration/proof to come"
+    ],
+    "conventions_missed": [
+      "Limited world-building woven into action",
+      "Minimal sense of wonder in setting descriptions",
+      "No clear magic system constraints or costs established",
+      "Power structures or political dynamics not present",
+      "Distinct cultures not differentiated",
+      "No immediate sense of larger conflict or threat"
+    ],
+    "genre_fit_score": "weak"
+  }
+}

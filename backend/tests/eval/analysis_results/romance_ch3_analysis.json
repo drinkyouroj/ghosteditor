@@ -1,0 +1,64 @@
+{
+  "issues": [
+    {
+      "type": "consistency",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "The party composition is inconsistent with earlier reports. The text states the party consists of 'Mr. Bingley, his two sisters, the husband of the eldest, and another young man' (5 people), but earlier mentioned 'his five sisters and a cousin' (7 people including Bingley).",
+      "original_text": "And when the party entered the assembly-room, it consisted of only five altogether: Mr. Bingley, his two sisters, the husband of the eldest, and another young man.",
+      "suggestion": "Clarify the party composition earlier or provide a brief explanation for why the expected party size changed."
+    },
+    {
+      "type": "consistency",
+      "severity": "note",
+      "chapter_location": "end",
+      "description": "Mrs. Bennet mentions Mr. Bingley danced 'the two sixth with Lizzy' but there's no earlier mention of Elizabeth dancing with Mr. Bingley, only sitting out dances.",
+      "original_text": "and the two sixth with Lizzy",
+      "suggestion": "Either establish Elizabeth's dance with Mr. Bingley earlier in the scene or clarify this detail in Mrs. Bennet's recounting."
+    }
+  ],
+  "pacing": {
+    "scene_count": 4,
+    "scene_types": [
+      "exposition",
+      "dialogue",
+      "action",
+      "dialogue"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "Mr. Bennet",
+      "Mrs. Bennet",
+      "Elizabeth",
+      "Jane",
+      "Mary",
+      "Kitty",
+      "Lydia",
+      "Mr. Bingley",
+      "Mr. Darcy",
+      "Miss Bingley",
+      "Mrs. Hurst",
+      "Mr. Hurst",
+      "Lady Lucas",
+      "Sir William Lucas",
+      "Miss Lucas",
+      "Maria Lucas",
+      "Miss King"
+    ],
+    "chapter_summary": "The Bennet family tries unsuccessfully to get details about Mr. Bingley from Mr. Bennet, who evades their questions. After Mr. Bingley returns the visit and declines a dinner invitation due to business in town, the long-awaited assembly finally takes place. Mr. Bingley proves charming and dances with Jane twice, while his friend Mr. Darcy makes a terrible first impression by being proud and dismissive, particularly insulting Elizabeth by calling her merely 'tolerable.' The evening ends with Mrs. Bennet excitedly recounting the ball's events to her husband."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Central romantic relationships introduced with Jane/Bingley attraction and Elizabeth/Darcy meet-cute",
+      "Clear romantic tension and chemistry established through the ball scene",
+      "Emotional stakes raised through Elizabeth's wounded pride and Jane's budding romance",
+      "Strong characterization showing internal conflicts - Darcy's pride vs. Elizabeth's spirited response",
+      "Classic romance trope of initial misunderstanding/bad first impression between future romantic leads"
+    ],
+    "conventions_missed": [
+      "Limited insight into Elizabeth's deeper emotional vulnerability beyond her playful response to the insult",
+      "Darcy's internal motivations remain largely opaque - no glimpse into why he's so reserved"
+    ],
+    "genre_fit_score": "strong"
+  }
+}

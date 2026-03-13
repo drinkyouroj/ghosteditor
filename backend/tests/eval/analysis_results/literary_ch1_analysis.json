@@ -1,0 +1,62 @@
+{
+  "issues": [
+    {
+      "type": "pacing",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "The dinner party scene, while rich in character dynamics, extends quite long without significant plot advancement. The conversation meanders through multiple topics without building toward the chapter's climactic moment.",
+      "original_text": null,
+      "suggestion": "Consider tightening some of the dinner conversation to maintain momentum toward the Gatsby revelation at chapter's end. The racial discussion and butler's nose anecdote, while character-revealing, could be condensed."
+    },
+    {
+      "type": "character",
+      "severity": "note",
+      "chapter_location": "beginning",
+      "description": "Nick's character motivation for coming East could be more clearly established. While he mentions restlessness after the war and everyone being in bonds, his personal drive feels somewhat generic.",
+      "original_text": "Instead of being the warm centre of the world, the Middle West now seemed like the ragged edge of the universe\u2014so I decided to go East and learn the bond business. Everybody I knew was in the bond business, so I supposed it could support one more single man.",
+      "suggestion": "Consider adding more specific personal stakes or internal conflict driving Nick's decision to leave the Midwest beyond general restlessness."
+    },
+    {
+      "type": "genre_convention",
+      "severity": "note",
+      "chapter_location": "end",
+      "description": "The green light symbol is introduced effectively but could benefit from slightly more emotional resonance in Nick's observation to strengthen its thematic weight.",
+      "original_text": "he stretched out his arms toward the dark water in a curious way, and, far as I was from him, I could have sworn he was trembling. Involuntarily I glanced seaward\u2014and distinguished nothing except a single green light, minute and far away, that might have been the end of a dock.",
+      "suggestion": "Consider adding a moment of Nick's internal reflection on the image's significance or his emotional response to witnessing this private moment."
+    }
+  ],
+  "pacing": {
+    "scene_count": 4,
+    "scene_types": [
+      "exposition",
+      "exposition",
+      "dialogue",
+      "introspection"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "Nick Carraway",
+      "Tom Buchanan",
+      "Daisy Buchanan",
+      "Jordan Baker",
+      "Jay Gatsby"
+    ],
+    "chapter_summary": "Nick Carraway introduces himself and his philosophy of withholding judgment, then recounts his move from the Midwest to West Egg on Long Island in 1922. He describes his modest house next to the mysterious Gatsby's mansion, then visits his cousin Daisy and her wealthy husband Tom Buchanan for dinner at their East Egg estate. During the evening, Nick meets Jordan Baker, learns of Tom's affair through an interrupting phone call, and witnesses Daisy's brittle sophistication and unhappiness. The chapter concludes with Nick's first glimpse of his enigmatic neighbor Gatsby reaching toward a green light across the bay."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Distinctive, lyrical prose style with sophisticated metaphors and imagery",
+      "Deep character interiority through Nick's first-person narration and observations",
+      "Themes introduced through imagery (green light, East vs West, floating imagery)",
+      "Internal and interpersonal conflict emphasized over external action",
+      "Rich subtext in dialogue, especially between Tom and Daisy",
+      "Pacing prioritizes emotional and atmospheric development over plot momentum"
+    ],
+    "conventions_missed": [
+      "Could deepen sensory experience beyond visual imagery",
+      "Some dialogue moments could carry more subtext (Nick's conversations are occasionally too direct)",
+      "Certain symbolic moments could resonate more emotionally"
+    ],
+    "genre_fit_score": "strong"
+  }
+}

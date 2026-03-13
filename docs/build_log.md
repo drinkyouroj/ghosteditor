@@ -152,6 +152,23 @@
 - Entity count inflation: Gatsby generated 23 characters and Riddle of Sands 21 settings across 3 chapters
 - Fuzzy matching in eval harness needs alias awareness (narrator aliases, nickname aliases)
 
+### Chapter Analysis Eval Harness (2026-03-13)
+- Built `test_chapter_analysis.py` — 128 parametrized tests across 5 genres × 3 chapters
+- Runs `analyze_chapter()` against same 5 Gutenberg samples used for bible eval
+- Chapter 1: no-bible mode (first-chapter analysis). Chapters 2-3: full bible cross-reference
+- Disk-based caching of analysis results to avoid re-running ~$3 of API calls during iteration
+- **Result: 128/128 tests passing.** All quality targets met:
+  - 100% JSON validity and schema compliance
+  - 100% issue field completeness (description, type, severity, suggestion)
+  - Conservative severity calibration: 0-4 criticals per genre across 3 chapters
+  - Chapter 1 correctly produces 0 critical consistency issues (no bible to check against)
+  - Pacing detection: scene counts, tension arcs, character presence all populated
+  - Genre fit: Gatsby gets "strong" on all 3 chapters, Riddle of Sands Ch1 correctly "weak" (epistolary preface)
+  - Pacing characters cross-reference bible entries at >50% match rate
+- One initial failure fixed: Thriller Ch1 (961-word epistolary preface) has 0 conventions_met — allowed when genre_fit is "weak"
+- Analysis results saved to `tests/eval/analysis_results/` for manual review
+- Full results documented in `docs/eval_log.md`
+
 ### Next milestone (Week 2 continued)
-- Chapter analysis eval harness
 - Error state handling for malformed Claude responses
+- Pacing prompt (`chapter_pacing_v1.txt`) per DECISION_005 three-prompt design

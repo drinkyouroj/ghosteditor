@@ -1,0 +1,61 @@
+{
+  "issues": [
+    {
+      "type": "consistency",
+      "severity": "warning",
+      "chapter_location": "beginning",
+      "description": "Tense inconsistency in the opening description - shifts from past tense to present tense without clear narrative purpose",
+      "original_text": "By seven o'clock the orchestra has arrived",
+      "suggestion": "Maintain consistent past tense: 'By seven o'clock the orchestra had arrived' to match the established retrospective narrative voice"
+    },
+    {
+      "type": "character",
+      "severity": "note",
+      "chapter_location": "middle",
+      "description": "Nick's claim about Jordan avoiding 'clever, shrewd men' seems inconsistent with her association with Gatsby and Tom's social circle",
+      "original_text": "Jordan Baker instinctively avoided clever, shrewd men",
+      "suggestion": "Consider refining this observation to be more specific about the type of men she avoids, or provide more context about how this applies to her current associations"
+    },
+    {
+      "type": "voice",
+      "severity": "note",
+      "chapter_location": "end",
+      "description": "Nick's final claim about being honest feels slightly heavy-handed given the literary fiction genre's preference for showing rather than telling",
+      "original_text": "Everyone suspects himself of at least one of the cardinal virtues, and this is mine: I am one of the few honest people that I have ever known.",
+      "suggestion": "Consider allowing Nick's honesty to emerge through his actions and observations rather than this direct declaration, which might feel too explicit for literary fiction"
+    }
+  ],
+  "pacing": {
+    "scene_count": 4,
+    "scene_types": [
+      "exposition",
+      "dialogue",
+      "action",
+      "introspection"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "Nick Carraway",
+      "Jay Gatsby",
+      "Jordan Baker",
+      "Owl Eyes",
+      "Lucille"
+    ],
+    "chapter_summary": "Nick attends Gatsby's lavish party after receiving a formal invitation, one of the few actual invitees among the uninvited masses. He reconnects with Jordan Baker, encounters mysterious rumors about Gatsby's past, and finally meets his enigmatic host. After Jordan has a private conversation with Gatsby, Nick witnesses a car accident involving the drunken Owl Eyes. The chapter concludes with Nick's reflections on his daily life in New York, his developing relationship with Jordan despite recognizing her dishonesty, and his assertion of his own honesty as a cardinal virtue."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Rich sensory descriptions create atmospheric immersion",
+      "Deep character interiority through Nick's observations and self-reflection",
+      "Symbolism and imagery (the party as spectacle, the car accident as foreshadowing)",
+      "Subtext in dialogue, particularly around Gatsby's mysterious background",
+      "Internal conflict as Nick grapples with Jordan's dishonesty and his own moral standards",
+      "Distinctive prose style with lyrical, flowing sentences"
+    ],
+    "conventions_missed": [
+      "Some moments lean toward telling rather than showing, particularly Nick's final declaration about honesty",
+      "The party scene, while atmospheric, could delve deeper into Nick's emotional response to the excess and artificiality"
+    ],
+    "genre_fit_score": "strong"
+  }
+}

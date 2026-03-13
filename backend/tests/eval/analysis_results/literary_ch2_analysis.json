@@ -1,0 +1,54 @@
+{
+  "issues": [
+    {
+      "type": "character",
+      "severity": "warning",
+      "chapter_location": "end",
+      "description": "The transition from the apartment scene to Nick being beside McKee's bed is abrupt and unclear, potentially confusing readers about what happened",
+      "original_text": "\u2026 I was standing beside his bed and he was sitting up between the sheets, clad in his underwear, with a great portfolio in his hands.",
+      "suggestion": "Add a brief transitional sentence or expand the ellipsis to better indicate the passage of time and Nick's disorientation from alcohol"
+    },
+    {
+      "type": "consistency",
+      "severity": "note",
+      "chapter_location": "middle",
+      "description": "Nick mentions Tom 'tanked up a good deal at luncheon' but there's no prior mention of them having lunch together that day",
+      "original_text": "I think he'd tanked up a good deal at luncheon, and his determination to have my company bordered on violence.",
+      "suggestion": "Either establish the lunch meeting earlier or have Nick infer Tom's drinking from his behavior rather than claiming direct knowledge"
+    }
+  ],
+  "pacing": {
+    "scene_count": 4,
+    "scene_types": [
+      "exposition",
+      "dialogue",
+      "dialogue",
+      "transition"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "Nick Carraway",
+      "Tom Buchanan",
+      "Myrtle Wilson",
+      "George Wilson",
+      "Catherine",
+      "Chester McKee",
+      "Lucille McKee"
+    ],
+    "chapter_summary": "Nick travels with Tom to the valley of ashes, where they pick up Tom's mistress Myrtle Wilson from her husband's garage. The three go to New York City, where Myrtle transforms her personality in their apartment and hosts a party with her sister Catherine and the McKees. The gathering becomes increasingly drunken and ends violently when Tom breaks Myrtle's nose after she repeatedly mentions Daisy's name. Nick leaves with McKee in a disoriented, alcohol-influenced state."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Rich symbolic imagery through the valley of ashes and Doctor Eckleburg's eyes",
+      "Deep character interiority showing Nick's simultaneous attraction and repulsion to the scene",
+      "Class distinctions explored through setting and character transformations",
+      "Subtext in dialogue, particularly around the affair and marriage discussions",
+      "Distinctive prose style with elaborate metaphors and sensory details"
+    ],
+    "conventions_missed": [
+      "Could deepen the moral implications of Nick's complicity in the affair",
+      "The violence toward Myrtle could be explored more through Nick's internal moral conflict"
+    ],
+    "genre_fit_score": "strong"
+  }
+}

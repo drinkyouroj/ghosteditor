@@ -1,0 +1,55 @@
+{
+  "issues": [
+    {
+      "type": "genre_convention",
+      "severity": "critical",
+      "chapter_location": "beginning",
+      "description": "The manuscript contains extensive prefatory material (preface, illustrations list, etc.) that is not part of the actual Chapter 1 story content. This creates confusion about what constitutes the actual chapter.",
+      "original_text": "PREFACE.\n\n[Illustration]\n\n_Walt Whitman has somewhere a fine and just distinction between \"loving by allowance\" and \"loving with personal love.\"",
+      "suggestion": "Remove all prefatory material and begin the chapter analysis with the actual story content starting at \"It is a truth universally acknowledged...\""
+    },
+    {
+      "type": "genre_convention",
+      "severity": "warning",
+      "chapter_location": "end",
+      "description": "The chapter ends abruptly with character descriptions rather than a scene conclusion or hook that would propel the reader forward into the romance plot.",
+      "original_text": "The business of her life was to get her daughters married: its solace was visiting and news.",
+      "suggestion": "Consider ending with more forward momentum toward the romantic plot, such as Mr. Bennet's decision about visiting Bingley or a stronger hint about the coming romantic complications."
+    },
+    {
+      "type": "character",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "While Elizabeth is mentioned as Mr. Bennet's favorite (\"Lizzy\"), she doesn't appear as an active character in this opening chapter, making her less immediately engaging as a romantic lead.",
+      "original_text": "though I must throw in a good word for my little Lizzy",
+      "suggestion": "Consider having Elizabeth appear directly in the scene, even briefly, to establish her as an active presence and allow readers to connect with her personality immediately."
+    }
+  ],
+  "pacing": {
+    "scene_count": 1,
+    "scene_types": [
+      "dialogue"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "Mr. Bennet",
+      "Mrs. Bennet"
+    ],
+    "chapter_summary": "The chapter opens with the famous declaration about wealthy single men needing wives, then presents a dialogue between Mr. and Mrs. Bennet about the arrival of the wealthy Mr. Bingley to the neighborhood. Mrs. Bennet is eager for her husband to visit Bingley so their daughters might have a chance at marriage, while Mr. Bennet teases his wife with his characteristic wit and reluctance. The chapter establishes the matrimonial focus of the story and introduces the catalyst (Bingley's arrival) that will drive the romantic plot."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Romantic stakes established early through focus on marriage and eligible bachelor",
+      "Central romantic catalyst introduced (Bingley's arrival)",
+      "Social comedy tone appropriate to historical romance",
+      "Marriage as central concern clearly established"
+    ],
+    "conventions_missed": [
+      "No direct introduction of the primary romantic leads as active characters",
+      "No meet-cute or romantic tension scene",
+      "Limited emotional interiority or vulnerability shown",
+      "No chemistry demonstrated between potential romantic partners"
+    ],
+    "genre_fit_score": "moderate"
+  }
+}

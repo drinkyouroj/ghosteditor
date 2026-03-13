@@ -1,0 +1,1122 @@
+{
+  "characters": [
+    {
+      "name": "Mr. Bennet",
+      "aliases": [],
+      "description": "Father of five daughters, characterized as an odd mixture of quick parts, sarcastic humour, reserve, and caprice who takes delight in teasing his wife.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "sarcastic",
+        "witty",
+        "reserved",
+        "capricious",
+        "teasing",
+        "evasive",
+        "curious",
+        "impatient",
+        "bookish"
+      ],
+      "physical": {
+        "age": "middle-aged",
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Mrs. Bennet",
+          "type": "husband"
+        },
+        {
+          "to": "Lizzy",
+          "type": "father"
+        },
+        {
+          "to": "Elizabeth",
+          "type": "father"
+        },
+        {
+          "to": "Kitty",
+          "type": "father"
+        },
+        {
+          "to": "Mary",
+          "type": "father"
+        },
+        {
+          "to": "Jane",
+          "type": "father"
+        },
+        {
+          "to": "Lydia",
+          "type": "father"
+        }
+      ]
+    },
+    {
+      "name": "Mrs. Bennet",
+      "aliases": [
+        "his lady",
+        "his wife"
+      ],
+      "description": "Mr. Bennet's wife, a woman of mean understanding, little information, and uncertain temper whose main business in life is getting her daughters married.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "gossipy",
+        "impatient",
+        "marriage-obsessed",
+        "nervous",
+        "shallow",
+        "resentful",
+        "persistent",
+        "scheming",
+        "delighted",
+        "disconcerted",
+        "bitter"
+      ],
+      "physical": {
+        "age": "middle-aged",
+        "gender": "female",
+        "appearance": "formerly beautiful, has five grown-up daughters"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "wife"
+        },
+        {
+          "to": "Lizzy",
+          "type": "mother"
+        },
+        {
+          "to": "Jane",
+          "type": "mother"
+        },
+        {
+          "to": "Lydia",
+          "type": "mother"
+        },
+        {
+          "to": "Elizabeth",
+          "type": "mother"
+        },
+        {
+          "to": "Kitty",
+          "type": "mother"
+        },
+        {
+          "to": "Mary",
+          "type": "mother"
+        }
+      ]
+    },
+    {
+      "name": "Mr. Bingley",
+      "aliases": [
+        "Bingley"
+      ],
+      "description": "A single young man of large fortune from the north of England who has taken Netherfield Park.",
+      "first_appearance": "Chapter 1",
+      "role": "major",
+      "traits": [
+        "good-looking",
+        "gentlemanlike",
+        "pleasant",
+        "unaffected",
+        "lively",
+        "unreserved",
+        "sociable",
+        "amiable"
+      ],
+      "physical": {
+        "age": "young man",
+        "gender": "male",
+        "appearance": "good-looking, pleasant countenance, wears blue coat, rides black horse"
+      },
+      "relationships": [
+        {
+          "to": "Miss Bingley",
+          "type": "brother"
+        },
+        {
+          "to": "Mrs. Hurst",
+          "type": "brother"
+        },
+        {
+          "to": "Mr. Hurst",
+          "type": "brother-in-law"
+        },
+        {
+          "to": "Mr. Darcy",
+          "type": "friend"
+        }
+      ]
+    },
+    {
+      "name": "Lizzy",
+      "aliases": [
+        "little Lizzy"
+      ],
+      "description": "One of the Bennet daughters, favored by her father who notes she has more quickness than her sisters.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "quick",
+        "intelligent"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": "not as handsome as Jane according to her mother"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Jane",
+          "type": "sister"
+        },
+        {
+          "to": "Lydia",
+          "type": "sister"
+        },
+        {
+          "to": "Elizabeth",
+          "type": "sister"
+        },
+        {
+          "to": "Kitty",
+          "type": "sister"
+        },
+        {
+          "to": "Mary",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Jane",
+      "aliases": [
+        "eldest Miss Bennet"
+      ],
+      "description": "One of the Bennet daughters, described by her mother as more handsome than Lizzy.",
+      "first_appearance": "Chapter 1",
+      "role": "major",
+      "traits": [
+        "beautiful",
+        "admired",
+        "gratified",
+        "quiet"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": "handsome, most beautiful creature, only handsome girl in the room according to Mr. Darcy"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Lizzy",
+          "type": "sister"
+        },
+        {
+          "to": "Lydia",
+          "type": "sister"
+        },
+        {
+          "to": "Elizabeth",
+          "type": "sister"
+        },
+        {
+          "to": "Kitty",
+          "type": "sister"
+        },
+        {
+          "to": "Mary",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Lydia",
+      "aliases": [
+        "Catherine and Lydia"
+      ],
+      "description": "One of the Bennet daughters, described by her mother as more good-humoured than Lizzy.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [
+        "good-humoured",
+        "confident",
+        "stout",
+        "dance-focused"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": "the tallest, the youngest"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Lizzy",
+          "type": "sister"
+        },
+        {
+          "to": "Jane",
+          "type": "sister"
+        },
+        {
+          "to": "Elizabeth",
+          "type": "sister"
+        },
+        {
+          "to": "Kitty",
+          "type": "sister"
+        },
+        {
+          "to": "Mary",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Mrs. Long",
+      "aliases": [],
+      "description": "A neighbor who brought news to Mrs. Bennet about Netherfield Park being let.",
+      "first_appearance": "Chapter 1",
+      "role": "minor",
+      "traits": [
+        "gossipy",
+        "selfish",
+        "hypocritical"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Mr. Morris",
+      "aliases": [],
+      "description": "The person with whom Mr. Bingley agreed terms for Netherfield Park.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Sir William Lucas",
+      "aliases": [],
+      "description": "A neighbor who, along with his wife, is determined to visit Mr. Bingley.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [
+        "delighted"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Lady Lucas",
+          "type": "husband"
+        },
+        {
+          "to": "Miss Lucas",
+          "type": "father"
+        },
+        {
+          "to": "Maria Lucas",
+          "type": "father"
+        }
+      ]
+    },
+    {
+      "name": "Lady Lucas",
+      "aliases": [],
+      "description": "Sir William's wife, who is determined to visit Mr. Bingley despite generally not visiting newcomers.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [
+        "reassuring",
+        "speculative"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Sir William Lucas",
+          "type": "wife"
+        },
+        {
+          "to": "Miss Lucas",
+          "type": "mother"
+        },
+        {
+          "to": "Maria Lucas",
+          "type": "mother"
+        }
+      ]
+    },
+    {
+      "name": "Elizabeth",
+      "aliases": [
+        "Elizabeth Bennet"
+      ],
+      "description": "One of the Bennet daughters, Mr. Bennet's second daughter who was trimming a hat.",
+      "first_appearance": "Chapter 2",
+      "role": "protagonist",
+      "traits": [
+        "lively",
+        "playful",
+        "spirited",
+        "resilient"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": "tolerable but not handsome enough according to Mr. Darcy"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Lizzy",
+          "type": "sister"
+        },
+        {
+          "to": "Jane",
+          "type": "sister"
+        },
+        {
+          "to": "Lydia",
+          "type": "sister"
+        },
+        {
+          "to": "Kitty",
+          "type": "sister"
+        },
+        {
+          "to": "Mary",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Kitty",
+      "aliases": [
+        "Catherine"
+      ],
+      "description": "One of the Bennet daughters who has a persistent cough and lacks discretion in her coughing.",
+      "first_appearance": "Chapter 2",
+      "role": "minor",
+      "traits": [
+        "indiscreet",
+        "fretful",
+        "dance-focused"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Lizzy",
+          "type": "sister"
+        },
+        {
+          "to": "Jane",
+          "type": "sister"
+        },
+        {
+          "to": "Lydia",
+          "type": "sister"
+        },
+        {
+          "to": "Elizabeth",
+          "type": "sister"
+        },
+        {
+          "to": "Mary",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Mary",
+      "aliases": [],
+      "description": "One of the Bennet daughters, described as a young lady of deep reflection who reads great books and makes extracts.",
+      "first_appearance": "Chapter 2",
+      "role": "minor",
+      "traits": [
+        "reflective",
+        "studious",
+        "intellectual",
+        "accomplished"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Mrs. Bennet",
+          "type": "daughter"
+        },
+        {
+          "to": "Lizzy",
+          "type": "sister"
+        },
+        {
+          "to": "Jane",
+          "type": "sister"
+        },
+        {
+          "to": "Lydia",
+          "type": "sister"
+        },
+        {
+          "to": "Elizabeth",
+          "type": "sister"
+        },
+        {
+          "to": "Kitty",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Miss Bingley",
+      "aliases": [],
+      "description": "One of Mr. Bingley's sisters, a fine woman with an air of decided fashion.",
+      "first_appearance": "Chapter 3",
+      "role": "supporting",
+      "traits": [
+        "fashionable",
+        "fine"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": "fine woman with an air of decided fashion"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bingley",
+          "type": "sister"
+        },
+        {
+          "to": "Mrs. Hurst",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Mrs. Hurst",
+      "aliases": [
+        "the eldest"
+      ],
+      "description": "Mr. Bingley's eldest sister, a fine woman with an air of decided fashion.",
+      "first_appearance": "Chapter 3",
+      "role": "supporting",
+      "traits": [
+        "fashionable",
+        "fine",
+        "elegant"
+      ],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": "fine woman with an air of decided fashion, elegant dress with lace"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bingley",
+          "type": "sister"
+        },
+        {
+          "to": "Miss Bingley",
+          "type": "sister"
+        },
+        {
+          "to": "Mr. Hurst",
+          "type": "wife"
+        }
+      ]
+    },
+    {
+      "name": "Mr. Hurst",
+      "aliases": [],
+      "description": "The husband of Mr. Bingley's eldest sister, who merely looks the gentleman.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [
+        "gentlemanlike"
+      ],
+      "physical": {
+        "age": "adult man",
+        "gender": "male",
+        "appearance": "merely looked the gentleman"
+      },
+      "relationships": [
+        {
+          "to": "Mrs. Hurst",
+          "type": "husband"
+        },
+        {
+          "to": "Mr. Bingley",
+          "type": "brother-in-law"
+        }
+      ]
+    },
+    {
+      "name": "Mr. Darcy",
+      "aliases": [
+        "Darcy"
+      ],
+      "description": "Mr. Bingley's friend, a wealthy man with ten thousand a year and an estate in Derbyshire.",
+      "first_appearance": "Chapter 3",
+      "role": "major",
+      "traits": [
+        "proud",
+        "disagreeable",
+        "conceited",
+        "fastidious",
+        "cold",
+        "forbidding",
+        "unworthy"
+      ],
+      "physical": {
+        "age": "young man",
+        "gender": "male",
+        "appearance": "fine, tall person, handsome features, noble mien, much handsomer than Mr. Bingley"
+      },
+      "relationships": [
+        {
+          "to": "Mr. Bingley",
+          "type": "friend"
+        }
+      ]
+    },
+    {
+      "name": "Miss Lucas",
+      "aliases": [],
+      "description": "Daughter of Sir William and Lady Lucas, danced with Mr. Bingley at the assembly.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Sir William Lucas",
+          "type": "daughter"
+        },
+        {
+          "to": "Lady Lucas",
+          "type": "daughter"
+        },
+        {
+          "to": "Maria Lucas",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Maria Lucas",
+      "aliases": [],
+      "description": "Daughter of Sir William and Lady Lucas, danced with Mr. Bingley at the assembly.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Sir William Lucas",
+          "type": "daughter"
+        },
+        {
+          "to": "Lady Lucas",
+          "type": "daughter"
+        },
+        {
+          "to": "Miss Lucas",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Miss King",
+      "aliases": [],
+      "description": "A young lady who danced with Mr. Bingley at the assembly.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [],
+      "physical": {
+        "age": "young woman",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": []
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Mrs. Long visits Mrs. Bennet and informs her that Netherfield Park has been let",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mrs. Long",
+        "Mrs. Bennet"
+      ]
+    },
+    {
+      "event": "Mr. Bingley comes down on Monday in a chaise and four to see Netherfield Park",
+      "chapter": 1,
+      "date_in_story": "Monday",
+      "characters_involved": [
+        "Mr. Bingley"
+      ]
+    },
+    {
+      "event": "Mr. Bingley agrees with Mr. Morris to take Netherfield Park",
+      "chapter": 1,
+      "date_in_story": "Monday",
+      "characters_involved": [
+        "Mr. Bingley",
+        "Mr. Morris"
+      ]
+    },
+    {
+      "event": "Mrs. Bennet tells Mr. Bennet the news about Mr. Bingley and Netherfield Park",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mrs. Bennet",
+        "Mr. Bennet"
+      ]
+    },
+    {
+      "event": "Mrs. Bennet tries to convince Mr. Bennet to visit Mr. Bingley when he arrives",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mrs. Bennet",
+        "Mr. Bennet"
+      ]
+    },
+    {
+      "event": "Mr. Bennet secretly visits Mr. Bingley in the morning",
+      "chapter": 2,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bennet",
+        "Mr. Bingley"
+      ]
+    },
+    {
+      "event": "Mr. Bennet reveals to his family that he has visited Mr. Bingley while observing Elizabeth trimming a hat",
+      "chapter": 2,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bennet",
+        "Elizabeth",
+        "Mrs. Bennet",
+        "Kitty",
+        "Mary",
+        "Lydia"
+      ]
+    },
+    {
+      "event": "The family discusses plans for the upcoming ball in a fortnight and when to invite Mr. Bingley to dinner",
+      "chapter": 2,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bennet",
+        "Mrs. Bennet",
+        "Elizabeth",
+        "Kitty",
+        "Lydia",
+        "Mary"
+      ]
+    },
+    {
+      "event": "The Bennet family questions Mr. Bennet about Mr. Bingley but he evades giving details",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bennet",
+        "Mrs. Bennet",
+        "Elizabeth",
+        "Jane",
+        "Mary",
+        "Kitty",
+        "Lydia"
+      ]
+    },
+    {
+      "event": "Lady Lucas provides favorable intelligence about Mr. Bingley from Sir William's visit",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Lady Lucas",
+        "Sir William Lucas",
+        "Mrs. Bennet"
+      ]
+    },
+    {
+      "event": "Mr. Bingley returns Mr. Bennet's visit and sits with him in his library for ten minutes",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley",
+        "Mr. Bennet"
+      ]
+    },
+    {
+      "event": "The Bennet ladies observe Mr. Bingley from an upper window, noting his blue coat and black horse",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley",
+        "Jane",
+        "Elizabeth",
+        "Mary",
+        "Kitty",
+        "Lydia"
+      ]
+    },
+    {
+      "event": "The Bennets send a dinner invitation to Mr. Bingley",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley",
+        "Mrs. Bennet"
+      ]
+    },
+    {
+      "event": "Mr. Bingley declines the dinner invitation due to business in town",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley",
+        "Mrs. Bennet"
+      ]
+    },
+    {
+      "event": "Reports circulate that Mr. Bingley will bring twelve ladies and seven gentlemen to the assembly",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley"
+      ]
+    },
+    {
+      "event": "The actual party size is corrected to six people from London - five sisters and a cousin",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley"
+      ]
+    },
+    {
+      "event": "The Netherfield party arrives at the assembly consisting of five people: Mr. Bingley, his two sisters, Mr. Hurst, and Mr. Darcy",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley",
+        "Miss Bingley",
+        "Mrs. Hurst",
+        "Mr. Hurst",
+        "Mr. Darcy"
+      ]
+    },
+    {
+      "event": "Mr. Darcy's wealth of ten thousand a year becomes known within five minutes of his entrance",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Darcy"
+      ]
+    },
+    {
+      "event": "Mr. Bingley dances every dance and makes himself acquainted with all principal people in the room",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley"
+      ]
+    },
+    {
+      "event": "Mr. Darcy dances only with Mrs. Hurst and Miss Bingley, declining other introductions",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Darcy",
+        "Mrs. Hurst",
+        "Miss Bingley"
+      ]
+    },
+    {
+      "event": "Elizabeth sits out two dances due to scarcity of gentlemen",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Elizabeth"
+      ]
+    },
+    {
+      "event": "Mr. Bingley asks Mr. Darcy to dance and suggests he dance with Elizabeth",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley",
+        "Mr. Darcy",
+        "Elizabeth"
+      ]
+    },
+    {
+      "event": "Mr. Darcy calls Elizabeth tolerable but not handsome enough to tempt him",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Darcy",
+        "Elizabeth"
+      ]
+    },
+    {
+      "event": "Mr. Bingley dances with Jane twice and she is admired by his sisters",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mr. Bingley",
+        "Jane",
+        "Miss Bingley",
+        "Mrs. Hurst"
+      ]
+    },
+    {
+      "event": "Mary is mentioned to Miss Bingley as the most accomplished girl in the neighbourhood",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mary",
+        "Miss Bingley"
+      ]
+    },
+    {
+      "event": "Catherine and Lydia are never without partners at the ball",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Kitty",
+        "Lydia"
+      ]
+    },
+    {
+      "event": "The family returns to Longbourn and Mrs. Bennet recounts the evening's events to Mr. Bennet",
+      "chapter": 3,
+      "date_in_story": null,
+      "characters_involved": [
+        "Mrs. Bennet",
+        "Mr. Bennet",
+        "Jane",
+        "Elizabeth",
+        "Mary",
+        "Kitty",
+        "Lydia"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "Bennet household",
+      "description": "The family home where Mr. and Mrs. Bennet have their conversation about the new neighbor and their five daughters.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Netherfield Park",
+      "description": "An estate that has been let to Mr. Bingley, a young man of large fortune from the north of England. He is to take possession before Michaelmas.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "The neighbourhood",
+      "description": "A rural community where families like the Bennets, the Lucases, and Mrs. Long reside, where news of newcomers spreads quickly among the families.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "The assemblies",
+      "description": "Local social gatherings where the community meets and dances, where the Bennets expect to meet Mr. Bingley.",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Mr. Bennet's library",
+      "description": "The room in the Bennet household where Mr. Bennet receives Mr. Bingley's visit and where he reads books regardless of time.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Longbourn",
+      "description": "The village where the Bennet family lives and of which they are the principal inhabitants.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Assembly-room",
+      "description": "The venue where the local ball takes place, where the Netherfield party makes their public debut in the neighborhood.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "London",
+      "description": "The city where Mr. Bingley has business and from where he brings his party to the assembly.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Hertfordshire",
+      "description": "The county where Netherfield Park is located and where the story takes place.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Derbyshire",
+      "description": "The county where Mr. Darcy has his large estate.",
+      "chapter_introduced": 3
+    }
+  ],
+  "world_rules": [
+    "A single man in possession of a good fortune must be in want of a wife",
+    "Families consider wealthy single men as rightful property for one of their daughters",
+    "Social protocol requires formal visits to new neighbors, particularly from the gentleman of the house",
+    "It is impossible for ladies to visit a new gentleman neighbor if their husband/father has not first paid a formal visit",
+    "Parents, especially mothers, are expected to arrange advantageous marriages for their daughters",
+    "A fortnight's acquaintance is considered very little time to truly know someone",
+    "Once a formal visit has been paid, the acquaintance cannot be escaped",
+    "Social introductions at public gatherings like assemblies require proper connections",
+    "Being fond of dancing is considered a certain step towards falling in love",
+    "Wealth and social status are quickly circulated as gossip in small communities",
+    "A gentleman must be particularly acquainted with a lady before he will dance with her at an assembly",
+    "Ladies may observe gentlemen callers from upper windows without being seen",
+    "Social manners and behavior at public gatherings quickly determine one's reputation in the community"
+  ],
+  "voice_profile": {
+    "pov": "third person omniscient",
+    "tense": "past",
+    "tone": "witty and satirical",
+    "style_notes": "Opens with famous ironic universal truth, uses free indirect discourse, sharp dialogue that reveals character, social commentary through narrative voice"
+  },
+  "plot_threads": [
+    {
+      "thread": "Will Mr. Bennet visit Mr. Bingley to enable social introductions for his daughters?",
+      "status": "resolved",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "Which of the Bennet daughters might catch Mr. Bingley's romantic interest?",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Will Mrs. Bennet succeed in her primary mission of getting her daughters married?",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "When will Mr. Bingley return Mr. Bennet's visit and when will the Bennets invite him to dinner?",
+      "status": "resolved",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Will Mr. Bingley dance with the Bennet daughters at the upcoming ball?",
+      "status": "resolved",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "How will the relationship between Mr. Bingley and Jane develop?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "How will Elizabeth's first impression of Mr. Darcy affect their future interactions?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Will Mr. Darcy's proud behavior continue to make him unpopular in the neighborhood?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Will Mr. Bingley give a ball at Netherfield as he mentioned?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    }
+  ]
+}

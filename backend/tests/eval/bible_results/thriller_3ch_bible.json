@@ -1,0 +1,711 @@
+{
+  "characters": [
+    {
+      "name": "Carruthers",
+      "aliases": [],
+      "description": "A young man of condition and fashion who works at the Foreign Office, stuck in London during the dead season of September, feeling isolated and depressed about his social situation.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "secretive",
+        "patriotic",
+        "adventurous",
+        "self-conscious",
+        "fashionable",
+        "cynical",
+        "depressed",
+        "socially ambitious",
+        "indecisive",
+        "proud",
+        "inexperienced with sailing",
+        "adaptable",
+        "capable of self-reflection"
+      ],
+      "physical": {
+        "age": "young man",
+        "gender": "male",
+        "appearance": "well-groomed, not very tall, fashionable attire"
+      },
+      "relationships": [
+        {
+          "to": "Davies",
+          "type": "friend"
+        },
+        {
+          "to": "E. C.",
+          "type": "friend"
+        },
+        {
+          "to": "Arthur H. Davies",
+          "type": "former college acquaintance"
+        },
+        {
+          "to": "Lady Ashleigh",
+          "type": "social acquaintance"
+        },
+        {
+          "to": "Nesta",
+          "type": "cousin"
+        },
+        {
+          "to": "Carter",
+          "type": "subordinate"
+        },
+        {
+          "to": "K\u2014\u2014",
+          "type": "colleague"
+        },
+        {
+          "to": "M\u2014\u2014",
+          "type": "superior"
+        }
+      ]
+    },
+    {
+      "name": "Davies",
+      "aliases": [
+        "Mr Davies"
+      ],
+      "description": "A man who accompanied Carruthers on the yachting cruise and was involved in discovering information related to national security.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "secretive",
+        "patriotic"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Carruthers",
+          "type": "friend"
+        }
+      ]
+    },
+    {
+      "name": "E. C.",
+      "aliases": [
+        "Erskine Childers"
+      ],
+      "description": "The editor of the book who received the story from Carruthers and arranged for its publication.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "diplomatic",
+        "analytical",
+        "cautious"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Carruthers",
+          "type": "friend"
+        }
+      ]
+    },
+    {
+      "name": "Arthur H. Davies",
+      "aliases": [],
+      "description": "Carruthers' former Oxford college acquaintance who owns a yacht called Dulcibella and is currently in Flensburg. He failed for the Indian Civil Service and works in a solicitor's office. Known for his physical energy, simplicity, and modesty, with a connection to boats and the sea.",
+      "first_appearance": "Chapter 2",
+      "role": "main supporting",
+      "traits": [
+        "energetic",
+        "simple",
+        "modest",
+        "nautical",
+        "impulsive",
+        "loyal",
+        "practical",
+        "generous",
+        "skilled sailor",
+        "frugal",
+        "secretive about his injury",
+        "mysterious about his activities",
+        "handy with repairs",
+        "cheerful",
+        "anxious to please"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "dresses indifferently, short stature, blue eyes, clean-cut features, unintellectual forehead, horny hands stained with paint, bandaged hand, informal clothing"
+      },
+      "relationships": [
+        {
+          "to": "Carruthers",
+          "type": "former college acquaintance"
+        },
+        {
+          "to": "Davies sister",
+          "type": "brother"
+        }
+      ]
+    },
+    {
+      "name": "Lady Ashleigh",
+      "aliases": [],
+      "description": "A society hostess who wrote kindly to Carruthers about missing him at the Morven Lodge party.",
+      "first_appearance": "Chapter 2",
+      "role": "minor",
+      "traits": [
+        "kind",
+        "socially prominent"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Carruthers",
+          "type": "social acquaintance"
+        }
+      ]
+    },
+    {
+      "name": "Nesta",
+      "aliases": [],
+      "description": "Carruthers' cousin who wrote to him about his work in London, described as malicious.",
+      "first_appearance": "Chapter 2",
+      "role": "minor",
+      "traits": [
+        "malicious"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": "little"
+      },
+      "relationships": [
+        {
+          "to": "Carruthers",
+          "type": "cousin"
+        }
+      ]
+    },
+    {
+      "name": "Withers",
+      "aliases": [],
+      "description": "A servant who delivers mail to Carruthers in his chambers.",
+      "first_appearance": "Chapter 2",
+      "role": "minor",
+      "traits": [
+        "demure"
+      ],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Carter",
+      "aliases": [],
+      "description": "Carruthers' subordinate at the Foreign Office who assists with various tasks including map work and sending telegrams.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [
+        "patient",
+        "ignorant of geography",
+        "dutiful",
+        "observant"
+      ],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Carruthers",
+          "type": "subordinate"
+        }
+      ]
+    },
+    {
+      "name": "K\u2014\u2014",
+      "aliases": [],
+      "description": "Carruthers' colleague who returns from Switzerland, sunburnt and envious of Carruthers' planned trip.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [
+        "envious",
+        "inquisitive",
+        "sunburnt"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "offensively sunburnt"
+      },
+      "relationships": [
+        {
+          "to": "Carruthers",
+          "type": "colleague"
+        }
+      ]
+    },
+    {
+      "name": "M\u2014\u2014",
+      "aliases": [],
+      "description": "Carruthers' temporary chief at the Foreign Office who wishes him well on his holiday.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [
+        "genial",
+        "lenient",
+        "sincere"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Carruthers",
+          "type": "superior"
+        }
+      ]
+    },
+    {
+      "name": "Davies sister",
+      "aliases": [],
+      "description": "Davies' sister whose photograph hangs in the yacht's cabin.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [],
+      "physical": {
+        "age": "young girl",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Arthur H. Davies",
+          "type": "sister"
+        }
+      ]
+    },
+    {
+      "name": "Hebrew merchant",
+      "aliases": [],
+      "description": "A dirty and jewelled merchant in the east end who haggles with Carruthers over oilskins.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [
+        "dirty",
+        "bejewelled",
+        "haggling"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "dirty and bejewelled"
+      },
+      "relationships": []
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Carruthers and Davies go on a yachting cruise and discover important national security information",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Carruthers",
+        "Davies"
+      ]
+    },
+    {
+      "event": "The discovered information is communicated to proper authorities",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Carruthers",
+        "Davies"
+      ]
+    },
+    {
+      "event": "Carruthers visits E. C. in his chambers and tells him the whole adventure",
+      "chapter": 1,
+      "date_in_story": "October 1902",
+      "characters_involved": [
+        "Carruthers",
+        "E. C."
+      ]
+    },
+    {
+      "event": "Decision is made to publish the story",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Carruthers",
+        "Davies",
+        "E. C."
+      ]
+    },
+    {
+      "event": "E. C. agrees to edit the book",
+      "chapter": 1,
+      "date_in_story": "March 1903",
+      "characters_involved": [
+        "Carruthers",
+        "Davies",
+        "E. C."
+      ]
+    },
+    {
+      "event": "Carruthers spends the dead season alone in London, working at the Foreign Office",
+      "chapter": 2,
+      "date_in_story": "August-September, recent year",
+      "characters_involved": [
+        "Carruthers"
+      ]
+    },
+    {
+      "event": "Arthur H. Davies starts his yachting cruise via Holland and the Frisian Islands",
+      "chapter": 2,
+      "date_in_story": "early August, recent year",
+      "characters_involved": [
+        "Arthur H. Davies"
+      ]
+    },
+    {
+      "event": "Davies' companions leave him during the cruise",
+      "chapter": 2,
+      "date_in_story": "September, recent year",
+      "characters_involved": [
+        "Arthur H. Davies"
+      ]
+    },
+    {
+      "event": "Davies writes to Carruthers from Flensburg inviting him to join the yachting trip",
+      "chapter": 2,
+      "date_in_story": "September 21, recent year",
+      "characters_involved": [
+        "Arthur H. Davies"
+      ]
+    },
+    {
+      "event": "Carruthers receives Davies' letter while dressing for dinner",
+      "chapter": 2,
+      "date_in_story": "September 23, recent year, 7 PM",
+      "characters_involved": [
+        "Carruthers",
+        "Arthur H. Davies",
+        "Withers"
+      ]
+    },
+    {
+      "event": "Carruthers decides to accept Davies' invitation after breakfast",
+      "chapter": 3,
+      "date_in_story": "September 24, recent year",
+      "characters_involved": [
+        "Carruthers"
+      ]
+    },
+    {
+      "event": "K\u2014\u2014 returns from Switzerland to the Foreign Office",
+      "chapter": 3,
+      "date_in_story": "September 24, recent year",
+      "characters_involved": [
+        "K\u2014\u2014",
+        "Carruthers"
+      ]
+    },
+    {
+      "event": "Carruthers sends telegram to Davies accepting invitation",
+      "chapter": 3,
+      "date_in_story": "September 24, recent year",
+      "characters_involved": [
+        "Carruthers",
+        "Arthur H. Davies",
+        "Carter"
+      ]
+    },
+    {
+      "event": "Davies replies requesting Rippingille stove",
+      "chapter": 3,
+      "date_in_story": "September 24, recent year",
+      "characters_involved": [
+        "Arthur H. Davies",
+        "Carruthers"
+      ]
+    },
+    {
+      "event": "Carruthers spends evening shopping for Davies' commissions",
+      "chapter": 3,
+      "date_in_story": "September 24, recent year",
+      "characters_involved": [
+        "Carruthers"
+      ]
+    },
+    {
+      "event": "Carruthers continues shopping for nautical supplies in the Minories",
+      "chapter": 3,
+      "date_in_story": "September 25, recent year",
+      "characters_involved": [
+        "Carruthers",
+        "Hebrew merchant"
+      ]
+    },
+    {
+      "event": "Carruthers finishes work at the Foreign Office and says goodbye to M\u2014\u2014",
+      "chapter": 3,
+      "date_in_story": "September 25, recent year",
+      "characters_involved": [
+        "Carruthers",
+        "M\u2014\u2014"
+      ]
+    },
+    {
+      "event": "Carruthers departs London for Germany on the Flushing steamer",
+      "chapter": 3,
+      "date_in_story": "September 25, recent year, 8:30 PM",
+      "characters_involved": [
+        "Carruthers"
+      ]
+    },
+    {
+      "event": "Carruthers travels from Flushing to Hamburg to Flensburg",
+      "chapter": 3,
+      "date_in_story": "September 26, recent year",
+      "characters_involved": [
+        "Carruthers"
+      ]
+    },
+    {
+      "event": "Carruthers meets Davies at Flensburg station",
+      "chapter": 3,
+      "date_in_story": "September 26, recent year, 10 PM",
+      "characters_involved": [
+        "Carruthers",
+        "Arthur H. Davies"
+      ]
+    },
+    {
+      "event": "Davies and Carruthers travel by dinghy to the Dulcibella",
+      "chapter": 3,
+      "date_in_story": "September 26, recent year, late evening",
+      "characters_involved": [
+        "Carruthers",
+        "Arthur H. Davies"
+      ]
+    },
+    {
+      "event": "Carruthers boards the Dulcibella and settles in for the night",
+      "chapter": 3,
+      "date_in_story": "September 26, recent year, night",
+      "characters_involved": [
+        "Carruthers",
+        "Arthur H. Davies"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "E. C.'s chambers",
+      "description": "The location where Carruthers visited E. C. to tell him about the adventure",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "German waters",
+      "description": "The general location where the yachting cruise and discovery of secret information took place, involving the German Government",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Carruthers' chambers in Pall Mall",
+      "description": "Carruthers' London residence where he dresses for dinner and receives correspondence",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Foreign Office",
+      "description": "Where Carruthers works, doing routine tasks like making pr\u00e9cis of consular reports during the dead season",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "London club",
+      "description": "A substitute club Carruthers visits for dinner, described as strange and uncomfortable with poor food and ventilation",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Flensburg, Schleswig-Holstein",
+      "description": "German port town where Davies is stationed with his yacht Dulcibella, having repairs done",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Schleswig fiords",
+      "description": "Baltic cruising ground described by Davies as having A1 scenery and potential for duck shooting",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Yacht Dulcibella",
+      "description": "Davies' yacht, currently moored in Flensburg for repairs",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Lancaster's gun shop",
+      "description": "Shop where Carruthers retrieves Davies' gun and pays an outstanding bill",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "The Stores",
+      "description": "Large department store where Carruthers purchases the Rippingille stove and inquires about rigging-screws",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "The Minories",
+      "description": "East London area where Carey and Neilson's shop is located, specializing in rigging-screws and nautical equipment",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Carey and Neilson's",
+      "description": "Nautical equipment shop in the Minories that stocks rigging-screws",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "East end oilskin shop",
+      "description": "A villainous den in a back street where Carruthers purchases cheap oilskins from a Hebrew merchant",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Flushing steamer",
+      "description": "Passenger steamship that carries Carruthers from London to Hamburg via Flushing",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Thames estuary",
+      "description": "Waterway leading from London to the North Sea, lined with lightships",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "North Sea",
+      "description": "Body of water crossed by the steamer from England to Holland/Germany",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Hamburg",
+      "description": "German port city, intermediate stop on Carruthers' journey to Flensburg",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Flensburg railway station",
+      "description": "Station where Carruthers arrives and meets Davies",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Flensburg harbour",
+      "description": "Harbour area with quays, steamers, and stairs leading down to the water where small boats moor",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Small cove near Flensburg",
+      "description": "Tree-encircled cove where the Dulcibella is anchored, away from the main town",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Dulcibella interior",
+      "description": "Cramped yacht interior with saloon, sleeping cabin, low headroom, centreboard case, galley with Rippingille stove, and basic furnishings",
+      "chapter_introduced": 3
+    }
+  ],
+  "world_rules": [
+    "Information discovered about national security must be communicated to proper authorities",
+    "Government secret service may be inadequate and show dignified incredulity toward citizen reports",
+    "Mere suspicion of certain secrets can destroy their efficacy",
+    "Personal identity protection requires fictitious names and disguised years when publishing sensitive accounts",
+    "London society empties during the dead season of late summer/early autumn",
+    "Foreign Office work involves routine administrative tasks during quiet periods",
+    "Social connections and proper introductions are essential for maintaining position in society",
+    "Yachting season typically ends by late September as weather becomes dangerous",
+    "Small yachts like the Dulcibella are typically sailed single-handed without paid crew",
+    "Flat-bottomed boats with centreboards can navigate both shallow and deep waters",
+    "Nautical equipment must often be sourced from specialized suppliers in port areas",
+    "Continental travel requires careful planning with railway timetables and connections",
+    "Yacht accommodations are spartan compared to larger vessels with professional crew"
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "formal and cautious",
+    "style_notes": "Editorial framing device, diplomatic language to protect identities, formal Victorian prose style"
+  },
+  "plot_threads": [
+    {
+      "thread": "What was the nature of the national danger discovered during the cruise?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "What information was discovered about the German Government?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Who is the disgracefully implicated Englishman bearing an honoured name?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Will the government act on the information provided by Carruthers and Davies?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Will Carruthers accept Davies' invitation to join him yachting in the Baltic?",
+      "status": "resolved",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Why did Davies' companions leave him during the cruise?",
+      "status": "open",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "What is the significance of Davies requesting a prismatic compass?",
+      "status": "progressing",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "How did Davies injure his hand and why is he secretive about it?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What mysterious activities has Davies been engaged in that required so much secrecy?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Why does Davies need surveying equipment like the prismatic compass if this is just a pleasure cruise?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Will Carruthers adapt to the harsh realities of small boat sailing?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    }
+  ]
+}

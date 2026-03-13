@@ -1,0 +1,909 @@
+{
+  "characters": [
+    {
+      "name": "John Herncastle",
+      "aliases": [
+        "Herncastle",
+        "my cousin",
+        "my uncle Herncastle"
+      ],
+      "description": "A British soldier who participated in the storming of Seringapatam and is suspected of murdering Indians to steal the Moonstone diamond. He has a fiery, boastful temper and appears to have committed sacrilege for personal gain. Uncle to Mr. Franklin Blake.",
+      "first_appearance": "Chapter 1",
+      "role": "antagonist",
+      "traits": [
+        "boastful",
+        "hot-tempered",
+        "violent",
+        "secretive",
+        "untrustworthy"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "narrator",
+          "type": "cousin"
+        },
+        {
+          "to": "Mr. Franklin Blake",
+          "type": "uncle"
+        }
+      ]
+    },
+    {
+      "name": "narrator",
+      "aliases": [
+        "I"
+      ],
+      "description": "A British soldier and cousin to John Herncastle who witnessed suspicious circumstances surrounding the theft of the Moonstone. He refuses to maintain friendship with Herncastle due to moral objections to his cousin's actions.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "moral",
+        "dutiful",
+        "observant",
+        "cautious",
+        "principled"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "John Herncastle",
+          "type": "cousin"
+        }
+      ]
+    },
+    {
+      "name": "General Baird",
+      "aliases": [],
+      "description": "The British general who commanded the assault on Seringapatam and later issued orders to prevent plundering.",
+      "first_appearance": "Chapter 1",
+      "role": "minor",
+      "traits": [
+        "authoritative",
+        "disciplined"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Tippoo",
+      "aliases": [
+        "Sultan of Seringapatam",
+        "Tippoo Sultan"
+      ],
+      "description": "The Sultan of Seringapatam who possessed the Moonstone and had it set in a dagger handle before being killed in the British assault.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "found dead under a heap of the slain"
+      },
+      "relationships": []
+    },
+    {
+      "name": "Mahmoud of Ghizni",
+      "aliases": [],
+      "description": "An eleventh-century Mohammedan conqueror who seized the temple of Somnauth and began the Moonstone's journey through various hands.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [
+        "rapacious",
+        "conquering"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Aurungzebe",
+      "aliases": [
+        "Emperor of the Moguls"
+      ],
+      "description": "An eighteenth-century Mogul emperor whose army officer seized the Moonstone from the temple shrine.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [
+        "destructive"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Gabriel Betteredge",
+      "aliases": [
+        "Betteredge"
+      ],
+      "description": "House-steward in the service of Julia, Lady Verinder, who will relate the events of the First Period of the story. A self-described scholar who is devoted to Robinson Crusoe and uses it for guidance in all situations. Turned seventy years old with an active memory. Started as a page-boy at age fifteen and has served the family for more than fifty years.",
+      "first_appearance": "Chapter 1",
+      "role": "narrator",
+      "traits": [
+        "modest",
+        "scholarly",
+        "superstitious about Robinson Crusoe",
+        "experienced",
+        "dutiful",
+        "occasionally drinks too much",
+        "economical",
+        "pragmatic",
+        "loyal",
+        "self-deprecating"
+      ],
+      "physical": {
+        "age": "turned seventy",
+        "gender": "male",
+        "appearance": "active memory and legs to correspond"
+      },
+      "relationships": [
+        {
+          "to": "Julia, Lady Verinder",
+          "type": "employee"
+        },
+        {
+          "to": "Mr. Franklin Blake",
+          "type": "acquaintance"
+        },
+        {
+          "to": "Penelope",
+          "type": "father"
+        },
+        {
+          "to": "Selina Goby",
+          "type": "deceased wife"
+        },
+        {
+          "to": "Sir John Verinder",
+          "type": "former employer"
+        },
+        {
+          "to": "old lord Herncastle",
+          "type": "former employer"
+        }
+      ]
+    },
+    {
+      "name": "Julia, Lady Verinder",
+      "aliases": [
+        "Lady Verinder",
+        "my lady",
+        "my aunt",
+        "Miss Julia"
+      ],
+      "description": "An English lady who employs Gabriel Betteredge as house-steward. The Moonstone was lost in her Yorkshire house two years prior. Aunt to Mr. Franklin Blake. The youngest and best of the three beautiful Miss Herncastles, she married Sir John Verinder and managed him effectively. She has a daughter named Miss Rachel.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "generous",
+        "managing",
+        "caring",
+        "decisive",
+        "humorous",
+        "devoted mother"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Gabriel Betteredge",
+          "type": "employer"
+        },
+        {
+          "to": "Mr. Franklin Blake",
+          "type": "aunt"
+        },
+        {
+          "to": "Sir John Verinder",
+          "type": "deceased husband"
+        },
+        {
+          "to": "Miss Rachel",
+          "type": "mother"
+        },
+        {
+          "to": "Miss Adelaide",
+          "type": "sister"
+        },
+        {
+          "to": "Miss Caroline",
+          "type": "sister"
+        },
+        {
+          "to": "old lord Herncastle",
+          "type": "daughter"
+        }
+      ]
+    },
+    {
+      "name": "Mr. Franklin Blake",
+      "aliases": [
+        "Mr. Franklin"
+      ],
+      "description": "Nephew of Lady Verinder and John Herncastle who has initiated the project to record the complete story of the Moonstone. He has consulted with the family lawyer about documenting the events to clear the names of innocent people who suffered under suspicion.",
+      "first_appearance": "Chapter 2",
+      "role": "supporting",
+      "traits": [
+        "organized",
+        "concerned with justice",
+        "persuasive",
+        "methodical"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Julia, Lady Verinder",
+          "type": "nephew"
+        },
+        {
+          "to": "John Herncastle",
+          "type": "nephew"
+        },
+        {
+          "to": "Gabriel Betteredge",
+          "type": "acquaintance"
+        },
+        {
+          "to": "Mr. Bruff",
+          "type": "client"
+        }
+      ]
+    },
+    {
+      "name": "Mr. Bruff",
+      "aliases": [],
+      "description": "The family lawyer who believes the story of the Moonstone should be recorded in writing for the interests of truth.",
+      "first_appearance": "Chapter 2",
+      "role": "minor",
+      "traits": [
+        "methodical",
+        "concerned with truth"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Mr. Franklin Blake",
+          "type": "lawyer"
+        }
+      ]
+    },
+    {
+      "name": "Miss Adelaide",
+      "aliases": [],
+      "description": "One of the three beautiful Miss Herncastles, sister to Miss Caroline and Julia, Lady Verinder.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [
+        "beautiful"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": "beautiful"
+      },
+      "relationships": [
+        {
+          "to": "Julia, Lady Verinder",
+          "type": "sister"
+        },
+        {
+          "to": "Miss Caroline",
+          "type": "sister"
+        },
+        {
+          "to": "old lord Herncastle",
+          "type": "daughter"
+        }
+      ]
+    },
+    {
+      "name": "Miss Caroline",
+      "aliases": [],
+      "description": "One of the three beautiful Miss Herncastles, sister to Miss Adelaide and Julia, Lady Verinder.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [
+        "beautiful"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": "beautiful"
+      },
+      "relationships": [
+        {
+          "to": "Julia, Lady Verinder",
+          "type": "sister"
+        },
+        {
+          "to": "Miss Adelaide",
+          "type": "sister"
+        },
+        {
+          "to": "old lord Herncastle",
+          "type": "daughter"
+        }
+      ]
+    },
+    {
+      "name": "old lord Herncastle",
+      "aliases": [
+        "the old lord"
+      ],
+      "description": "Father of the three beautiful Miss Herncastles including Julia, Lady Verinder. Former employer of Gabriel Betteredge. Had the longest tongue and shortest temper of any man Betteredge ever met.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [
+        "talkative",
+        "short-tempered",
+        "difficult"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Julia, Lady Verinder",
+          "type": "father"
+        },
+        {
+          "to": "Miss Adelaide",
+          "type": "father"
+        },
+        {
+          "to": "Miss Caroline",
+          "type": "father"
+        },
+        {
+          "to": "Gabriel Betteredge",
+          "type": "former employer"
+        }
+      ]
+    },
+    {
+      "name": "Sir John Verinder",
+      "aliases": [
+        "the late Sir John Verinder"
+      ],
+      "description": "Deceased husband of Julia, Lady Verinder. An excellent man who needed somebody to manage him, which his wife did effectively. He thrived under her management and lived happily until his death.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [
+        "excellent",
+        "manageable",
+        "good-natured",
+        "agreeable"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "grew fat under his wife's management"
+      },
+      "relationships": [
+        {
+          "to": "Julia, Lady Verinder",
+          "type": "deceased husband"
+        },
+        {
+          "to": "Gabriel Betteredge",
+          "type": "former employer"
+        },
+        {
+          "to": "Miss Rachel",
+          "type": "father"
+        }
+      ]
+    },
+    {
+      "name": "Miss Rachel",
+      "aliases": [],
+      "description": "Daughter of Julia, Lady Verinder and the late Sir John Verinder. She has her own maid, Penelope. The Moonstone was made a present to her.",
+      "first_appearance": "Chapter 3",
+      "role": "supporting",
+      "traits": [],
+      "physical": {
+        "age": "young",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Julia, Lady Verinder",
+          "type": "daughter"
+        },
+        {
+          "to": "Sir John Verinder",
+          "type": "daughter"
+        },
+        {
+          "to": "Penelope",
+          "type": "mistress"
+        }
+      ]
+    },
+    {
+      "name": "Penelope",
+      "aliases": [],
+      "description": "Gabriel Betteredge's daughter who was taken care of under Lady Verinder's eye, sent to school, made into a sharp girl, and promoted to be Miss Rachel's own maid. She critiques her father's writing.",
+      "first_appearance": "Chapter 3",
+      "role": "supporting",
+      "traits": [
+        "sharp",
+        "educated",
+        "critical",
+        "observant"
+      ],
+      "physical": {
+        "age": "adult",
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Gabriel Betteredge",
+          "type": "daughter"
+        },
+        {
+          "to": "Miss Rachel",
+          "type": "maid"
+        },
+        {
+          "to": "Selina Goby",
+          "type": "stepdaughter"
+        }
+      ]
+    },
+    {
+      "name": "Selina Goby",
+      "aliases": [],
+      "description": "Gabriel Betteredge's deceased wife who kept house for him at his cottage before their marriage. She chewed her food well and set her foot down firmly when walking, which Betteredge considered good qualities in a wife following William Cobbett's advice.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [
+        "practical",
+        "stubborn",
+        "economical",
+        "foolish"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": "chewed her food well and set her foot down firmly"
+      },
+      "relationships": [
+        {
+          "to": "Gabriel Betteredge",
+          "type": "deceased wife"
+        },
+        {
+          "to": "Penelope",
+          "type": "stepmother"
+        }
+      ]
+    },
+    {
+      "name": "William Cobbett",
+      "aliases": [
+        "the late William Cobbett"
+      ],
+      "description": "A deceased writer whose advice about picking a wife (ensuring she chews her food well and sets her foot down firmly) influenced Gabriel Betteredge's choice of Selina Goby.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [
+        "wise",
+        "practical"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Mahmoud of Ghizni conquers Somnauth and strips the temple, but the moon-god with the Moonstone escapes",
+      "chapter": 1,
+      "date_in_story": "eleventh century of the Christian era",
+      "characters_involved": [
+        "Mahmoud of Ghizni"
+      ]
+    },
+    {
+      "event": "The moon-god is transported to Benares and a new shrine is built",
+      "chapter": 1,
+      "date_in_story": "eleventh century",
+      "characters_involved": []
+    },
+    {
+      "event": "Vishnu appears in a dream and commands the Moonstone be watched by three priests forever",
+      "chapter": 1,
+      "date_in_story": "eleventh century",
+      "characters_involved": []
+    },
+    {
+      "event": "Aurungzebe's army officer seizes the Moonstone from the temple",
+      "chapter": 1,
+      "date_in_story": "first years of the eighteenth Christian century",
+      "characters_involved": [
+        "Aurungzebe"
+      ]
+    },
+    {
+      "event": "The Moonstone comes into possession of Tippoo Sultan and is set in a dagger handle",
+      "chapter": 1,
+      "date_in_story": "late eighteenth century",
+      "characters_involved": [
+        "Tippoo"
+      ]
+    },
+    {
+      "event": "John Herncastle boasts he will have the Diamond on his finger if the English take Seringapatam",
+      "chapter": 1,
+      "date_in_story": "night before May 4th, 1799",
+      "characters_involved": [
+        "John Herncastle",
+        "narrator"
+      ]
+    },
+    {
+      "event": "The storming of Seringapatam takes place and Tippoo is killed",
+      "chapter": 1,
+      "date_in_story": "May 4th, 1799",
+      "characters_involved": [
+        "John Herncastle",
+        "narrator",
+        "General Baird",
+        "Tippoo"
+      ]
+    },
+    {
+      "event": "The narrator discovers Herncastle with a bloody dagger containing the Moonstone, standing over a dying Indian",
+      "chapter": 1,
+      "date_in_story": "May 4th, 1799",
+      "characters_involved": [
+        "John Herncastle",
+        "narrator"
+      ]
+    },
+    {
+      "event": "General Baird announces that any thief will be hung",
+      "chapter": 1,
+      "date_in_story": "May 5th, 1799",
+      "characters_involved": [
+        "General Baird",
+        "John Herncastle",
+        "narrator"
+      ]
+    },
+    {
+      "event": "The narrator confronts Herncastle about the Indian's death and they cease speaking",
+      "chapter": 1,
+      "date_in_story": "May 5th, 1799",
+      "characters_involved": [
+        "John Herncastle",
+        "narrator"
+      ]
+    },
+    {
+      "event": "The Moonstone is lost in Lady Verinder's Yorkshire house within twelve hours of arrival",
+      "chapter": 2,
+      "date_in_story": "two years ago (approximately 1848)",
+      "characters_involved": [
+        "Julia, Lady Verinder"
+      ]
+    },
+    {
+      "event": "Lady Verinder gives Betteredge his seventh copy of Robinson Crusoe for her birthday",
+      "chapter": 2,
+      "date_in_story": "my lady's last birthday",
+      "characters_involved": [
+        "Julia, Lady Verinder",
+        "Gabriel Betteredge"
+      ]
+    },
+    {
+      "event": "Betteredge opens Robinson Crusoe to the passage about counting the cost before beginning work",
+      "chapter": 2,
+      "date_in_story": "May 20th, 1850",
+      "characters_involved": [
+        "Gabriel Betteredge"
+      ]
+    },
+    {
+      "event": "Mr. Franklin Blake visits Betteredge and asks him to write the story of the Moonstone",
+      "chapter": 2,
+      "date_in_story": "May 21st, 1850",
+      "characters_involved": [
+        "Mr. Franklin Blake",
+        "Gabriel Betteredge"
+      ]
+    },
+    {
+      "event": "Betteredge sits at his writing desk to begin the story",
+      "chapter": 2,
+      "date_in_story": "May 21st, 1850 (two hours after Mr. Franklin left)",
+      "characters_involved": [
+        "Gabriel Betteredge"
+      ]
+    },
+    {
+      "event": "Gabriel Betteredge enters service as page-boy to the three Miss Herncastles at age fifteen",
+      "chapter": 3,
+      "date_in_story": "approximately 1785",
+      "characters_involved": [
+        "Gabriel Betteredge",
+        "Miss Adelaide",
+        "Miss Caroline",
+        "Julia, Lady Verinder",
+        "old lord Herncastle"
+      ]
+    },
+    {
+      "event": "Miss Julia marries Sir John Verinder and Betteredge goes with her to her new household",
+      "chapter": 3,
+      "date_in_story": "approximately 1800-1805",
+      "characters_involved": [
+        "Julia, Lady Verinder",
+        "Sir John Verinder",
+        "Gabriel Betteredge"
+      ]
+    },
+    {
+      "event": "Lady Verinder has Betteredge promoted from his position under the bailiff to replace the bailiff",
+      "chapter": 3,
+      "date_in_story": "some years after marriage",
+      "characters_involved": [
+        "Julia, Lady Verinder",
+        "Sir John Verinder",
+        "Gabriel Betteredge"
+      ]
+    },
+    {
+      "event": "Gabriel Betteredge proposes to marry Selina Goby for economic reasons",
+      "chapter": 3,
+      "date_in_story": "during his time as bailiff",
+      "characters_involved": [
+        "Gabriel Betteredge",
+        "Selina Goby",
+        "Julia, Lady Verinder"
+      ]
+    },
+    {
+      "event": "Betteredge tries to get out of his engagement by offering Selina a feather-bed and fifty shillings",
+      "chapter": 3,
+      "date_in_story": "a week before the wedding",
+      "characters_involved": [
+        "Gabriel Betteredge",
+        "Selina Goby"
+      ]
+    },
+    {
+      "event": "Gabriel Betteredge marries Selina Goby",
+      "chapter": 3,
+      "date_in_story": "during his time as bailiff",
+      "characters_involved": [
+        "Gabriel Betteredge",
+        "Selina Goby"
+      ]
+    },
+    {
+      "event": "Selina Goby dies after five years of marriage, leaving Betteredge with daughter Penelope",
+      "chapter": 3,
+      "date_in_story": "five years after marriage",
+      "characters_involved": [
+        "Gabriel Betteredge",
+        "Selina Goby",
+        "Penelope"
+      ]
+    },
+    {
+      "event": "Sir John Verinder dies, leaving Lady Verinder with daughter Miss Rachel",
+      "chapter": 3,
+      "date_in_story": "shortly after Selina's death",
+      "characters_involved": [
+        "Sir John Verinder",
+        "Julia, Lady Verinder",
+        "Miss Rachel"
+      ]
+    },
+    {
+      "event": "Penelope is promoted to be Miss Rachel's own maid",
+      "chapter": 3,
+      "date_in_story": "when old enough",
+      "characters_involved": [
+        "Penelope",
+        "Miss Rachel",
+        "Julia, Lady Verinder"
+      ]
+    },
+    {
+      "event": "Lady Verinder visits Betteredge with a woollen waistcoat and persuades him to become house-steward",
+      "chapter": 3,
+      "date_in_story": "Christmas 1847",
+      "characters_involved": [
+        "Julia, Lady Verinder",
+        "Gabriel Betteredge"
+      ]
+    },
+    {
+      "event": "Betteredge consults Robinson Crusoe and decides to accept the position of house-steward",
+      "chapter": 3,
+      "date_in_story": "night after Christmas 1847",
+      "characters_involved": [
+        "Gabriel Betteredge"
+      ]
+    },
+    {
+      "event": "Penelope critiques Betteredge's writing and points out he's telling his own story instead of the Diamond's",
+      "chapter": 3,
+      "date_in_story": "May 21st, 1850",
+      "characters_involved": [
+        "Penelope",
+        "Gabriel Betteredge"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "Seringapatam",
+      "description": "An Indian city with a palace containing treasuries and an armoury. Site of a violent British military assault where soldiers forded a river, breached walls, crossed ditches, and fought through the town.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Palace of Seringapatam",
+      "description": "Contains a treasury filled with gold and jewels, and an armoury. The courtyard outside the treasury was the scene of riot and confusion during the plundering.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Somnauth",
+      "description": "A holy city containing a famous temple that was the shrine of Hindoo pilgrimage and wonder of the Eastern world, later stripped of treasures by Mohammedan conquerors.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Benares",
+      "description": "The second sacred city of India where a new shrine was built with a hall inlaid with precious stones and roof supported by pillars of gold.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "British military camp",
+      "description": "The location where soldiers gathered before the assault, sharing stories and engaging in disputes about the Moonstone legend.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Lady Verinder's house in Yorkshire",
+      "description": "The location where the Moonstone was lost within twelve hours of its arrival, two years prior to the current narrative.",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Betteredge's writing desk",
+      "description": "Where Betteredge sits to begin writing his account of the Moonstone story, after being asked by Mr. Franklin Blake.",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "old lord Herncastle's estate",
+      "description": "The ancestral home where the three beautiful Miss Herncastles lived and where Gabriel Betteredge first entered service as a page-boy at age fifteen.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Sir John Verinder's house and lands",
+      "description": "The estate where Lady Verinder moved after marriage, including farms and out-of-door work that interested both her and Betteredge. Contains bailiff operations and estate management.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Betteredge's cottage",
+      "description": "A little cottage provided to Betteredge on the Verinder estate where he lived with Selina Goby as housekeeper and later wife. Where Lady Verinder visited him for tea in 1847.",
+      "chapter_introduced": 3
+    }
+  ],
+  "world_rules": [
+    "The Moonstone carries a curse that brings disaster to any presumptuous mortal who lays hands on it and all of his house and name who receive it after him",
+    "The Moonstone must be watched by three priests in turn, night and day, to the end of the generations of men",
+    "British military law dictates that any soldier caught thefting during conquest shall be hung",
+    "Military discipline requires soldiers to follow orders to prevent plunder and maintain order",
+    "Robinson Crusoe serves as an infallible guide and source of wisdom for life's challenges",
+    "When choosing a wife, ensure she chews her food well and sets her foot down firmly when she walks (according to William Cobbett)",
+    "Compensation to the woman is required by English law when a man breaks an engagement",
+    "Married life involves constant misunderstandings and getting in each other's way on the stairs"
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "formal and documentary",
+    "style_notes": "Written as a formal family document with elaborate historical exposition, uses archaic formal language typical of 19th century literature, includes extensive background narrative before reaching the main events"
+  },
+  "plot_threads": [
+    {
+      "thread": "Did John Herncastle murder the Indians to steal the Moonstone, and what are the consequences of this theft?",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Will the curse of the Moonstone affect Herncastle and future possessors of the diamond?",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What will happen to the relationship between the narrator and Herncastle given their falling out?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "How does the prologue connect to the main story involving Gabriel Betteredge and Lady Verinder in 1848?",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What exactly happened during the twelve hours when the Moonstone was lost in Lady Verinder's house?",
+      "status": "open",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "Will Betteredge be able to successfully write his account of the Moonstone events?",
+      "status": "progressing",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "How will the collaborative narrative approach reveal the truth about the Moonstone?",
+      "status": "open",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "Which innocent people suffered under suspicion regarding the Moonstone, and will their names be cleared?",
+      "status": "open",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "How is the Moonstone connected to Miss Rachel, and why was it given to her as a present?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Will Betteredge overcome his tendency to tell his own story instead of focusing on the Diamond?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    }
+  ]
+}

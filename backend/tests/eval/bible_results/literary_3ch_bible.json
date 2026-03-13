@@ -1,0 +1,1073 @@
+{
+  "characters": [
+    {
+      "name": "Nick Carraway",
+      "aliases": [
+        "Nick"
+      ],
+      "description": "The narrator, a young Midwesterner who has come East to learn the bond business. He is Daisy's second cousin once removed and serves as the story's observer. Works at Probity Trust and considers himself one of the few honest people he has ever known.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "reserved",
+        "judgmental yet tolerant",
+        "observant",
+        "literary",
+        "restless",
+        "inexperienced with drinking",
+        "honest",
+        "slow-thinking",
+        "conscientious",
+        "romantic",
+        "lonely"
+      ],
+      "physical": {
+        "age": "around 25-26",
+        "gender": "male",
+        "appearance": "supposedly resembles his grandfather's brother"
+      },
+      "relationships": [
+        {
+          "to": "Daisy Buchanan",
+          "type": "second cousin once removed"
+        },
+        {
+          "to": "Tom Buchanan",
+          "type": "college acquaintance"
+        },
+        {
+          "to": "Jay Gatsby",
+          "type": "neighbor"
+        },
+        {
+          "to": "Myrtle Wilson",
+          "type": "acquaintance"
+        },
+        {
+          "to": "Catherine",
+          "type": "acquaintance"
+        },
+        {
+          "to": "Chester McKee",
+          "type": "acquaintance"
+        },
+        {
+          "to": "Lucille McKee",
+          "type": "acquaintance"
+        },
+        {
+          "to": "Jordan Baker",
+          "type": "romantic interest"
+        },
+        {
+          "to": "girl in Jersey City",
+          "type": "former affair"
+        },
+        {
+          "to": "girl back home",
+          "type": "former romantic interest"
+        }
+      ]
+    },
+    {
+      "name": "Jay Gatsby",
+      "aliases": [
+        "Gatsby",
+        "Mr. Gatsby"
+      ],
+      "description": "Nick's mysterious neighbor who owns a colossal mansion and throws elaborate parties. Served in the First Division during the war. Claims to be an Oxford man, though Jordan doubts this. He possesses an extraordinary gift for hope and romantic readiness, and has a rare, reassuring smile.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "hopeful",
+        "romantic",
+        "sensitive to life's promises",
+        "mysterious",
+        "generous",
+        "formal",
+        "careful with words",
+        "elegant",
+        "correct",
+        "doesn't drink"
+      ],
+      "physical": {
+        "age": "a year or two over thirty",
+        "gender": "male",
+        "appearance": "tanned skin drawn attractively tight on his face, short hair trimmed daily, elegant young roughneck"
+      },
+      "relationships": [
+        {
+          "to": "Nick Carraway",
+          "type": "neighbor"
+        },
+        {
+          "to": "Kaiser Wilhelm",
+          "type": "alleged nephew or cousin"
+        },
+        {
+          "to": "Jordan Baker",
+          "type": "acquaintance"
+        }
+      ]
+    },
+    {
+      "name": "Tom Buchanan",
+      "aliases": [
+        "Tom"
+      ],
+      "description": "Daisy's husband, a wealthy and physically powerful man from Nick's college days. He was a famous football player at Yale and comes from enormous wealth.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "supercilious",
+        "aggressive",
+        "racist",
+        "restless",
+        "contemptuous",
+        "physically imposing",
+        "violent",
+        "manipulative",
+        "condescending"
+      ],
+      "physical": {
+        "age": "thirty",
+        "gender": "male",
+        "appearance": "sturdy straw-haired man with a hard mouth, arrogant eyes, and an enormously powerful body"
+      },
+      "relationships": [
+        {
+          "to": "Daisy Buchanan",
+          "type": "husband"
+        },
+        {
+          "to": "Nick Carraway",
+          "type": "college acquaintance"
+        },
+        {
+          "to": "Myrtle Wilson",
+          "type": "mistress"
+        },
+        {
+          "to": "George Wilson",
+          "type": "customer/acquaintance"
+        }
+      ]
+    },
+    {
+      "name": "Daisy Buchanan",
+      "aliases": [
+        "Daisy"
+      ],
+      "description": "Nick's second cousin, a beautiful and charming young woman married to Tom. She has a distinctive voice and manner that captivates men, though she appears cynical and troubled.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "charming",
+        "cynical",
+        "dramatic",
+        "manipulative",
+        "restless",
+        "sophisticated"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": "sad and lovely face with bright eyes and a bright passionate mouth"
+      },
+      "relationships": [
+        {
+          "to": "Tom Buchanan",
+          "type": "husband"
+        },
+        {
+          "to": "Nick Carraway",
+          "type": "second cousin once removed"
+        },
+        {
+          "to": "three-year-old daughter",
+          "type": "mother"
+        }
+      ]
+    },
+    {
+      "name": "Jordan Baker",
+      "aliases": [
+        "Miss Baker",
+        "Jordan"
+      ],
+      "description": "A professional golfer and Daisy's friend, known for her athletic career and cool, skeptical demeanor. She will be playing in a tournament at Westchester. Has a history of dishonesty, including an incident where she allegedly moved her ball during a tournament.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "self-sufficient",
+        "skeptical",
+        "cool",
+        "athletic",
+        "contemptuous",
+        "incurably dishonest",
+        "careful",
+        "haughty",
+        "bored",
+        "jaunty",
+        "careless driver"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": "slender, small-breasted girl with erect carriage, grey sun-strained eyes, and autumn-leaf yellow hair"
+      },
+      "relationships": [
+        {
+          "to": "Daisy Buchanan",
+          "type": "friend"
+        },
+        {
+          "to": "Jay Gatsby",
+          "type": "acquaintance"
+        },
+        {
+          "to": "Nick Carraway",
+          "type": "romantic interest"
+        }
+      ]
+    },
+    {
+      "name": "Nick's father",
+      "aliases": [],
+      "description": "Nick's father who gave him advice about not criticizing others and who runs the family hardware business.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [
+        "wise",
+        "reserved",
+        "communicative in a reserved way"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Nick Carraway",
+          "type": "father"
+        }
+      ]
+    },
+    {
+      "name": "Demaine",
+      "aliases": [
+        "the oil man"
+      ],
+      "description": "The previous owner of Tom's mansion, described as an oil man.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Goddard",
+      "aliases": [],
+      "description": "Author of 'The Rise of the Coloured Empires,' a book Tom references to support his racist views.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Myrtle Wilson",
+      "aliases": [
+        "Mrs. Wilson",
+        "Myrtle"
+      ],
+      "description": "Tom Buchanan's mistress, wife of garage owner George Wilson. A sensual woman in her mid-thirties who transforms her personality depending on her surroundings.",
+      "first_appearance": "Chapter 2",
+      "role": "supporting",
+      "traits": [
+        "sensual",
+        "vital",
+        "theatrical",
+        "affected",
+        "materialistic",
+        "dissatisfied",
+        "transformative"
+      ],
+      "physical": {
+        "age": "middle thirties",
+        "gender": "female",
+        "appearance": "faintly stout but carries her flesh sensuously, thickish figure, no beauty but immediately perceptible vitality"
+      },
+      "relationships": [
+        {
+          "to": "George Wilson",
+          "type": "wife"
+        },
+        {
+          "to": "Tom Buchanan",
+          "type": "mistress"
+        },
+        {
+          "to": "Catherine",
+          "type": "sister"
+        },
+        {
+          "to": "Nick Carraway",
+          "type": "acquaintance"
+        }
+      ]
+    },
+    {
+      "name": "George Wilson",
+      "aliases": [
+        "Wilson",
+        "George B. Wilson"
+      ],
+      "description": "Owner of a garage in the valley of ashes, married to Myrtle Wilson. A spiritless, struggling businessman unaware of his wife's affair.",
+      "first_appearance": "Chapter 2",
+      "role": "supporting",
+      "traits": [
+        "spiritless",
+        "anaemic",
+        "hopeful",
+        "unprosperous",
+        "naive",
+        "subservient"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "blond, spiritless man, anaemic, and faintly handsome with light blue eyes"
+      },
+      "relationships": [
+        {
+          "to": "Myrtle Wilson",
+          "type": "husband"
+        },
+        {
+          "to": "Tom Buchanan",
+          "type": "customer/acquaintance"
+        }
+      ]
+    },
+    {
+      "name": "Catherine",
+      "aliases": [],
+      "description": "Myrtle Wilson's sister, a worldly woman of about thirty who lives at a hotel with a female friend.",
+      "first_appearance": "Chapter 2",
+      "role": "supporting",
+      "traits": [
+        "worldly",
+        "gossipy",
+        "manipulative",
+        "well-traveled",
+        "observant"
+      ],
+      "physical": {
+        "age": "about thirty",
+        "gender": "female",
+        "appearance": "slender with solid, sticky bob of red hair, complexion powdered milky white, plucked and redrawn eyebrows, wears pottery bracelets"
+      },
+      "relationships": [
+        {
+          "to": "Myrtle Wilson",
+          "type": "sister"
+        },
+        {
+          "to": "Nick Carraway",
+          "type": "acquaintance"
+        }
+      ]
+    },
+    {
+      "name": "Chester McKee",
+      "aliases": [
+        "Mr. McKee",
+        "Chester"
+      ],
+      "description": "A photographer who lives in the apartment below Tom and Myrtle's, described as pale and feminine. He works in the 'artistic game' and has photographed his wife many times.",
+      "first_appearance": "Chapter 2",
+      "role": "supporting",
+      "traits": [
+        "artistic",
+        "pale",
+        "feminine",
+        "respectful",
+        "ambitious",
+        "sleepy"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "pale, feminine man"
+      },
+      "relationships": [
+        {
+          "to": "Lucille McKee",
+          "type": "husband"
+        },
+        {
+          "to": "Nick Carraway",
+          "type": "acquaintance"
+        }
+      ]
+    },
+    {
+      "name": "Lucille McKee",
+      "aliases": [
+        "Mrs. McKee"
+      ],
+      "description": "Chester McKee's wife, who has been photographed by her husband 127 times since their marriage.",
+      "first_appearance": "Chapter 2",
+      "role": "supporting",
+      "traits": [
+        "shrill",
+        "languid",
+        "handsome",
+        "horrible",
+        "proud"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": "shrill, languid, handsome, and horrible"
+      },
+      "relationships": [
+        {
+          "to": "Chester McKee",
+          "type": "wife"
+        },
+        {
+          "to": "Nick Carraway",
+          "type": "acquaintance"
+        }
+      ]
+    },
+    {
+      "name": "Doctor T. J. Eckleburg",
+      "aliases": [
+        "the oculist"
+      ],
+      "description": "An oculist who created the famous billboard advertisement with giant eyes overlooking the valley of ashes, then apparently moved away or died.",
+      "first_appearance": "Chapter 2",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Kaiser Wilhelm",
+      "aliases": [],
+      "description": "German Kaiser who is allegedly related to Jay Gatsby according to Catherine's gossip.",
+      "first_appearance": "Chapter 2",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Jay Gatsby",
+          "type": "alleged nephew or cousin"
+        }
+      ]
+    },
+    {
+      "name": "Mrs. Eberhardt",
+      "aliases": [],
+      "description": "A woman who examines people's feet in their homes for medical purposes.",
+      "first_appearance": "Chapter 2",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Owl Eyes",
+      "aliases": [
+        "the man with owl-eyed spectacles"
+      ],
+      "description": "A stout, middle-aged man with enormous owl-eyed spectacles who is found in Gatsby's library examining the books. He is amazed to find they are real. Later crashes a car leaving the party.",
+      "first_appearance": "Chapter 3",
+      "role": "supporting",
+      "traits": [
+        "drunk",
+        "amazed",
+        "observant",
+        "poor driver",
+        "philosophical"
+      ],
+      "physical": {
+        "age": "middle-aged",
+        "gender": "male",
+        "appearance": "stout with enormous owl-eyed spectacles"
+      },
+      "relationships": [
+        {
+          "to": "Mrs. Claud Roosevelt",
+          "type": "brought by"
+        }
+      ]
+    },
+    {
+      "name": "Mrs. Claud Roosevelt",
+      "aliases": [],
+      "description": "A woman who brought Owl Eyes to Gatsby's party.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Lucille",
+      "aliases": [],
+      "description": "A party guest who attends Gatsby's parties regularly. She once tore her gown and Gatsby replaced it with a new one worth $265.",
+      "first_appearance": "Chapter 3",
+      "role": "supporting",
+      "traits": [
+        "carefree",
+        "talkative",
+        "gossipy"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Vladmir Tostoff",
+      "aliases": [],
+      "description": "A composer whose 'Jazz History of the World' was performed at Carnegie Hall and at Gatsby's party.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Mrs. Sigourney Howard",
+      "aliases": [],
+      "description": "Jordan Baker's aunt, under whose name Jordan can be reached in the phone book.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Jordan Baker",
+          "type": "aunt"
+        }
+      ]
+    },
+    {
+      "name": "girl in Jersey City",
+      "aliases": [],
+      "description": "A girl who worked in the accounting department and had a brief affair with Nick. Her protective brother ended the relationship.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": null
+      },
+      "relationships": [
+        {
+          "to": "Nick Carraway",
+          "type": "former affair"
+        }
+      ]
+    },
+    {
+      "name": "girl back home",
+      "aliases": [],
+      "description": "A girl from Nick's hometown with whom he had an understanding. Nick wrote her letters signed 'Love, Nick' but planned to break it off. She developed a moustache of perspiration when playing tennis.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": "female",
+        "appearance": "faint moustache of perspiration on upper lip when playing tennis"
+      },
+      "relationships": [
+        {
+          "to": "Nick Carraway",
+          "type": "former romantic interest"
+        }
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "event": "Nick's father gives him advice about not criticizing others",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Nick Carraway",
+        "Nick's father"
+      ]
+    },
+    {
+      "event": "Nick graduates from New Haven",
+      "chapter": 1,
+      "date_in_story": "1915",
+      "characters_involved": [
+        "Nick Carraway"
+      ]
+    },
+    {
+      "event": "Nick participates in World War I",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "Nick Carraway"
+      ]
+    },
+    {
+      "event": "Nick comes East to learn the bond business",
+      "chapter": 1,
+      "date_in_story": "spring of 1922",
+      "characters_involved": [
+        "Nick Carraway"
+      ]
+    },
+    {
+      "event": "Nick rents a house in West Egg",
+      "chapter": 1,
+      "date_in_story": "spring of 1922",
+      "characters_involved": [
+        "Nick Carraway"
+      ]
+    },
+    {
+      "event": "Nick drives to East Egg for dinner at the Buchanans",
+      "chapter": 1,
+      "date_in_story": "a warm windy evening",
+      "characters_involved": [
+        "Nick Carraway",
+        "Tom Buchanan",
+        "Daisy Buchanan",
+        "Jordan Baker"
+      ]
+    },
+    {
+      "event": "Tom receives phone calls during dinner from his mistress",
+      "chapter": 1,
+      "date_in_story": "same evening",
+      "characters_involved": [
+        "Tom Buchanan",
+        "unnamed woman in New York"
+      ]
+    },
+    {
+      "event": "Nick sees Gatsby reaching toward the green light",
+      "chapter": 1,
+      "date_in_story": "same evening",
+      "characters_involved": [
+        "Nick Carraway",
+        "Jay Gatsby"
+      ]
+    },
+    {
+      "event": "Myrtle and Tom first meet on a train to New York",
+      "chapter": 2,
+      "date_in_story": null,
+      "characters_involved": [
+        "Myrtle Wilson",
+        "Tom Buchanan"
+      ]
+    },
+    {
+      "event": "Catherine visits Monte Carlo with a friend",
+      "chapter": 2,
+      "date_in_story": "last year",
+      "characters_involved": [
+        "Catherine"
+      ]
+    },
+    {
+      "event": "Catherine attends a party at Gatsby's house",
+      "chapter": 2,
+      "date_in_story": "about a month ago",
+      "characters_involved": [
+        "Catherine",
+        "Jay Gatsby"
+      ]
+    },
+    {
+      "event": "Tom and Nick take the train to New York and stop at Wilson's garage",
+      "chapter": 2,
+      "date_in_story": "a few days before the Fourth of July",
+      "characters_involved": [
+        "Tom Buchanan",
+        "Nick Carraway",
+        "George Wilson",
+        "Myrtle Wilson"
+      ]
+    },
+    {
+      "event": "Tom, Nick, and Myrtle go to New York and buy a dog",
+      "chapter": 2,
+      "date_in_story": "same afternoon",
+      "characters_involved": [
+        "Tom Buchanan",
+        "Nick Carraway",
+        "Myrtle Wilson"
+      ]
+    },
+    {
+      "event": "Party at Tom and Myrtle's apartment with the McKees and Catherine",
+      "chapter": 2,
+      "date_in_story": "same afternoon/evening",
+      "characters_involved": [
+        "Tom Buchanan",
+        "Myrtle Wilson",
+        "Nick Carraway",
+        "Catherine",
+        "Chester McKee",
+        "Lucille McKee"
+      ]
+    },
+    {
+      "event": "Tom breaks Myrtle's nose during an argument about Daisy",
+      "chapter": 2,
+      "date_in_story": "toward midnight",
+      "characters_involved": [
+        "Tom Buchanan",
+        "Myrtle Wilson"
+      ]
+    },
+    {
+      "event": "Nick leaves the apartment with Mr. McKee",
+      "chapter": 2,
+      "date_in_story": "after midnight",
+      "characters_involved": [
+        "Nick Carraway",
+        "Chester McKee"
+      ]
+    },
+    {
+      "event": "Nick waits for the 4 o'clock train at Pennsylvania Station",
+      "chapter": 2,
+      "date_in_story": "early morning",
+      "characters_involved": [
+        "Nick Carraway"
+      ]
+    },
+    {
+      "event": "Jordan Baker loses in golf tournament finals",
+      "chapter": 3,
+      "date_in_story": "the week before",
+      "characters_involved": [
+        "Jordan Baker"
+      ]
+    },
+    {
+      "event": "Gatsby sends Nick a formal invitation to his party",
+      "chapter": 3,
+      "date_in_story": "Saturday morning",
+      "characters_involved": [
+        "Jay Gatsby",
+        "Nick Carraway"
+      ]
+    },
+    {
+      "event": "Nick attends Gatsby's party and meets his host",
+      "chapter": 3,
+      "date_in_story": "Saturday evening",
+      "characters_involved": [
+        "Nick Carraway",
+        "Jay Gatsby",
+        "Jordan Baker",
+        "Owl Eyes",
+        "Lucille"
+      ]
+    },
+    {
+      "event": "Jordan has private conversation with Gatsby",
+      "chapter": 3,
+      "date_in_story": "same evening",
+      "characters_involved": [
+        "Jordan Baker",
+        "Jay Gatsby"
+      ]
+    },
+    {
+      "event": "Owl Eyes crashes car leaving Gatsby's party",
+      "chapter": 3,
+      "date_in_story": "same evening",
+      "characters_involved": [
+        "Owl Eyes"
+      ]
+    },
+    {
+      "event": "Nick begins working at Probity Trust",
+      "chapter": 3,
+      "date_in_story": "summer 1922",
+      "characters_involved": [
+        "Nick Carraway"
+      ]
+    },
+    {
+      "event": "Nick has brief affair with girl from Jersey City",
+      "chapter": 3,
+      "date_in_story": "summer 1922",
+      "characters_involved": [
+        "Nick Carraway",
+        "girl in Jersey City"
+      ]
+    },
+    {
+      "event": "Nick's affair ends when girl goes on vacation in July",
+      "chapter": 3,
+      "date_in_story": "July 1922",
+      "characters_involved": [
+        "Nick Carraway",
+        "girl in Jersey City"
+      ]
+    },
+    {
+      "event": "Jordan Baker moves her ball during golf tournament semifinals",
+      "chapter": 3,
+      "date_in_story": "past",
+      "characters_involved": [
+        "Jordan Baker"
+      ]
+    },
+    {
+      "event": "Nick and Jordan attend house-party at Warwick",
+      "chapter": 3,
+      "date_in_story": "midsummer 1922",
+      "characters_involved": [
+        "Nick Carraway",
+        "Jordan Baker"
+      ]
+    },
+    {
+      "event": "Jordan leaves borrowed car in rain and lies about it",
+      "chapter": 3,
+      "date_in_story": "at Warwick house-party",
+      "characters_involved": [
+        "Jordan Baker"
+      ]
+    },
+    {
+      "event": "Nick and Jordan have conversation about careless driving",
+      "chapter": 3,
+      "date_in_story": "at Warwick house-party",
+      "characters_involved": [
+        "Nick Carraway",
+        "Jordan Baker"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "West Egg",
+      "description": "The less fashionable of two egg-shaped land formations on Long Island, where Nick rents a small house for eighty dollars a month. It's squeezed between enormous mansions and offers a view of the water.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "East Egg",
+      "description": "The more fashionable of the two egg-shaped formations, where the white palaces of the wealthy glitter along the water. Home to the Buchanans' elaborate Georgian Colonial mansion.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Gatsby's mansion",
+      "description": "A colossal mansion next to Nick's house, a factual imitation of a H\u00f4tel de Ville in Normandy with a tower, new ivy, marble swimming pool, and more than forty acres of lawn and garden.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Buchanan mansion",
+      "description": "An elaborate cheerful red-and-white Georgian Colonial mansion overlooking the bay, with a quarter-mile lawn running from beach to front door, complete with sundials, brick walks, and burning gardens.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Middle Western city",
+      "description": "Nick's hometown where his family, the Carraways, have been prominent and well-to-do for three generations, and where the family hardware business operates.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "Valley of ashes",
+      "description": "A desolate area of land between West Egg and New York where ashes grow like wheat into ridges and hills. Home to ash-grey men who work among the desolate landscape, watched over by the eyes of Doctor T. J. Eckleburg.",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Wilson's garage",
+      "description": "George B. Wilson's unprosperous garage in the valley of ashes, part of a small block of yellow brick buildings. Contains a dust-covered Ford and serves as Wilson's business for car repairs and sales.",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Doctor Eckleburg billboard",
+      "description": "A giant billboard featuring enormous blue eyes behind yellow spectacles, one yard high retinas, overlooking the valley of ashes. Created by an oculist to advertise his practice.",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Tom and Myrtle's apartment",
+      "description": "A small apartment on the top floor at 158th Street in a white apartment building. Crowded with oversized tapestried furniture depicting Versailles scenes, contains living room, dining room, bedroom and bath.",
+      "chapter_introduced": 2
+    },
+    {
+      "name": "Gatsby's library",
+      "description": "A high Gothic library in Gatsby's mansion, panelled with carved English oak and probably transported complete from some ruin overseas. Contains real books with actual pages.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Probity Trust",
+      "description": "The bond business where Nick works in lower New York, among the white chasms of the financial district.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Yale Club",
+      "description": "A club in New York where Nick takes dinner and studies investments and securities in the library. He finds it the gloomiest event of his day.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Warwick",
+      "description": "Location of a house-party that Nick and Jordan attended together during midsummer.",
+      "chapter_introduced": 3
+    }
+  ],
+  "world_rules": [
+    "Social class and wealth create distinct geographical and social divisions between East Egg and West Egg",
+    "The wealthy elite maintain certain codes of behavior and social expectations",
+    "Racial hierarchies and theories about Nordic superiority are accepted topics of conversation among the upper class",
+    "Marriage does not preclude extramarital affairs, which are conducted with a degree of social tolerance",
+    "The valley of ashes represents the moral and social wasteland between the wealthy areas and New York City",
+    "Physical violence is used to maintain control in relationships, particularly by men over women",
+    "Social deception and elaborate lies are commonly used to justify personal relationships and desires",
+    "Class distinctions affect behavior and personality, with people adopting different personas in different social settings",
+    "Gatsby's parties are open to anyone - people attend without formal invitations and often without meeting the host",
+    "Wealthy hosts are expected to be extraordinarily generous, replacing damaged items for guests without question",
+    "Rumors and speculation about wealthy individuals spread rapidly through party gossip",
+    "Professional dishonesty and rule-bending are tolerated if done with sufficient skill and discretion",
+    "The wealthy maintain elaborate facades - even Gatsby's books are real rather than fake, showing attention to authentic detail"
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "literary and introspective",
+    "style_notes": "sophisticated vocabulary, long flowing sentences, frequent use of metaphor and symbolism, retrospective narration with philosophical observations"
+  },
+  "plot_threads": [
+    {
+      "thread": "What is the true nature and background of the mysterious Jay Gatsby?",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "How will Tom's affair with the woman in New York affect his marriage to Daisy?",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "What is the significance of the green light that Gatsby reaches toward?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Will Nick become romantically involved with Jordan Baker as Daisy suggests?",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What was the 'critical, unpleasant story' Nick heard about Jordan Baker?",
+      "status": "resolved",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What caused Nick's disillusionment that temporarily closed out his interest in human nature?",
+      "status": "open",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 1
+    },
+    {
+      "thread": "Is Gatsby really related to Kaiser Wilhelm, and where does his wealth actually come from?",
+      "status": "progressing",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Will Tom and Myrtle's relationship continue despite the violence and complications?",
+      "status": "open",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "How will George Wilson's ignorance of his wife's affair ultimately be resolved?",
+      "status": "open",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "What role will the valley of ashes and its symbolic wasteland play in the larger story?",
+      "status": "open",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "What did Gatsby tell Jordan during their private conversation?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What is the truth behind the various rumors about Gatsby (killer, German spy, etc.)?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "How will Nick's growing relationship with Jordan develop given her dishonesty?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What is Nick's 'tangle back home' that he needs to resolve?",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    }
+  ]
+}

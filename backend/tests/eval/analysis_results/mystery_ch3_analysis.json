@@ -1,0 +1,45 @@
+{
+  "issues": [
+    {
+      "type": "genre_convention",
+      "severity": "warning",
+      "chapter_location": "end",
+      "description": "Chapter ends with narrator acknowledging he's telling his own story instead of the Diamond's story, but no clues about the central mystery are planted in this chapter",
+      "original_text": "She says what I have done so far isn't in the least what I was wanted to do. I am asked to tell the story of the Diamond and, instead of that, I have been telling the story of my own self.",
+      "suggestion": "Include at least one detail that connects Betteredge's background to the Diamond mystery - perhaps how his position gave him knowledge of the house layout, or mention suspicious events he witnessed"
+    },
+    {
+      "type": "pacing",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "Extended exposition about Betteredge's marriage to Selina Goby, while characterizing, doesn't advance the mystery plot",
+      "original_text": "The woman I fixed my eye on, was the woman who kept house for me at my cottage. Her name was Selina Goby... After five years of misunderstandings on the stairs, it pleased an all-wise Providence to relieve us of each other by taking my wife.",
+      "suggestion": "Condense the marriage backstory or weave in details that will be relevant to the Diamond mystery"
+    }
+  ],
+  "pacing": {
+    "scene_count": 1,
+    "scene_types": [
+      "exposition"
+    ],
+    "tension_arc": "flat",
+    "characters_present": [
+      "Gabriel Betteredge",
+      "Penelope"
+    ],
+    "chapter_summary": "Gabriel Betteredge continues his backstory, detailing his service to the three Miss Herncastles, his move to Sir John Verinder's estate with Miss Julia, his promotion to bailiff, his pragmatic marriage to Selina Goby, her death after five years, and his eventual promotion to house-steward in 1847. His daughter Penelope critiques his writing, pointing out he's telling his own story rather than the Diamond's story."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Character backstory establishes narrator's credibility and position within the household",
+      "Setting details about the estate and Betteredge's role provide foundation for future investigation"
+    ],
+    "conventions_missed": [
+      "No clues planted related to the central mystery",
+      "No expansion of suspect pool or investigation methods",
+      "No new questions raised about the Diamond theft",
+      "Missing connection between backstory and the mystery events"
+    ],
+    "genre_fit_score": "weak"
+  }
+}

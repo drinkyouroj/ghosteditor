@@ -1,0 +1,482 @@
+{
+  "characters": [
+    {
+      "name": "The Time Traveller",
+      "aliases": [],
+      "description": "An inventor and scientist who theorizes about four-dimensional geometry and claims to have built a time machine. He is passionate and animated when discussing his theories. He has spent two years building a working model time machine and has a larger version nearly complete. He is perceived as being too clever to be believed, with subtle reserves and ingenuity behind his frankness. Returns from what appears to be an actual time travel journey in disheveled condition.",
+      "first_appearance": "Chapter 1",
+      "role": "protagonist",
+      "traits": [
+        "passionate",
+        "intellectual",
+        "confident",
+        "persuasive",
+        "meticulous",
+        "determined",
+        "whimsical",
+        "mysterious",
+        "unpredictable",
+        "haggard",
+        "weary"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "pale grey eyes that shine and twinkle, usually pale face that becomes flushed and animated when excited, lean forefinger, queer broad head. After his journey: dusty and dirty coat smeared with green, disordered and greyer hair, ghastly pale face, brown half-healed cut on chin, haggard and drawn expression, walks with a limp, bloodstained and tattered socks"
+      },
+      "relationships": []
+    },
+    {
+      "name": "Filby",
+      "aliases": [],
+      "description": "An argumentative person who challenges the Time Traveller's theories and remains skeptical throughout the discussion. He responds to the time machine demonstration with profanity and subtle mockery. He is described as someone a pork-butcher could understand, implying he is straightforward and predictable.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "argumentative",
+        "skeptical",
+        "stubborn",
+        "sarcastic",
+        "straightforward",
+        "predictable"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "red hair"
+      },
+      "relationships": []
+    },
+    {
+      "name": "The Psychologist",
+      "aliases": [],
+      "description": "A guest who engages with the Time Traveller's theories and shows curiosity about the practical applications of time travel. He is the one who actually operates the lever that sends the model time machine away, and provides psychological explanations for why a time-traveling object might not be visible. He attends the second dinner and gives a wooden account of the previous week's demonstration.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "curious",
+        "analytical",
+        "skeptical",
+        "helpful",
+        "thoughtful"
+      ],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "The Very Young Man",
+      "aliases": [],
+      "description": "A young guest who shows enthusiasm for the possibilities of time travel, particularly its practical applications.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "enthusiastic",
+        "imaginative",
+        "young"
+      ],
+      "physical": {
+        "age": "very young",
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "The Provincial Mayor",
+      "aliases": [],
+      "description": "A guest who struggles to understand the Time Traveller's theories about four-dimensional geometry. He attempts to remain impartial when evaluating objections to the time travel demonstration.",
+      "first_appearance": "Chapter 1",
+      "role": "minor",
+      "traits": [
+        "confused",
+        "thoughtful",
+        "diplomatic"
+      ],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "The Medical Man",
+      "aliases": [
+        "The Doctor"
+      ],
+      "description": "A guest who questions the Time Traveller's theories and provides counterarguments about movement in space and time. He examines the time machine model closely and expresses skepticism about the seriousness of the demonstration, comparing it to previous tricks. He claims to have seen a similar trick at T\u00fcbingen. He takes charge when the Time Traveller is absent and shows concern for his condition.",
+      "first_appearance": "Chapter 1",
+      "role": "supporting",
+      "traits": [
+        "analytical",
+        "skeptical",
+        "practical",
+        "observant",
+        "cautious",
+        "responsible",
+        "caring"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "Professor Simon Newcomb",
+      "aliases": [],
+      "description": "A mathematician mentioned as having recently expounded Four-Dimensional geometry to the New York Mathematical Society.",
+      "first_appearance": "Chapter 1",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "The Editor",
+      "aliases": [],
+      "description": "Editor of a well-known daily paper who attends the second dinner. He is skeptical about time travel, makes jokes about it, and is eager for a story. He thinks in headlines and is described as one of the new kind of journalist - joyous and irreverent.",
+      "first_appearance": "Chapter 3",
+      "role": "supporting",
+      "traits": [
+        "skeptical",
+        "humorous",
+        "irreverent",
+        "opportunistic",
+        "joyous",
+        "incredulous"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": null
+      },
+      "relationships": []
+    },
+    {
+      "name": "The Journalist",
+      "aliases": [],
+      "description": "A journalist who attends the second dinner and is highly skeptical of time travel claims. He joins the Editor in ridiculing the concept and tries to relieve tension by telling anecdotes. He is described as one of the new kind of journalist - joyous and irreverent.",
+      "first_appearance": "Chapter 3",
+      "role": "supporting",
+      "traits": [
+        "skeptical",
+        "irreverent",
+        "humorous",
+        "joyous",
+        "incredulous"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "his face was illuminated by the lamp"
+      },
+      "relationships": []
+    },
+    {
+      "name": "The Silent Man",
+      "aliases": [
+        "Blank"
+      ],
+      "description": "A quiet, shy man with a beard who attends the second dinner but never speaks all evening. He appears nervous and clumsy, drinking champagne regularly out of nervousness. He is startled when the Time Traveller rings his glass.",
+      "first_appearance": "Chapter 3",
+      "role": "minor",
+      "traits": [
+        "quiet",
+        "shy",
+        "nervous",
+        "clumsy",
+        "silent"
+      ],
+      "physical": {
+        "age": null,
+        "gender": "male",
+        "appearance": "has a beard, legs illuminated from knees downward"
+      },
+      "relationships": []
+    },
+    {
+      "name": "Hettie Potter",
+      "aliases": [],
+      "description": "A person mentioned in anecdotes told by the Journalist to relieve tension during dinner.",
+      "first_appearance": "Chapter 3",
+      "role": "mentioned",
+      "traits": [],
+      "physical": {
+        "age": null,
+        "gender": null,
+        "appearance": null
+      },
+      "relationships": []
+    }
+  ],
+  "timeline": [
+    {
+      "event": "The Time Traveller expounds his theory of four dimensions to his dinner guests",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "The Time Traveller",
+        "Filby",
+        "The Psychologist",
+        "The Very Young Man",
+        "The Provincial Mayor",
+        "The Medical Man"
+      ]
+    },
+    {
+      "event": "The Time Traveller claims to have experimental verification of time travel",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "The Time Traveller",
+        "Filby",
+        "The Psychologist",
+        "The Medical Man"
+      ]
+    },
+    {
+      "event": "The Time Traveller leaves to fetch his experimental proof from his laboratory",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "The Time Traveller"
+      ]
+    },
+    {
+      "event": "The Time Traveller returns from his laboratory",
+      "chapter": 1,
+      "date_in_story": null,
+      "characters_involved": [
+        "The Time Traveller",
+        "Filby",
+        "The Psychologist",
+        "The Medical Man"
+      ]
+    },
+    {
+      "event": "The Time Traveller presents his model time machine to the guests",
+      "chapter": 2,
+      "date_in_story": null,
+      "characters_involved": [
+        "The Time Traveller",
+        "Filby",
+        "The Psychologist",
+        "The Very Young Man",
+        "The Provincial Mayor",
+        "The Medical Man"
+      ]
+    },
+    {
+      "event": "The Psychologist operates the lever and the model time machine vanishes",
+      "chapter": 2,
+      "date_in_story": null,
+      "characters_involved": [
+        "The Time Traveller",
+        "The Psychologist",
+        "Filby",
+        "The Very Young Man",
+        "The Provincial Mayor",
+        "The Medical Man"
+      ]
+    },
+    {
+      "event": "The guests debate the logical implications of time travel and the visibility of time-traveling objects",
+      "chapter": 2,
+      "date_in_story": null,
+      "characters_involved": [
+        "The Time Traveller",
+        "The Psychologist",
+        "Filby",
+        "The Provincial Mayor",
+        "The Medical Man"
+      ]
+    },
+    {
+      "event": "The Time Traveller shows the guests his full-scale time machine in the laboratory",
+      "chapter": 2,
+      "date_in_story": null,
+      "characters_involved": [
+        "The Time Traveller",
+        "Filby",
+        "The Psychologist",
+        "The Very Young Man",
+        "The Provincial Mayor",
+        "The Medical Man"
+      ]
+    },
+    {
+      "event": "The narrator discusses the model time machine trick with the Medical Man at the Linn\u00e6an",
+      "chapter": 3,
+      "date_in_story": "Friday",
+      "characters_involved": [
+        "The Medical Man"
+      ]
+    },
+    {
+      "event": "Guests arrive for the second dinner but the Time Traveller is absent",
+      "chapter": 3,
+      "date_in_story": "Thursday (the following week)",
+      "characters_involved": [
+        "The Medical Man",
+        "The Psychologist",
+        "The Editor",
+        "The Journalist",
+        "The Silent Man"
+      ]
+    },
+    {
+      "event": "The Medical Man reads the Time Traveller's note and decides to start dinner",
+      "chapter": 3,
+      "date_in_story": "Thursday (the following week)",
+      "characters_involved": [
+        "The Medical Man",
+        "The Editor"
+      ]
+    },
+    {
+      "event": "The Psychologist explains the previous week's time machine demonstration to the new guests",
+      "chapter": 3,
+      "date_in_story": "Thursday (the following week)",
+      "characters_involved": [
+        "The Psychologist",
+        "The Editor",
+        "The Journalist"
+      ]
+    },
+    {
+      "event": "The Time Traveller returns in a disheveled and injured state",
+      "chapter": 3,
+      "date_in_story": "Thursday (the following week)",
+      "characters_involved": [
+        "The Time Traveller",
+        "The Medical Man",
+        "The Psychologist",
+        "The Editor",
+        "The Journalist",
+        "The Silent Man"
+      ]
+    },
+    {
+      "event": "The Time Traveller confirms he has been time travelling and begins to tell his story",
+      "chapter": 3,
+      "date_in_story": "Thursday (the following week)",
+      "characters_involved": [
+        "The Time Traveller",
+        "The Medical Man",
+        "The Psychologist",
+        "The Editor",
+        "The Journalist",
+        "The Silent Man"
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "The Time Traveller's dining room",
+      "description": "A luxurious after-dinner setting with a bright fire, incandescent lights in silver lilies, patent chairs that embrace rather than submit to being sat upon, and glasses with bubbles flashing in them. Contains small octagonal tables, a mantel with brass candlesticks, wall sconces with candles, and a hearthrug in front of the fireplace.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "The Time Traveller's laboratory",
+      "description": "Located down a long draughty corridor from the main room where the Time Traveller keeps his experimental equipment. Contains a workbench with unfinished crystalline bars, sheets of drawings, and houses the full-scale time machine made of nickel, ivory, and rock crystal.",
+      "chapter_introduced": 1
+    },
+    {
+      "name": "The Time Traveller's drawing room",
+      "description": "The room where guests initially gather, distinct from the dining room. Has a door leading to a corridor.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "The Time Traveller's smoking-room",
+      "description": "An adjoining room to the dining room where the Time Traveller tells his story. Has candles that were not lit, and contains easy chairs and a small lamp that illuminates faces in a bright circle.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "The Linn\u00e6an",
+      "description": "A location where the narrator met the Medical Man on Friday to discuss the time machine demonstration.",
+      "chapter_introduced": 3
+    },
+    {
+      "name": "Richmond",
+      "description": "The location where the Time Traveller lives and hosts his dinners.",
+      "chapter_introduced": 3
+    }
+  ],
+  "world_rules": [
+    "Time is the fourth dimension, equivalent to the three dimensions of space",
+    "Consciousness moves along the time dimension from birth to death",
+    "Four-dimensional geometry can theoretically allow movement through time",
+    "Time travel may be possible through mechanical means, similar to how balloons overcome gravitational limitations",
+    "Time machines can travel into either the future or the past",
+    "Objects traveling through time at high speeds become invisible or nearly invisible due to diluted presentation - they create impressions only a fraction of what they would if stationary in time",
+    "Time-traveling objects moving faster than normal time flow cannot be seen clearly, similar to spinning wheel spokes or bullets in flight",
+    "Time travel appears to be physically demanding and can result in injury and exhaustion",
+    "Time travelers can experience many days in what appears to be a short time to outside observers"
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "intellectual and conversational",
+    "style_notes": "Victorian literary style with lengthy philosophical dialogue, formal speech patterns, and detailed descriptive passages"
+  },
+  "plot_threads": [
+    {
+      "thread": "Whether the Time Traveller's theory of four-dimensional time travel is valid",
+      "status": "progressing",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What experimental verification the Time Traveller claims to possess",
+      "status": "resolved",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "What device or proof the Time Traveller has retrieved from his laboratory",
+      "status": "resolved",
+      "introduced_chapter": 1,
+      "last_updated_chapter": 2
+    },
+    {
+      "thread": "Whether the model time machine demonstration was genuine or a trick",
+      "status": "progressing",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "The Time Traveller's plan to use the full-scale time machine for his own journey",
+      "status": "progressing",
+      "introduced_chapter": 2,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "What happened to the Time Traveller during his apparent time travel journey",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "The story the Time Traveller promises to tell about his eight-day journey",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    },
+    {
+      "thread": "Why the Time Traveller returned in such poor physical condition",
+      "status": "open",
+      "introduced_chapter": 3,
+      "last_updated_chapter": 3
+    }
+  ]
+}

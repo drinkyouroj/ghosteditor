@@ -1,0 +1,64 @@
+{
+  "issues": [
+    {
+      "type": "pacing",
+      "severity": "warning",
+      "chapter_location": "beginning",
+      "description": "The chapter opens with extensive table of contents and title pages that create distance between reader and story",
+      "original_text": "THE MOONSTONE\n\n A Romance\n\nby Wilkie Collins\n\nContents\n\n PROLOGUE\n\n THE STORY\n\n FIRST PERIOD\n CHAPTER I\n CHAPTER II...",
+      "suggestion": "Consider reducing or streamlining the front matter to get readers into the story more quickly"
+    },
+    {
+      "type": "pacing",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "Extended historical exposition about the diamond's origins slows narrative momentum",
+      "original_text": "The adventures of the Yellow Diamond begin with the eleventh century of the Christian era. At that date, the Mohammedan conqueror, Mahmoud of Ghizni, crossed India...",
+      "suggestion": "Consider breaking up the historical exposition with more immediate dramatic elements or character reactions"
+    },
+    {
+      "type": "genre_convention",
+      "severity": "note",
+      "chapter_location": "middle",
+      "description": "The supernatural/curse elements may blur genre lines between mystery and gothic romance",
+      "original_text": "The deity predicted certain disaster to the presumptuous mortal who laid hands on the sacred gem, and to all of his house and name who received it after him.",
+      "suggestion": "Ensure the supernatural elements serve the mystery plot rather than overshadowing the logical puzzle-solving aspects"
+    }
+  ],
+  "pacing": {
+    "scene_count": 4,
+    "scene_types": [
+      "exposition",
+      "exposition",
+      "action",
+      "exposition"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "Narrator (family member)",
+      "John Herncastle",
+      "General Baird",
+      "Tippoo Sultan",
+      "Indian officers",
+      "Gabriel Betteredge"
+    ],
+    "chapter_summary": "A prologue establishes the backstory of the Moonstone diamond, tracing its history from ancient Indian temples through various conquests to the storming of Seringapatam in 1799, where the narrator witnesses his cousin Herncastle apparently murder an Indian officer to steal the diamond. The narrator refuses to maintain their relationship due to moral suspicions, setting up the central mystery of the cursed gem that will drive the main story set in 1848."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Central mystery object (the Moonstone) established early",
+      "Crime/wrongdoing clearly presented (theft and murder)",
+      "Atmospheric setting details provided",
+      "Moral ambiguity and suspicion introduced",
+      "Historical context that adds depth to the mystery",
+      "Foreshadowing of future consequences"
+    ],
+    "conventions_missed": [
+      "No clear investigator or protagonist with inquiry method established yet",
+      "Limited suspect pool introduced",
+      "Few concrete clues planted for reader to analyze",
+      "No red herrings or misdirection present yet"
+    ],
+    "genre_fit_score": "moderate"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "issues": [
+    {
+      "type": "character",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "Mary's characterization as someone who 'reads great books and makes extracts' is established but then immediately undercut when she 'wished to say something very sensible, but knew not how,' which seems inconsistent with her intellectual reputation.",
+      "original_text": "What say you, Mary? For you are a young lady of deep reflection, I know, and read great books, and make extracts.\n\nMary wished to say something very sensible, but knew not how.",
+      "suggestion": "Either have Mary contribute something intellectual to show her learning, or clarify that her learning is more performative than practical."
+    },
+    {
+      "type": "genre_convention",
+      "severity": "warning",
+      "chapter_location": "end",
+      "description": "While this chapter advances the plot toward the romantic meeting, it lacks direct interaction between the romantic leads or clear emotional stakes for the protagonist regarding romance.",
+      "original_text": null,
+      "suggestion": "Consider adding Elizabeth's internal thoughts about the upcoming meeting with Mr. Bingley, or her feelings about the marriage expectations placed on her."
+    },
+    {
+      "type": "consistency",
+      "severity": "note",
+      "chapter_location": "beginning",
+      "description": "The story bible shows Elizabeth and Lizzy as separate characters, but this chapter clearly treats them as the same person (Elizabeth is 'his second daughter' and called 'Lizzy' by her father).",
+      "original_text": "Observing his second daughter employed in trimming a hat, he suddenly addressed her with,--\n\n\"I hope Mr. Bingley will like it, Lizzy.\"",
+      "suggestion": "Update the story bible to reflect that Elizabeth and Lizzy are the same character, with Lizzy being a nickname for Elizabeth."
+    }
+  ],
+  "pacing": {
+    "scene_count": 1,
+    "scene_types": [
+      "dialogue"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "Mr. Bennet",
+      "Elizabeth",
+      "Mrs. Bennet",
+      "Kitty",
+      "Mary",
+      "Lydia"
+    ],
+    "chapter_summary": "Mr. Bennet reveals to his family that he has secretly visited Mr. Bingley, surprising them all, especially his wife who had been frustrated by his apparent refusal to make the necessary social call. The chapter is primarily a dialogue scene where Mr. Bennet teases his family before making his revelation, leading to Mrs. Bennet's joy and the family's anticipation of Mr. Bingley's return visit and future dinner invitation."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Family dynamics and social expectations around marriage are explored",
+      "Comic relief through Mr. Bennet's teasing and Mrs. Bennet's dramatic reactions",
+      "Social protocol regarding courtship is established",
+      "Anticipation builds toward romantic encounters"
+    ],
+    "conventions_missed": [
+      "No direct focus on the protagonist's emotional journey or romantic feelings",
+      "Limited insight into Elizabeth's perspective on the marriage expectations",
+      "No establishment of internal conflict about romance or relationships"
+    ],
+    "genre_fit_score": "moderate"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "issues": [
+    {
+      "type": "character",
+      "severity": "warning",
+      "chapter_location": "end",
+      "description": "Filby's final action of winking solemnly seems out of character for someone described as argumentative and skeptical. His previous response was profanity ('he was damned'), suggesting he was genuinely affected by the demonstration.",
+      "original_text": "I caught Filby's eye over the shoulder of the Medical Man, and he winked at me solemnly.",
+      "suggestion": "Consider having Filby maintain his skeptical demeanor more consistently, perhaps through continued verbal challenges rather than complicit winking."
+    },
+    {
+      "type": "worldbuilding",
+      "severity": "warning",
+      "chapter_location": "middle",
+      "description": "The explanation of why time-traveling objects become invisible is delivered through exposition-heavy dialogue rather than being woven into action. This violates the fantasy convention of integrating world-building naturally.",
+      "original_text": "That's a simple point of psychology... If it is travelling through time fifty times or a hundred times faster than we are, if it gets through a minute while we get through a second, the impression it creates will of course be only one-fiftieth or one-hundredth of what it would make if it were not travelling in time.",
+      "suggestion": "Consider showing this concept through action or demonstration rather than having the Psychologist explain it in such technical detail."
+    },
+    {
+      "type": "consistency",
+      "severity": "note",
+      "chapter_location": "middle",
+      "description": "The narrator mentions candles being blown out and lamp flames jumping, but the story bible establishes this is a well-lit room with incandescent lights in addition to candles. The dramatic effect seems inconsistent with the established lighting setup.",
+      "original_text": "There was a breath of wind, and the lamp flame jumped. One of the candles on the mantel was blown out",
+      "suggestion": "Consider clarifying how a sudden wind could affect the lighting in what appears to be an indoor room, or adjust the lighting description to be more consistent with the established setting."
+    }
+  ],
+  "pacing": {
+    "scene_count": 2,
+    "scene_types": [
+      "dialogue",
+      "dialogue"
+    ],
+    "tension_arc": "rising",
+    "characters_present": [
+      "The Time Traveller",
+      "Filby",
+      "The Psychologist",
+      "The Medical Man",
+      "The Provincial Mayor",
+      "The Very Young Man"
+    ],
+    "chapter_summary": "The Time Traveller demonstrates his model time machine to his dinner guests by having the Psychologist operate the controls, causing the device to vanish before their eyes. After explaining the theoretical basis for why time-traveling objects become invisible, he leads the group to his laboratory to show them the full-scale time machine he has been building, declaring his intention to use it for his own time travel journey."
+  },
+  "genre_notes": {
+    "conventions_met": [
+      "Magic system has clear constraints and costs (speed affects visibility)",
+      "Supernatural elements demonstrated through action",
+      "Protagonist's goal established (time travel journey)",
+      "Sense of wonder in the machine descriptions"
+    ],
+    "conventions_missed": [
+      "Limited foreshadowing of larger conflicts or threats",
+      "World-building explanation delivered through info-dump rather than woven into action",
+      "Political or power dynamics not established"
+    ],
+    "genre_fit_score": "moderate"
+  }
+}
