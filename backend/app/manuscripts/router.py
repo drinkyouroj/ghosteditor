@@ -4,13 +4,15 @@ from datetime import datetime, timezone
 from arq import create_pool
 from arq.connections import RedisSettings
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_current_user_allow_provisional
 from app.config import settings
-from app.db.models import Chapter, Job, JobType, Manuscript, ManuscriptStatus, User
+from app.db.models import Chapter, Job, JobType, Manuscript, ManuscriptStatus, PaymentStatus, SubscriptionStatus, User
 from app.db.session import get_db
+
+FREE_TIER_MANUSCRIPT_LIMIT = 3  # Per DECISION_006 Amendment 4
 from app.manuscripts.schemas import (
     ChapterSummary,
     JobResponse,
@@ -36,7 +38,25 @@ async def upload_manuscript(
 
     Provisional users can upload (free Chapter 1 / story bible preview).
     Validates file, stores in S3, creates manuscript row, enqueues extraction job.
+
+    Per DECISION_006 Amendment 4: free-tier users limited to 3 manuscripts.
     """
+    # Free-tier upload limit
+    if user.subscription_status == SubscriptionStatus.free:
+        count_result = await db.execute(
+            select(func.count(Manuscript.id)).where(
+                Manuscript.user_id == user.id,
+                Manuscript.deleted_at.is_(None),
+            )
+        )
+        manuscript_count = count_result.scalar()
+        if manuscript_count >= FREE_TIER_MANUSCRIPT_LIMIT:
+            raise HTTPException(
+                status_code=402,
+                detail=f"Free tier allows up to {FREE_TIER_MANUSCRIPT_LIMIT} manuscripts. "
+                "Upgrade to a subscription for unlimited manuscripts.",
+            )
+
     content, ext = await validate_file(file)
 
     manuscript_id = uuid.uuid4()
@@ -48,7 +68,8 @@ async def upload_manuscript(
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to store file. Please try again.")
 
-    # Create manuscript row
+    # Create manuscript row — subscribers get auto-paid status (Amendment 2)
+    payment = PaymentStatus.paid if user.subscription_status == SubscriptionStatus.subscribed else PaymentStatus.unpaid
     manuscript = Manuscript(
         id=manuscript_id,
         user_id=user.id,
@@ -56,6 +77,7 @@ async def upload_manuscript(
         genre=genre,
         s3_key=s3_key,
         status=ManuscriptStatus.uploading,
+        payment_status=payment,
     )
     db.add(manuscript)
 

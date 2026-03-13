@@ -211,3 +211,31 @@ export function getManuscriptFeedback(manuscriptId: string, filters?: { severity
   const qs = params.toString()
   return request<ManuscriptFeedback>(`/bible/${manuscriptId}/feedback${qs ? `?${qs}` : ''}`)
 }
+
+// --- Stripe Payments ---
+
+export interface CheckoutSession {
+  url: string
+  session_id: string
+}
+
+export interface Subscription {
+  status: string
+  current_period_end: string | null
+  cancel_at_period_end: boolean
+}
+
+export function createCheckoutSession(manuscriptId: string, mode: 'payment' | 'subscription' = 'payment') {
+  return request<CheckoutSession>('/stripe/create-checkout-session', {
+    method: 'POST',
+    body: JSON.stringify({ manuscript_id: manuscriptId, mode }),
+  })
+}
+
+export function getSubscription() {
+  return request<Subscription>('/stripe/subscription')
+}
+
+export function cancelSubscription() {
+  return request<{ message: string }>('/stripe/cancel-subscription', { method: 'POST' })
+}

@@ -22,17 +22,19 @@ from arq.connections import RedisSettings
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from app.analysis.chapter_analyzer import ChapterAnalysisError
+from app.analysis.chapter_analyzer import ChapterAnalysisError, analyze_chapter
 from app.analysis.story_bible import StoryBibleError, generate_story_bible
 from app.config import settings
 from app.db.models import (
     Chapter,
+    ChapterAnalysis,
     ChapterStatus,
     Job,
     JobStatus,
     JobType,
     Manuscript,
     ManuscriptStatus,
+    PaymentStatus,
     StoryBible,
     StoryBibleVersion,
 )
@@ -394,9 +396,111 @@ async def process_bible_generation(ctx, job_id: str, manuscript_id: str):
             )
 
 
+async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter_id: str):
+    """Analyze a single chapter using Claude API.
+
+    Called after payment confirmation (per DECISION_006).
+    Updates chapter status and stores analysis results.
+    """
+    session_factory = _get_session_factory()
+    job_uuid = uuid.UUID(job_id)
+    ms_uuid = uuid.UUID(manuscript_id)
+    ch_uuid = uuid.UUID(chapter_id)
+
+    async with session_factory() as session:
+        try:
+            await _update_job(
+                session, job_uuid,
+                status=JobStatus.running,
+                started_at=datetime.now(timezone.utc),
+                current_step="Preparing chapter analysis",
+                progress_pct=10,
+                attempts=Job.attempts + 1,
+            )
+
+            # Get manuscript, chapter, and story bible
+            result = await session.execute(select(Manuscript).where(Manuscript.id == ms_uuid))
+            manuscript = result.scalar_one()
+
+            ch_result = await session.execute(select(Chapter).where(Chapter.id == ch_uuid))
+            chapter = ch_result.scalar_one()
+            chapter.status = ChapterStatus.analyzing
+            await session.commit()
+
+            bible_result = await session.execute(
+                select(StoryBible).where(StoryBible.manuscript_id == ms_uuid)
+            )
+            bible_row = bible_result.scalar_one_or_none()
+            bible_json = bible_row.bible_json if bible_row else None
+
+            await _update_job(
+                session, job_uuid,
+                current_step=f"Analyzing Chapter {chapter.chapter_number}",
+                progress_pct=30,
+            )
+
+            # Call Claude for analysis
+            analysis_result, warnings = await analyze_chapter(
+                chapter_text=chapter.raw_text,
+                chapter_number=chapter.chapter_number,
+                genre=manuscript.genre,
+                bible_json=bible_json,
+            )
+
+            await _update_job(session, job_uuid, current_step="Saving analysis", progress_pct=80)
+
+            # Save analysis
+            chapter_analysis = ChapterAnalysis(
+                chapter_id=ch_uuid,
+                issues_json=analysis_result.model_dump().get("issues", []),
+                pacing_json=analysis_result.model_dump().get("pacing"),
+                genre_notes=analysis_result.model_dump().get("genre_notes"),
+                prompt_version="chapter_analysis_v1",
+            )
+            session.add(chapter_analysis)
+
+            chapter.status = ChapterStatus.analyzed
+            await session.commit()
+
+            for w in warnings:
+                logger.warning(f"Analysis warning (chapter {chapter_id}): {w}")
+
+            await _update_job(
+                session, job_uuid,
+                status=JobStatus.completed,
+                completed_at=datetime.now(timezone.utc),
+                current_step="Chapter analysis complete",
+                progress_pct=100,
+            )
+
+            # Check if all chapters are analyzed → update manuscript status
+            all_chapters = await session.execute(
+                select(Chapter).where(Chapter.manuscript_id == ms_uuid)
+            )
+            chapters = all_chapters.scalars().all()
+            if all(c.status == ChapterStatus.analyzed for c in chapters):
+                manuscript.status = ManuscriptStatus.complete
+                await session.commit()
+                logger.info(f"All chapters analyzed for manuscript {manuscript_id}")
+
+        except ChapterAnalysisError as e:
+            logger.error(f"Chapter analysis error for chapter {chapter_id}: {e}")
+            await _fail_job_with_retry(
+                session_factory, job_uuid, ms_uuid,
+                str(e), "Chapter analysis failed", "process_chapter_analysis",
+            )
+        except Exception as e:
+            logger.exception(f"Unexpected error in chapter analysis for {chapter_id}")
+            await _fail_job_with_retry(
+                session_factory, job_uuid, ms_uuid,
+                "An unexpected error occurred while analyzing your chapter. Please try again.",
+                "Chapter analysis failed", "process_chapter_analysis",
+            )
+
+
 class WorkerSettings:
     """arq worker settings."""
-    functions = [process_text_extraction, process_bible_generation]
+    functions = [process_text_extraction, process_bible_generation, process_chapter_analysis]
     on_startup = _recover_stalled_jobs
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_jobs = 5

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { getManuscript, type ManuscriptDetail, ApiError } from '../api/client'
 import './ManuscriptPage.css'
 
@@ -27,9 +27,11 @@ const POLL_INTERVAL = 5000
 
 export function ManuscriptPage() {
   const { id } = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
   const [manuscript, setManuscript] = useState<ManuscriptDetail | null>(null)
   const [error, setError] = useState('')
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const paymentStatus = searchParams.get('payment')
 
   const fetchManuscript = () => {
     if (!id) return
@@ -92,6 +94,27 @@ export function ManuscriptPage() {
           )}
         </div>
       </div>
+
+      {/* Payment success banner */}
+      {paymentStatus === 'success' && (
+        <div className="ms-payment-success">
+          Payment successful! Your manuscript is now being analyzed.
+        </div>
+      )}
+
+      {/* Paywall prompt — bible complete but unpaid */}
+      {manuscript.status === 'bible_complete' && manuscript.payment_status === 'unpaid' && (
+        <div className="ms-paywall">
+          <h3>Your story bible is ready!</h3>
+          <p>
+            Unlock full chapter-by-chapter developmental editing analysis:
+            consistency checks, pacing feedback, and genre convention scoring.
+          </p>
+          <Link to={`/manuscripts/${id}/pricing`} className="btn-primary">
+            Unlock Full Analysis
+          </Link>
+        </div>
+      )}
 
       {/* Progress indicator for processing manuscripts */}
       {isProcessing && (

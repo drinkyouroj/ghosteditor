@@ -126,6 +126,7 @@ class Manuscript(Base):
         default=PaymentStatus.unpaid,
     )
     s3_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    stripe_session_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")

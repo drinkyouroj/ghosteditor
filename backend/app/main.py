@@ -5,6 +5,7 @@ from starlette.responses import Response as StarletteResponse
 from app.analysis.router import router as bible_router
 from app.auth.router import router as auth_router
 from app.manuscripts.router import router as manuscripts_router
+from app.stripe.router import router as stripe_router
 
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
@@ -54,6 +55,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(manuscripts_router)
 app.include_router(bible_router)
+app.include_router(stripe_router)
 
 
 @app.get("/health")
