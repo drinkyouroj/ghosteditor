@@ -236,3 +236,54 @@
 - Footer links to ToS and Privacy Policy on every page
 - Routes accessible without authentication
 - Production build: 202KB JS + 20KB CSS gzipped
+
+### Week 3 Complete
+
+---
+
+## 2026-03-13 — Week 4 Monetization + Email + Launch
+
+### Stripe Payment Integration (Step 20 — DECISION_006)
+- DECISION_006 written, ADVERSARY attacked, JUDGE approved with 4 amendments
+- **Stripe Checkout (hosted)** — PCI-compliant redirect flow, no card data on our servers
+- Endpoints: POST /stripe/create-checkout-session, POST /stripe/webhook, GET /stripe/subscription, POST /stripe/cancel-subscription
+- **Per-manuscript**: $49 one-time payment via Stripe Checkout
+- **Subscription**: $79/month unlimited manuscripts
+- **Beta coupon**: Stripe Promotion Codes enabled (code BETA = $20 off)
+- JUDGE amendments implemented:
+  - Amendment 1: Idempotent webhook handler — stripe_session_id on manuscripts, duplicate detection
+  - Amendment 2: Subscriber auto-pay — manuscripts marked paid at upload for active subscribers
+  - Amendment 3: Webhook signature verification mandatory on every request
+  - Amendment 4: Free-tier upload limit (3 manuscripts max)
+- Alembic migration 003: `stripe_session_id` column
+- Worker: `process_chapter_analysis` function enqueued by webhook after payment
+- Payment gate: bible_complete + unpaid = paywall prompt in frontend
+- Frontend: PricingPage with dual pricing cards, payment success/cancel redirects
+- 46 non-DB tests passing
+
+### Email System (Step 21)
+- **Resend integration**: `backend/app/email/sender.py` with 7 email templates
+  - Verification, password reset, bible-ready notification
+  - 3-email drip sequence: Hour 2 (chapter preview), Day 2 (editor comparison), Day 5 (beta expiry)
+- **Drip scheduler**: `backend/app/email/drip.py` — PostgreSQL EmailEvent-based scheduling
+  - Drip emails scheduled after bible generation for unpaid manuscripts
+  - Skipped automatically if manuscript is paid before send time
+- **Worker cron job**: Dispatches pending emails every hour via arq cron
+- Email sending is real (Resend API) when RESEND_API_KEY is set, logged when not
+
+### Landing Page (Step 22)
+- Public marketing page at `/` for unauthenticated users
+- Sections: Hero, social proof, features grid (4 cards), how-it-works (3 steps), pricing, trust, final CTA
+- Pricing section with per-manuscript ($49) and subscription ($79/mo) cards
+- Beta coupon callout: "Enter code BETA at checkout for $20 off"
+- Trust section: "Never used for AI training", "Delete anytime", "You own everything"
+- Authenticated users redirect from `/` to `/dashboard`
+- All internal navigation updated from `/` to `/dashboard`
+- Responsive layout with mobile breakpoints
+- Production build: 213KB JS + 28KB CSS gzipped (65KB JS gzipped)
+
+### Known limitations
+- Stripe products/prices created inline (not pre-configured via Dashboard) — fine for MVP
+- No billing history page (Stripe sends receipts directly)
+- Email drip sequences use hardcoded base URL (localhost:5173) — needs config for production
+- No subscription management UI beyond cancel (upgrade/downgrade not needed for 2-tier pricing)
