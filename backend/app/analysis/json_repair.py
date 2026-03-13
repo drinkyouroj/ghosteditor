@@ -33,6 +33,19 @@ def parse_json_response(text: str) -> dict | None:
         if result is not None:
             return result
 
+    # Step 4: extract JSON object from surrounding text
+    # Claude sometimes adds preamble text before/after the JSON
+    extracted = _extract_json_object(text)
+    if extracted is not None and extracted != text:
+        result = _try_parse(extracted)
+        if result is not None:
+            return result
+        # Try trailing comma fix on extracted text too
+        fixed = _fix_trailing_commas(extracted)
+        result = _try_parse(fixed)
+        if result is not None:
+            return result
+
     return None
 
 
@@ -62,3 +75,42 @@ def _strip_code_fences(text: str) -> str:
 def _fix_trailing_commas(text: str) -> str:
     """Remove trailing commas before } or ]."""
     return re.sub(r",\s*([}\]])", r"\1", text)
+
+
+def _extract_json_object(text: str) -> str | None:
+    """Extract the first complete JSON object from text that may contain non-JSON around it.
+
+    Handles cases where Claude adds preamble like 'Here is the analysis:' before the JSON,
+    or adds commentary after the closing brace.
+    """
+    # Find the first { and try to find the matching }
+    start = text.find("{")
+    if start == -1:
+        return None
+
+    # Walk forward counting braces to find the matching close
+    depth = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(text)):
+        c = text[i]
+        if escape:
+            escape = False
+            continue
+        if c == "\\":
+            escape = True
+            continue
+        if c == '"' and not escape:
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start:i + 1]
+
+    # No matching close brace found — return from first { to end (likely truncated)
+    return text[start:]

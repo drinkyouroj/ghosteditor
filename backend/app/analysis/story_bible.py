@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 PROMPT_VERSION = "story_bible_v1"
-MAX_TOKENS = 8192
+MAX_TOKENS = 16384
 
 
 def _load_prompt(name: str) -> str:
@@ -115,6 +115,10 @@ async def generate_story_bible(
         parsed = parse_json_response(raw_response)
 
     if parsed is None:
+        logger.warning(
+            f"JSON parse failed for bible (chapter {chapter_number}). "
+            f"Response starts with: {raw_response[:200]!r}"
+        )
         # Retry once with explicit JSON instruction
         retry_prompt = prompt + (
             "\n\nIMPORTANT: Your previous response was not valid JSON. "
@@ -124,6 +128,10 @@ async def generate_story_bible(
         parsed = parse_json_response(raw_response)
 
     if parsed is None:
+        logger.error(
+            f"All JSON parse attempts failed for bible (chapter {chapter_number}). "
+            f"Final response starts with: {raw_response[:500]!r}"
+        )
         raise StoryBibleError(
             "Failed to get valid JSON from Claude after retries. "
             "The chapter may contain content that causes formatting issues."
@@ -183,7 +191,7 @@ async def _call_claude(prompt: str, max_tokens: int = MAX_TOKENS) -> str:
     try:
         client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
         message = await client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-haiku-4-5-20251001",
             max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
         )

@@ -99,7 +99,10 @@ async def _fail_job_with_retry(
             await session.commit()
 
             redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
-            await redis.enqueue_job(job_func, str(job_uuid), str(ms_uuid), _defer_by=30)
+            args = [str(job_uuid), str(ms_uuid)]
+            if chapter_uuid is not None:
+                args.append(str(chapter_uuid))
+            await redis.enqueue_job(job_func, *args, _defer_by=30)
             return
 
         # Permanent failure or retries exhausted
@@ -655,4 +658,4 @@ class WorkerSettings:
     on_startup = _recover_stalled_jobs
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_jobs = 5
-    job_timeout = 300  # 5 minutes per job
+    job_timeout = 600  # 10 minutes per job — chapter analysis does bible update + analysis (2 Claude calls)
