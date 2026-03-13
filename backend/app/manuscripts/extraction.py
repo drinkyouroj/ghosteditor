@@ -61,15 +61,61 @@ def extract_text_from_txt(content: bytes) -> str:
     return content.decode("utf-8")
 
 
+MIN_EXTRACTED_WORDS = 50  # Minimum words after extraction to be considered valid
+
+
 def extract_text(content: bytes, ext: str) -> str:
+    """Extract text from a file. Raises ExtractionError on failure or empty result."""
     if ext == ".docx":
-        return extract_text_from_docx(content)
+        text = _safe_extract_docx(content)
     elif ext == ".pdf":
-        return extract_text_from_pdf(content)
+        text = _safe_extract_pdf(content)
     elif ext == ".txt":
-        return extract_text_from_txt(content)
+        text = extract_text_from_txt(content)
     else:
         raise ExtractionError(f"Unsupported file type: {ext}")
+
+    # Validate extracted text has meaningful content
+    text = text.strip()
+    if not text:
+        raise ExtractionError(
+            "No text could be extracted from this file. "
+            "Please check that your file contains text (not just images or formatting)."
+        )
+    word_count = len(text.split())
+    if word_count < MIN_EXTRACTED_WORDS:
+        raise ExtractionError(
+            f"Only {word_count} words extracted — the file appears to be nearly empty. "
+            "Please upload a file with at least a few paragraphs of text."
+        )
+    return text
+
+
+def _safe_extract_docx(content: bytes) -> str:
+    """Extract text from DOCX with error handling for corrupt files."""
+    try:
+        return extract_text_from_docx(content)
+    except Exception as e:
+        err_str = str(e).lower()
+        if "zip" in err_str or "xml" in err_str or "parse" in err_str or "corrupt" in err_str:
+            raise ExtractionError(
+                "This .docx file appears to be corrupt or not a valid Word document. "
+                "Try re-saving it from your word processor and uploading again."
+            )
+        raise ExtractionError(f"Could not read this .docx file: {e}")
+
+
+def _safe_extract_pdf(content: bytes) -> str:
+    """Extract text from PDF with error handling for damaged files."""
+    try:
+        return extract_text_from_pdf(content)
+    except ExtractionError:
+        raise  # Re-raise our own errors (e.g., scanned PDF detection)
+    except Exception as e:
+        raise ExtractionError(
+            "Could not read this PDF file. It may be password-protected or damaged. "
+            "Try exporting as a new PDF from your word processor."
+        )
 
 
 def detect_chapters(text: str) -> list[dict]:

@@ -169,6 +169,17 @@
 - Analysis results saved to `tests/eval/analysis_results/` for manual review
 - Full results documented in `docs/eval_log.md`
 
+### Error State Handling (2026-03-13)
+- **Claude API error translation**: Both `story_bible.py` and `chapter_analyzer.py` now catch all Anthropic exceptions (`RateLimitError`, `AuthenticationError`, `APIStatusError`, `APITimeoutError`, `APIConnectionError`) and translate them into user-friendly error messages
+- **Extraction edge cases**: `extract_text()` now validates extracted text is non-empty and has >= 50 words. Corrupt DOCX (bad ZIP) and damaged PDF files produce helpful error messages instead of stack traces
+- **Worker retry logic**: Transient errors (rate limits, timeouts, overloaded) automatically re-enqueue the job with 30-second backoff, up to `max_attempts` (default 3). Permanent errors fail immediately with user-facing messages
+- **Stalled job recovery**: Worker startup hook (`_recover_stalled_jobs`) finds jobs stuck in `running` for 15+ minutes and fails them cleanly, resetting manuscript status from stuck intermediate states
+- **Frontend fixes**:
+  - Dashboard status labels aligned with backend enums (`bible_generating`, `bible_complete`)
+  - Story Bible button shows for `bible_complete` and `analyzing` states (not just `complete`)
+  - Error state shows help text on dashboard manuscripts
+  - Upload page job polling fixed: checks for `completed` (not `complete`) to match `JobStatus` enum
+- 19 error handling tests written and passing (extraction edge cases, transient error detection, Claude API error mocking)
+
 ### Next milestone (Week 2 continued)
-- Error state handling for malformed Claude responses
 - Pacing prompt (`chapter_pacing_v1.txt`) per DECISION_005 three-prompt design

@@ -6,10 +6,15 @@ import './DashboardPage.css'
 const STATUS_LABELS: Record<string, string> = {
   uploading: 'Uploading...',
   extracting: 'Extracting text...',
-  generating_bible: 'Building story bible...',
+  bible_generating: 'Building story bible...',
+  bible_complete: 'Story bible ready',
   analyzing: 'Analyzing chapters...',
   complete: 'Complete',
   error: 'Error',
+}
+
+const ERROR_HELP: Record<string, string> = {
+  error: 'Something went wrong during processing. You can delete this manuscript and try uploading again.',
 }
 
 export function DashboardPage() {
@@ -67,10 +72,15 @@ export function DashboardPage() {
                 </div>
               </div>
               <div className="manuscript-actions">
-                {m.status === 'complete' && (
+                {(m.status === 'complete' || m.status === 'bible_complete' || m.status === 'analyzing') && (
                   <Link to={`/manuscripts/${m.id}/bible`} className="btn-small">
                     Story Bible
                   </Link>
+                )}
+                {m.status === 'error' && (
+                  <span className="error-hint" title={ERROR_HELP.error}>
+                    {ERROR_HELP.error}
+                  </span>
                 )}
                 <button
                   onClick={() => handleDelete(m.id, m.title)}

@@ -176,14 +176,45 @@ async def generate_story_bible(
 
 
 async def _call_claude(prompt: str, max_tokens: int = MAX_TOKENS) -> str:
-    """Call Claude API and return the text response."""
-    client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
-    message = await client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=max_tokens,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return message.content[0].text
+    """Call Claude API and return the text response.
+
+    Translates Anthropic API errors into StoryBibleError with user-friendly messages.
+    """
+    try:
+        client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+        message = await client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=max_tokens,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return message.content[0].text
+    except anthropic.RateLimitError:
+        raise StoryBibleError(
+            "Our AI service is temporarily busy. Please try again in a few minutes."
+        )
+    except anthropic.AuthenticationError:
+        logger.error("Anthropic API authentication failed — check ANTHROPIC_API_KEY")
+        raise StoryBibleError(
+            "AI service configuration error. Please contact support."
+        )
+    except anthropic.APIStatusError as e:
+        logger.error(f"Anthropic API error {e.status_code}: {e.message}")
+        if e.status_code == 529:  # Overloaded
+            raise StoryBibleError(
+                "Our AI service is temporarily overloaded. Please try again in a few minutes."
+            )
+        raise StoryBibleError(
+            "AI service encountered an error. Please try again."
+        )
+    except anthropic.APITimeoutError:
+        raise StoryBibleError(
+            "AI service timed out while analyzing your chapter. "
+            "This can happen with very long chapters — please try again."
+        )
+    except anthropic.APIConnectionError:
+        raise StoryBibleError(
+            "Could not connect to AI service. Please check your connection and try again."
+        )
 
 
 class StoryBibleError(Exception):

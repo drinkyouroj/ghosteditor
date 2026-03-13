@@ -2,18 +2,27 @@
 
 Processes text extraction and story bible generation jobs.
 Each job updates its status in PostgreSQL for frontend polling.
+
+Error handling strategy:
+- Known errors (ExtractionError, StoryBibleError, ChapterAnalysisError) are user-facing
+  and stored in job.error_message for frontend display.
+- Transient errors (API rate limits, connection errors) trigger automatic retry
+  up to job.max_attempts (default 3).
+- Unexpected errors are logged with full traceback and stored as generic messages.
+- Stalled jobs (stuck in "running" beyond timeout) are recovered via on_startup cleanup.
 """
 
 import json
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from arq import create_pool
 from arq.connections import RedisSettings
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from app.analysis.chapter_analyzer import ChapterAnalysisError
 from app.analysis.story_bible import StoryBibleError, generate_story_bible
 from app.config import settings
 from app.db.models import (
@@ -33,6 +42,10 @@ from app.manuscripts.s3 import download_from_s3
 logger = logging.getLogger(__name__)
 
 MAX_BIBLE_VERSIONS = 50
+STALE_JOB_TIMEOUT_MINUTES = 15  # Jobs running longer than this are considered stalled
+
+# Transient error messages that should trigger automatic retry
+TRANSIENT_ERROR_KEYWORDS = ["temporarily busy", "temporarily overloaded", "timed out", "connection"]
 
 
 def _get_session_factory():
@@ -46,6 +59,97 @@ async def _update_job(session: AsyncSession, job_id: uuid.UUID, **kwargs):
     for key, value in kwargs.items():
         setattr(job, key, value)
     await session.commit()
+
+
+def _is_transient_error(error_msg: str) -> bool:
+    """Check if an error message indicates a transient failure worth retrying."""
+    return any(kw in error_msg.lower() for kw in TRANSIENT_ERROR_KEYWORDS)
+
+
+async def _fail_job_with_retry(
+    session_factory,
+    job_uuid: uuid.UUID,
+    ms_uuid: uuid.UUID,
+    error_msg: str,
+    step_label: str,
+    job_func: str,
+):
+    """Fail a job, or re-enqueue it if the error is transient and retries remain."""
+    async with session_factory() as session:
+        result = await session.execute(select(Job).where(Job.id == job_uuid))
+        job = result.scalar_one()
+
+        if _is_transient_error(error_msg) and job.attempts < job.max_attempts:
+            # Transient error with retries remaining — re-enqueue
+            logger.info(
+                f"Transient error on job {job_uuid} (attempt {job.attempts}/{job.max_attempts}), "
+                f"re-enqueueing: {error_msg}"
+            )
+            job.status = JobStatus.pending
+            job.current_step = f"Retrying ({job.attempts}/{job.max_attempts})..."
+            job.error_message = None
+            await session.commit()
+
+            redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+            await redis.enqueue_job(job_func, str(job_uuid), str(ms_uuid), _defer_by=30)
+            return
+
+        # Permanent failure or retries exhausted
+        job.status = JobStatus.failed
+        job.error_message = error_msg
+        job.current_step = step_label
+        job.completed_at = datetime.now(timezone.utc)
+        await session.commit()
+
+        # Update manuscript status
+        ms_result = await session.execute(select(Manuscript).where(Manuscript.id == ms_uuid))
+        ms = ms_result.scalar_one()
+        ms.status = ManuscriptStatus.error
+        await session.commit()
+
+
+async def _recover_stalled_jobs(ctx):
+    """On worker startup, find and fail jobs stuck in 'running' state.
+
+    This handles cases where the worker crashed or arq killed a job at timeout
+    without proper cleanup.
+    """
+    session_factory = _get_session_factory()
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=STALE_JOB_TIMEOUT_MINUTES)
+
+    async with session_factory() as session:
+        result = await session.execute(
+            select(Job).where(
+                Job.status == JobStatus.running,
+                Job.started_at < cutoff,
+            )
+        )
+        stalled_jobs = result.scalars().all()
+
+        for job in stalled_jobs:
+            logger.warning(f"Recovering stalled job {job.id} (started {job.started_at})")
+            job.status = JobStatus.failed
+            job.error_message = (
+                "Processing was interrupted. Please try uploading again."
+            )
+            job.current_step = "Recovery: job timed out"
+            job.completed_at = datetime.now(timezone.utc)
+
+            # Reset manuscript status from stuck intermediate state
+            ms_result = await session.execute(
+                select(Manuscript).where(Manuscript.id == job.manuscript_id)
+            )
+            ms = ms_result.scalar_one_or_none()
+            if ms and ms.status in (
+                ManuscriptStatus.extracting,
+                ManuscriptStatus.bible_generating,
+                ManuscriptStatus.analyzing,
+            ):
+                ms.status = ManuscriptStatus.error
+
+        if stalled_jobs:
+            await session.commit()
+            logger.info(f"Recovered {len(stalled_jobs)} stalled jobs")
 
 
 async def process_text_extraction(ctx, job_id: str, manuscript_id: str):
@@ -134,32 +238,17 @@ async def process_text_extraction(ctx, job_id: str, manuscript_id: str):
 
         except ExtractionError as e:
             logger.error(f"Extraction error for manuscript {manuscript_id}: {e}")
-            async with session_factory() as err_session:
-                await _update_job(
-                    err_session, job_uuid,
-                    status=JobStatus.failed,
-                    error_message=str(e),
-                    current_step="Extraction failed",
-                    completed_at=datetime.now(timezone.utc),
-                )
-                result = await err_session.execute(select(Manuscript).where(Manuscript.id == ms_uuid))
-                ms = result.scalar_one()
-                ms.status = ManuscriptStatus.error
-                await err_session.commit()
+            await _fail_job_with_retry(
+                session_factory, job_uuid, ms_uuid,
+                str(e), "Extraction failed", "process_text_extraction",
+            )
         except Exception as e:
             logger.exception(f"Unexpected error in text extraction for {manuscript_id}")
-            async with session_factory() as err_session:
-                await _update_job(
-                    err_session, job_uuid,
-                    status=JobStatus.failed,
-                    error_message=f"Internal error: {type(e).__name__}",
-                    current_step="Extraction failed",
-                    completed_at=datetime.now(timezone.utc),
-                )
-                result = await err_session.execute(select(Manuscript).where(Manuscript.id == ms_uuid))
-                ms = result.scalar_one()
-                ms.status = ManuscriptStatus.error
-                await err_session.commit()
+            await _fail_job_with_retry(
+                session_factory, job_uuid, ms_uuid,
+                f"An unexpected error occurred while processing your file. Please try again.",
+                "Extraction failed", "process_text_extraction",
+            )
 
 
 async def process_bible_generation(ctx, job_id: str, manuscript_id: str):
@@ -292,37 +381,23 @@ async def process_bible_generation(ctx, job_id: str, manuscript_id: str):
 
         except StoryBibleError as e:
             logger.error(f"Bible generation error for manuscript {manuscript_id}: {e}")
-            async with session_factory() as err_session:
-                await _update_job(
-                    err_session, job_uuid,
-                    status=JobStatus.failed,
-                    error_message=str(e),
-                    current_step="Bible generation failed",
-                    completed_at=datetime.now(timezone.utc),
-                )
-                result = await err_session.execute(select(Manuscript).where(Manuscript.id == ms_uuid))
-                ms = result.scalar_one()
-                ms.status = ManuscriptStatus.error
-                await err_session.commit()
+            await _fail_job_with_retry(
+                session_factory, job_uuid, ms_uuid,
+                str(e), "Bible generation failed", "process_bible_generation",
+            )
         except Exception as e:
             logger.exception(f"Unexpected error in bible generation for {manuscript_id}")
-            async with session_factory() as err_session:
-                await _update_job(
-                    err_session, job_uuid,
-                    status=JobStatus.failed,
-                    error_message=f"Internal error: {type(e).__name__}",
-                    current_step="Bible generation failed",
-                    completed_at=datetime.now(timezone.utc),
-                )
-                result = await err_session.execute(select(Manuscript).where(Manuscript.id == ms_uuid))
-                ms = result.scalar_one()
-                ms.status = ManuscriptStatus.error
-                await err_session.commit()
+            await _fail_job_with_retry(
+                session_factory, job_uuid, ms_uuid,
+                "An unexpected error occurred while generating your story bible. Please try again.",
+                "Bible generation failed", "process_bible_generation",
+            )
 
 
 class WorkerSettings:
     """arq worker settings."""
     functions = [process_text_extraction, process_bible_generation]
+    on_startup = _recover_stalled_jobs
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_jobs = 5
     job_timeout = 300  # 5 minutes per job

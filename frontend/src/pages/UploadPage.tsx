@@ -52,7 +52,7 @@ export function UploadPage() {
         setJobStep(STEP_LABELS[status.current_step ?? ''] ?? status.current_step ?? '')
         setJobProgress(status.progress_pct)
 
-        if (status.status === 'complete') {
+        if (status.status === 'completed') {
           clearInterval(interval)
           navigate(`/manuscripts/${manuscriptId}`)
         } else if (status.status === 'failed') {
