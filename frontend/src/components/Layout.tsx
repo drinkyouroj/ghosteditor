@@ -25,6 +25,7 @@ export function Layout({ user, onLogout }: Props) {
             <>
               <Link to="/">Dashboard</Link>
               <Link to="/upload">Upload</Link>
+              <Link to="/settings">Settings</Link>
               <span className="nav-email">{user.email}</span>
               <button onClick={handleLogout} className="btn-link">Log out</button>
             </>
@@ -34,6 +35,10 @@ export function Layout({ user, onLogout }: Props) {
       <main className="main">
         <Outlet />
       </main>
+      <footer className="footer">
+        <Link to="/terms">Terms of Service</Link>
+        <Link to="/privacy">Privacy Policy</Link>
+      </footer>
     </div>
   )
 }

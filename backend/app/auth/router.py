@@ -24,7 +24,7 @@ from app.auth.security import (
     verify_password,
 )
 from app.config import settings
-from app.db.models import User
+from app.db.models import Manuscript, User
 from app.db.session import get_db
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -255,3 +255,60 @@ async def logout(response: Response):
 async def get_me(user: User = Depends(get_current_user)):
     """Get current user profile. Requires full (non-provisional) user."""
     return UserResponse.model_validate(user)
+
+
+@router.delete("/account", response_model=MessageResponse)
+async def delete_account(
+    response: Response,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete the current user's account and all associated data.
+
+    - Soft-deletes the user (sets deleted_at)
+    - Soft-deletes all manuscripts
+    - Schedules S3 file cleanup (immediate best-effort, with 30-day hard delete)
+    - Invalidates all sessions (increments token_version)
+    - Clears auth cookies
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    # Soft-delete all manuscripts
+    ms_result = await db.execute(
+        select(Manuscript).where(
+            Manuscript.user_id == user.id,
+            Manuscript.deleted_at.is_(None),
+        )
+    )
+    manuscripts = ms_result.scalars().all()
+
+    s3_keys_to_delete = []
+    for ms in manuscripts:
+        ms.deleted_at = datetime.now(timezone.utc)
+        if ms.s3_key:
+            s3_keys_to_delete.append(ms.s3_key)
+
+    # Soft-delete user and invalidate sessions
+    user.deleted_at = datetime.now(timezone.utc)
+    user.token_version += 1
+
+    await db.commit()
+
+    # Best-effort S3 cleanup (non-blocking)
+    if s3_keys_to_delete:
+        try:
+            from app.manuscripts.s3 import delete_from_s3
+            for key in s3_keys_to_delete:
+                try:
+                    delete_from_s3(key)
+                except Exception as e:
+                    logger.warning(f"Failed to delete S3 key {key}: {e}")
+        except Exception as e:
+            logger.warning(f"S3 cleanup skipped: {e}")
+
+    # Clear auth cookies
+    response.delete_cookie("access_token", path="/")
+    response.delete_cookie("refresh_token", path="/auth/refresh")
+
+    return MessageResponse(message="Your account and all data have been deleted.")

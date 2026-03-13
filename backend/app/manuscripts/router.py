@@ -136,7 +136,14 @@ async def delete_manuscript(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Soft-delete a manuscript. Purge job handles S3 and child row cleanup."""
+    """Soft-delete a manuscript and clean up S3 files.
+
+    Per GDPR requirements: files are removed from S3 immediately (best-effort).
+    Database rows are soft-deleted (deleted_at timestamp) for 30-day retention.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
     result = await db.execute(
         select(Manuscript).where(
             Manuscript.id == manuscript_id,
@@ -148,8 +155,17 @@ async def delete_manuscript(
     if manuscript is None:
         raise HTTPException(status_code=404, detail="Manuscript not found")
 
+    s3_key = manuscript.s3_key
     manuscript.deleted_at = datetime.now(timezone.utc)
     await db.commit()
+
+    # Best-effort S3 cleanup
+    if s3_key:
+        try:
+            from app.manuscripts.s3 import delete_from_s3
+            delete_from_s3(s3_key)
+        except Exception as e:
+            logger.warning(f"Failed to delete S3 key {s3_key}: {e}")
 
 
 @router.get("/jobs/{job_id}", response_model=JobResponse)

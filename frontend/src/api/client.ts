@@ -58,6 +58,10 @@ export function logout() {
   return request<{ message: string }>('/auth/logout', { method: 'POST' })
 }
 
+export function deleteAccount() {
+  return request<{ message: string }>('/auth/account', { method: 'DELETE' })
+}
+
 // --- Manuscripts ---
 
 export interface Manuscript {
