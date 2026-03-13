@@ -77,6 +77,12 @@ export function ManuscriptPage() {
   const analyzedCount = manuscript.chapters.filter((ch) => ch.status === 'analyzed').length
   const totalChapters = manuscript.chapters.length
 
+  // Check if a chapter has been stuck in 'analyzing' for longer than the job timeout (600s)
+  const STALL_THRESHOLD_MS = 600_000
+  const analyzingChapter = manuscript.chapters.find((ch) => ch.status === 'analyzing')
+  const isAnalysisStalled = manuscript.status === 'analyzing' && analyzingChapter != null
+    && (Date.now() - new Date(analyzingChapter.updated_at).getTime()) > STALL_THRESHOLD_MS
+
   return (
     <div>
       <div className="ms-header">
@@ -102,13 +108,13 @@ export function ManuscriptPage() {
               Story Bible
             </Link>
           )}
-          {(manuscript.status === 'bible_complete' || manuscript.status === 'error') && manuscript.payment_status === 'paid' && (
+          {(manuscript.status === 'bible_complete' || manuscript.status === 'error' || isAnalysisStalled) && manuscript.payment_status === 'paid' && (
             <button
               className="btn-primary"
               onClick={handleStartAnalysis}
               disabled={analysisLoading}
             >
-              {analysisLoading ? 'Starting...' : manuscript.status === 'error' ? 'Retry Analysis' : 'Run Chapter Analysis'}
+              {analysisLoading ? 'Starting...' : manuscript.status === 'error' || isAnalysisStalled ? 'Retry Analysis' : 'Run Chapter Analysis'}
             </button>
           )}
         </div>

@@ -81,6 +81,7 @@ export interface ChapterSummary {
   title: string | null
   word_count: number | null
   status: string
+  updated_at: string
 }
 
 export interface ManuscriptDetail extends Manuscript {

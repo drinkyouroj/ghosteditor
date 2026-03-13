@@ -3,12 +3,14 @@
 Per DECISION_003 JUDGE amendments:
 - No bare-number regex for chapter detection.
 - Minimum 200 words per chapter (merge short sections with next).
-- Cap at 100 chapters; fall back to single chapter if exceeded.
+- Cap at 150 chapters; fall back to single chapter if exceeded.
 
-Post-eval fixes (Gutenberg testing 2026-03-11):
-- Filter out TOC entries: chapter headers with < 50 words before the next header
-  are likely table-of-contents lines, not real chapter boundaries.
-- Capture pre-first-header text as Chapter 1 if it has >= 200 words.
+Chapter detection supports:
+- "Chapter 1", "Chapter One", "CHAPTER I.", "CHAPTER XIV" formats
+- Standalone Roman numerals on their own line (Gutenberg style)
+- Gutenberg preamble/license stripping
+- TOC filtering (short segments between headers)
+- Full title capture including subtitles on the next line
 """
 
 import io
@@ -20,17 +22,151 @@ from PyPDF2 import PdfReader
 
 logger = logging.getLogger(__name__)
 
+# ---------------------------------------------------------------------------
+# Gutenberg preamble / license stripping
+# ---------------------------------------------------------------------------
+
+# Matches the start-of-text marker in Project Gutenberg files
+_GUTENBERG_START = re.compile(
+    r"\*\*\*\s*START OF (?:THE|THIS) PROJECT GUTENBERG EBOOK.*?\*\*\*",
+    re.IGNORECASE,
+)
+# Matches the end-of-text marker
+_GUTENBERG_END = re.compile(
+    r"\*\*\*\s*END OF (?:THE|THIS) PROJECT GUTENBERG EBOOK.*?\*\*\*",
+    re.IGNORECASE,
+)
+# Fallback: detect Gutenberg header by title line
+_GUTENBERG_HEADER = re.compile(
+    r"^.*Project Gutenberg.*eBook", re.IGNORECASE | re.MULTILINE
+)
+
+
+def _strip_gutenberg(text: str) -> str:
+    """Strip Project Gutenberg preamble and license text if present."""
+    # Try the *** START/END markers first (most reliable)
+    start_match = _GUTENBERG_START.search(text)
+    end_match = _GUTENBERG_END.search(text)
+
+    if start_match and end_match and start_match.end() < end_match.start():
+        stripped = text[start_match.end():end_match.start()].strip()
+        logger.info(
+            f"Stripped Gutenberg preamble/license via *** markers "
+            f"({len(text) - len(stripped)} chars removed)"
+        )
+        return stripped
+
+    # Fallback: if we see "Project Gutenberg eBook" in the first 2000 chars,
+    # look for the first blank-line-separated block after it as the start of content
+    if _GUTENBERG_HEADER.search(text[:2000]):
+        # Find the first chapter-like header or significant text block
+        # Skip everything before the first double newline after the header
+        lines = text.split("\n")
+        in_preamble = True
+        blank_count = 0
+        content_start = 0
+        for i, line in enumerate(lines):
+            stripped_line = line.strip()
+            if in_preamble:
+                if not stripped_line:
+                    blank_count += 1
+                else:
+                    blank_count = 0
+                # After seeing the header, wait for a substantial gap (3+ blank lines)
+                # which typically separates the preamble from the actual text
+                if blank_count >= 3 and i > 10:
+                    content_start = sum(len(l) + 1 for l in lines[:i])
+                    in_preamble = False
+        if not in_preamble:
+            stripped = text[content_start:].strip()
+            logger.info(
+                f"Stripped Gutenberg preamble via blank-line heuristic "
+                f"({content_start} chars removed from start)"
+            )
+            # Also try to strip the license at the end
+            # Look for common Gutenberg end markers
+            end_markers = [
+                "End of the Project Gutenberg",
+                "End of Project Gutenberg",
+                "*** END OF THE PROJECT",
+                "*** END OF THIS PROJECT",
+            ]
+            for marker in end_markers:
+                idx = stripped.lower().rfind(marker.lower())
+                if idx > len(stripped) // 2:  # Only if in the latter half
+                    stripped = stripped[:idx].strip()
+                    logger.info(f"Stripped Gutenberg license from end")
+                    break
+            return stripped
+
+    return text
+
+
+# ---------------------------------------------------------------------------
+# Chapter header patterns
+# ---------------------------------------------------------------------------
+
+CHAPTER_WORD_NUMBERS = (
+    "One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten|"
+    "Eleven|Twelve|Thirteen|Fourteen|Fifteen|Sixteen|Seventeen|Eighteen|Nineteen|Twenty|"
+    "Twenty-?One|Twenty-?Two|Twenty-?Three|Twenty-?Four|Twenty-?Five|"
+    "Twenty-?Six|Twenty-?Seven|Twenty-?Eight|Twenty-?Nine|Thirty|"
+    "Thirty-?One|Thirty-?Two|Thirty-?Three|Thirty-?Four|Thirty-?Five|"
+    "Forty|Fifty|Sixty|Seventy|Eighty|Ninety|Hundred"
+)
+
+ROMAN_NUMERAL = r"[IVXLC]+"
+
+# Each pattern returns the full matched header text as group(0) or group(1)
 CHAPTER_PATTERNS = [
-    re.compile(r"^Chapter\s+\d+", re.IGNORECASE | re.MULTILINE),
-    re.compile(r"^Chapter\s+[A-Z][a-z]+", re.IGNORECASE | re.MULTILINE),
-    re.compile(r"^CHAPTER\s+", re.MULTILINE),
+    # "Chapter 1", "CHAPTER 12", "chapter 3" — optionally followed by subtitle on same line
+    re.compile(r"^(Chapter\s+\d+[^\S\n]*[^\n]*)", re.IGNORECASE | re.MULTILINE),
+    # "Chapter One", "Chapter Twenty-Three"
+    re.compile(
+        rf"^(Chapter\s+(?:{CHAPTER_WORD_NUMBERS})\b[^\S\n]*[^\n]*)",
+        re.IGNORECASE | re.MULTILINE,
+    ),
+    # "CHAPTER I.", "CHAPTER XIV", "CHAPTER I. Down the Rabbit-Hole"
+    # All-caps CHAPTER followed by Roman numeral (with optional period and subtitle)
+    re.compile(
+        rf"^(CHAPTER\s+{ROMAN_NUMERAL}\.?[^\S\n]*[^\n]*)",
+        re.MULTILINE,
+    ),
+    # Standalone Roman numerals on their own line (preceded by blank line)
+    # Handles both \n and \r\n line endings (Gutenberg style)
+    re.compile(rf"(?:^|\r?\n)\s*\r?\n\s*({ROMAN_NUMERAL})\s*\r?\n", re.MULTILINE),
 ]
 
+# Valid Roman numerals for chapter headers (I through L = 1-50)
+_ROMAN_VALUES = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100}
+
+
+def _is_valid_roman(s: str) -> bool:
+    """Check if a string is a valid Roman numeral between 1 and 50."""
+    s = s.strip().upper()
+    if not s or not all(c in _ROMAN_VALUES for c in s):
+        return False
+    total = 0
+    prev = 0
+    for c in reversed(s):
+        val = _ROMAN_VALUES[c]
+        if val < prev:
+            total -= val
+        else:
+            total += val
+        prev = val
+    return 1 <= total <= 50
+
+
 MIN_CHAPTER_WORDS = 200
-TOC_THRESHOLD_WORDS = 50  # Chapters with fewer words than this are likely TOC entries
+TOC_THRESHOLD_WORDS = 50
 MAX_CHAPTERS = 150
 MAX_WORD_COUNT = 120_000
 
+
+# ---------------------------------------------------------------------------
+# Text extraction
+# ---------------------------------------------------------------------------
 
 def extract_text_from_docx(content: bytes) -> str:
     doc = DocxDocument(io.BytesIO(content))
@@ -61,19 +197,15 @@ def extract_text_from_txt(content: bytes) -> str:
     return content.decode("utf-8")
 
 
-MIN_EXTRACTED_WORDS = 50  # Minimum words after extraction to be considered valid
-LANGUAGE_SAMPLE_SIZE = 5000  # Characters to sample for language detection
+MIN_EXTRACTED_WORDS = 50
+LANGUAGE_SAMPLE_SIZE = 5000
 
 
 def detect_language(text: str) -> str | None:
-    """Detect the language of text. Returns ISO 639-1 code or None on failure.
-
-    Per blueprint: 'Non-English manuscript detection before Claude analysis —
-    return error, don't analyze.'
-    """
+    """Detect the language of text. Returns ISO 639-1 code or None on failure."""
     try:
         from langdetect import detect, DetectorFactory
-        DetectorFactory.seed = 0  # Deterministic results
+        DetectorFactory.seed = 0
         sample = text[:LANGUAGE_SAMPLE_SIZE]
         return detect(sample)
     except Exception:
@@ -91,7 +223,6 @@ def extract_text(content: bytes, ext: str) -> str:
     else:
         raise ExtractionError(f"Unsupported file type: {ext}")
 
-    # Validate extracted text has meaningful content
     text = text.strip()
     if not text:
         raise ExtractionError(
@@ -105,7 +236,6 @@ def extract_text(content: bytes, ext: str) -> str:
             "Please upload a file with at least a few paragraphs of text."
         )
 
-    # Language detection — reject non-English manuscripts
     lang = detect_language(text)
     if lang is not None and lang != "en":
         logger.info(f"Non-English manuscript detected: language={lang}")
@@ -113,6 +243,9 @@ def extract_text(content: bytes, ext: str) -> str:
             "GhostEditor currently supports English-language manuscripts only. "
             f"This text was detected as '{lang}'."
         )
+
+    # Strip Gutenberg preamble/license if present
+    text = _strip_gutenberg(text)
 
     return text
 
@@ -136,7 +269,7 @@ def _safe_extract_pdf(content: bytes) -> str:
     try:
         return extract_text_from_pdf(content)
     except ExtractionError:
-        raise  # Re-raise our own errors (e.g., scanned PDF detection)
+        raise
     except Exception as e:
         raise ExtractionError(
             "Could not read this PDF file. It may be password-protected or damaged. "
@@ -144,16 +277,60 @@ def _safe_extract_pdf(content: bytes) -> str:
         )
 
 
+# ---------------------------------------------------------------------------
+# Chapter detection
+# ---------------------------------------------------------------------------
+
+def _extract_title(text: str, pos: int, matched_header: str) -> str:
+    """Extract a clean chapter title from the matched header text.
+
+    For headers like "CHAPTER I. Down the Rabbit-Hole", returns the full line.
+    Also checks the next line for a subtitle (common in Gutenberg formatting
+    where the subtitle is on a separate line).
+    """
+    # The matched header is already the full line — clean it up
+    title = matched_header.strip().rstrip(".")
+
+    # Check if the next line is a subtitle (non-empty, not a chapter header, not too long)
+    end_of_match = pos + len(matched_header)
+    rest = text[end_of_match:]
+
+    # Find next non-blank line
+    lines = rest.split("\n", 3)
+    for line in lines[:2]:  # Check next 1-2 lines
+        stripped = line.strip()
+        if not stripped:
+            continue
+        # If it looks like a subtitle (short, doesn't start with common text patterns)
+        if len(stripped) < 80 and not stripped[0].islower():
+            title = title + " — " + stripped.rstrip(".")
+        break
+
+    return title
+
+
 def detect_chapters(text: str) -> list[dict]:
     """Detect chapter boundaries in text. Returns list of {chapter_number, title, text, word_count}.
 
-    Per JUDGE: merge chapters < 200 words with next; cap at 100; no bare-number regex.
+    Per JUDGE: merge chapters < 200 words with next; cap at 150; no bare-number regex.
     """
     split_positions = []
 
-    for pattern in CHAPTER_PATTERNS:
+    for i, pattern in enumerate(CHAPTER_PATTERNS):
         for match in pattern.finditer(text):
-            split_positions.append((match.start(), match.group().strip()))
+            if i == 3:
+                # Roman numeral pattern uses a capture group
+                numeral = match.group(1).strip()
+                if not _is_valid_roman(numeral):
+                    continue
+                pos = match.start(1)
+                split_positions.append((pos, numeral))
+            else:
+                # Other patterns: group(1) has the full header line
+                header = match.group(1) if match.lastindex else match.group(0)
+                pos = match.start(1) if match.lastindex else match.start()
+                title = header.strip()
+                split_positions.append((pos, title))
 
     if not split_positions:
         word_count = len(text.split())
@@ -162,17 +339,17 @@ def detect_chapters(text: str) -> list[dict]:
 
     # Sort by position, deduplicate overlapping matches
     split_positions.sort(key=lambda x: x[0])
-    # Remove duplicates that are within 50 chars of each other
     deduped = [split_positions[0]]
     for pos, title in split_positions[1:]:
         if pos - deduped[-1][0] > 50:
             deduped.append((pos, title))
+        else:
+            # Keep the longer/more descriptive title for overlapping matches
+            if len(title) > len(deduped[-1][1]):
+                deduped[-1] = (deduped[-1][0], title)
     split_positions = deduped
 
     # --- TOC FILTER ---
-    # If many consecutive "chapters" have very little text between headers,
-    # they're likely table-of-contents entries. Filter them out.
-    # A real chapter has substantial text; a TOC line has ~1-10 words.
     filtered_positions = []
     for i, (pos, title) in enumerate(split_positions):
         end = split_positions[i + 1][0] if i + 1 < len(split_positions) else len(text)
@@ -182,7 +359,6 @@ def detect_chapters(text: str) -> list[dict]:
             filtered_positions.append((pos, title))
 
     if not filtered_positions:
-        # All segments were tiny — possibly a very fragmented text
         word_count = len(text.split())
         logger.info("All detected segments were too short; treating entire text as Chapter 1")
         return [{"chapter_number": 1, "title": None, "text": text, "word_count": word_count}]
@@ -195,7 +371,7 @@ def detect_chapters(text: str) -> list[dict]:
 
     # --- PRE-HEADER TEXT ---
     # If there's substantial text before the first detected chapter header,
-    # capture it as Chapter 1 (handles cases like P&P where Chapter I header is missing).
+    # capture it as a prologue chapter.
     raw_chapters = []
     first_pos = split_positions[0][0]
     pre_header_text = text[:first_pos].strip()
@@ -212,7 +388,15 @@ def detect_chapters(text: str) -> list[dict]:
     for i, (pos, title) in enumerate(split_positions):
         end = split_positions[i + 1][0] if i + 1 < len(split_positions) else len(text)
         chapter_text = text[pos:end].strip()
-        raw_chapters.append({"title": title, "text": chapter_text, "word_count": len(chapter_text.split())})
+
+        # Build a clean title — extract subtitle from the text if available
+        clean_title = _extract_title(text, pos, title)
+
+        raw_chapters.append({
+            "title": clean_title,
+            "text": chapter_text,
+            "word_count": len(chapter_text.split()),
+        })
 
     # Merge short chapters (< 200 words) with the next chapter
     merged = []

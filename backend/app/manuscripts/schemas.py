@@ -27,6 +27,7 @@ class ChapterSummary(BaseModel):
     title: str | None
     word_count: int | None
     status: str
+    updated_at: datetime
 
     model_config = {"from_attributes": True}
 
