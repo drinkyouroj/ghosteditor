@@ -204,3 +204,35 @@
 - **Navigation**: "View Feedback" button on dashboard (complete manuscripts) and manuscript detail page
 - **API client**: Added `ManuscriptFeedback`, `ChapterFeedback`, `Issue`, `PacingAnalysis`, `GenreNotes` types
 - Production build: 189KB JS + 16KB CSS gzipped
+
+### Progress Indicators + Error State UI (Step 17)
+- **ManuscriptPage** rewritten with:
+  - Auto-refresh polling (5s) while manuscript is processing (uploading, extracting, bible_generating, analyzing)
+  - Animated progress indicator with status label and pulsing dot
+  - Progress bar for chapter analysis ("3 of 12 chapters analyzed")
+  - Error state banner with actionable help text
+  - Per-chapter status badges: color-coded pills (green=analyzed, amber=analyzing, gray=pending, red=error)
+  - Back-to-dashboard navigation link
+- Status labels mapped to user-friendly text throughout (e.g. "bible_generating" → "Building story bible...")
+
+### Manuscript Deletion + GDPR (Step 18)
+- **Account deletion endpoint**: `DELETE /auth/account`
+  - Soft-deletes user (sets `deleted_at`)
+  - Soft-deletes all user manuscripts
+  - Best-effort S3 file cleanup (immediate)
+  - Invalidates all sessions (increments `token_version`)
+  - Clears auth cookies
+- **Enhanced manuscript deletion**: `DELETE /manuscripts/{id}` now cleans up S3 files immediately (best-effort)
+- **Settings page** (`/settings`): Data & Privacy section with account deletion flow
+  - Danger zone with "Delete my account" button
+  - Confirmation step: lists all data that will be deleted, requires typing "DELETE"
+  - Settings link added to navigation header
+- **API client**: Added `deleteAccount()` function
+
+### Legal Pages (Step 19)
+- **Terms of Service** (`/terms`): 10 sections covering IP retention, AI data use, data storage, account deletion, acceptable use, liability
+- **Privacy Policy** (`/privacy`): 9 sections covering data collection, AI processing, storage/security, data retention, sharing, user rights, cookies
+- Key provisions: "Your manuscripts are never used to train AI models", immediate S3 deletion on account delete, 30-day database purge
+- Footer links to ToS and Privacy Policy on every page
+- Routes accessible without authentication
+- Production build: 202KB JS + 20KB CSS gzipped
