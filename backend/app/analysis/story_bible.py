@@ -111,7 +111,8 @@ async def generate_story_bible(
 
     if parsed is None and is_truncated(raw_response):
         logger.warning("Response appears truncated, retrying with higher max_tokens")
-        raw_response = await _call_claude(prompt, max_tokens=MAX_TOKENS * 2)
+        retry_tokens = min(MAX_TOKENS * 2, 65536)  # cap at model max
+        raw_response = await _call_claude(prompt, max_tokens=retry_tokens)
         parsed = parse_json_response(raw_response)
 
     if parsed is None:
@@ -189,9 +190,12 @@ async def _call_claude(prompt: str, max_tokens: int = MAX_TOKENS) -> str:
     Translates Anthropic API errors into StoryBibleError with user-friendly messages.
     """
     try:
-        client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+        client = anthropic.AsyncAnthropic(
+            api_key=settings.anthropic_api_key,
+            timeout=300.0,  # 5 minute timeout per API call
+        )
         message = await client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-haiku-4-5-20251001",
             max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
         )

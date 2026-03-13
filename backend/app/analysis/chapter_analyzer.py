@@ -180,7 +180,10 @@ async def _call_claude(prompt: str, max_tokens: int = MAX_TOKENS) -> str:
     Translates Anthropic API errors into ChapterAnalysisError with user-friendly messages.
     """
     try:
-        client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+        client = anthropic.AsyncAnthropic(
+            api_key=settings.anthropic_api_key,
+            timeout=300.0,  # 5 minute timeout per API call
+        )
         message = await client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=max_tokens,
