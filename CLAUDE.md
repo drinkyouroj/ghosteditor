@@ -66,6 +66,56 @@ Write the exchange to `docs/decisions/DECISION_[NNN]_[slug].md` before writing t
 
 ---
 
+## Docker Safety Rules
+
+**Never stop, restart, kill, or remove any running Docker container under any
+circumstances.** Other services outside this project's context may depend on them.
+
+Forbidden Docker operations — never run these, no exceptions:
+- `docker stop`, `docker kill`, `docker restart`
+- `docker compose stop`, `docker compose down`, `docker compose restart`
+- `docker rm`, `docker container prune`
+- Any flag that tears down or interrupts a running container (`--force`, `-f`, etc.)
+
+Allowed Docker operations:
+- `docker ps` — inspect what's running
+- `docker logs <container>` — read logs
+- `docker exec <container> <cmd>` — run commands inside a running container
+- `docker compose up -d` — start this project's containers
+- `docker compose build` — build this project's images
+
+### Per-Project Port Isolation
+
+Every project runs its own isolated Docker containers on dedicated ports.
+Do not share containers with other projects, even if the same service (e.g. PostgreSQL)
+is already running on the default port.
+
+**Before writing `docker-compose.yml`, scan for used ports:**
+```bash
+docker ps --format "{{.Ports}}"
+```
+
+**Then assign this project ports from an unused range.** Use this convention:
+
+| Service | Default port | This project's port |
+|---------|-------------|---------------------|
+| PostgreSQL | 5432 | 5433 |
+| Redis | 6379 | 6380 |
+| MinIO API | 9000 | 9002 |
+| MinIO Console | 9001 | 9003 |
+| Backend API | 8000 | 8000 |
+| Frontend dev | 5173 | 5173 |
+
+Replace `[ASSIGN_ON_SETUP]` by scanning `docker ps` output on first run and picking
+the next available port above any in use. Document the chosen ports here once assigned
+and in `.env.example`. Never hardcode default ports in application config — always
+read from environment variables so ports can change without code edits.
+
+If a port conflict is detected at any point, stop and report it:
+"Port [X] is already in use. I will reassign to [Y] — confirm before I proceed."
+
+---
+
 ## Git Workflow
 
 GhostEditor uses Git Flow. Every branch, commit, and push follows the rules below without
