@@ -215,7 +215,7 @@ async def start_chapter_analysis(
     if manuscript.payment_status != PaymentStatus.paid:
         raise HTTPException(status_code=402, detail="Payment required before analysis")
 
-    if manuscript.status not in (ManuscriptStatus.bible_complete, ManuscriptStatus.complete):
+    if manuscript.status not in (ManuscriptStatus.bible_complete, ManuscriptStatus.complete, ManuscriptStatus.error):
         raise HTTPException(
             status_code=409,
             detail=f"Manuscript must have a completed story bible first (current: {manuscript.status.value})",

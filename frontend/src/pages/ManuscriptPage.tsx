@@ -102,13 +102,13 @@ export function ManuscriptPage() {
               Story Bible
             </Link>
           )}
-          {manuscript.status === 'bible_complete' && manuscript.payment_status === 'paid' && (
+          {(manuscript.status === 'bible_complete' || manuscript.status === 'error') && manuscript.payment_status === 'paid' && (
             <button
               className="btn-primary"
               onClick={handleStartAnalysis}
               disabled={analysisLoading}
             >
-              {analysisLoading ? 'Starting...' : 'Run Chapter Analysis'}
+              {analysisLoading ? 'Starting...' : manuscript.status === 'error' ? 'Retry Analysis' : 'Run Chapter Analysis'}
             </button>
           )}
         </div>

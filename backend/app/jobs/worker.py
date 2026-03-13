@@ -48,7 +48,7 @@ MAX_BIBLE_VERSIONS = 50
 STALE_JOB_TIMEOUT_MINUTES = 15  # Jobs running longer than this are considered stalled
 
 # Transient error messages that should trigger automatic retry
-TRANSIENT_ERROR_KEYWORDS = ["temporarily busy", "temporarily overloaded", "timed out", "connection"]
+TRANSIENT_ERROR_KEYWORDS = ["temporarily busy", "temporarily overloaded", "timed out", "connection", "connect"]
 
 
 def _get_session_factory():
@@ -76,8 +76,13 @@ async def _fail_job_with_retry(
     error_msg: str,
     step_label: str,
     job_func: str,
+    chapter_uuid: uuid.UUID | None = None,
 ):
-    """Fail a job, or re-enqueue it if the error is transient and retries remain."""
+    """Fail a job, or re-enqueue it if the error is transient and retries remain.
+
+    If chapter_uuid is provided, reverts the chapter status to 'extracted' on
+    permanent failure so the chapter is eligible for retry via /analyze.
+    """
     async with session_factory() as session:
         result = await session.execute(select(Job).where(Job.id == job_uuid))
         job = result.scalar_one()
@@ -102,6 +107,15 @@ async def _fail_job_with_retry(
         job.error_message = error_msg
         job.current_step = step_label
         job.completed_at = datetime.now(timezone.utc)
+
+        # Revert chapter status so it's eligible for retry
+        if chapter_uuid is not None:
+            ch_result = await session.execute(select(Chapter).where(Chapter.id == chapter_uuid))
+            ch = ch_result.scalar_one_or_none()
+            if ch and ch.status == ChapterStatus.analyzing:
+                ch.status = ChapterStatus.extracted
+                logger.info(f"Reverted chapter {chapter_uuid} status to 'extracted' for retry eligibility")
+
         await session.commit()
 
         # Update manuscript status
@@ -599,6 +613,7 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
             await _fail_job_with_retry(
                 session_factory, job_uuid, ms_uuid,
                 str(e), "Chapter analysis failed", "process_chapter_analysis",
+                chapter_uuid=ch_uuid,
             )
         except Exception as e:
             logger.exception(f"Unexpected error in chapter analysis for {chapter_id}")
@@ -606,6 +621,7 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
                 session_factory, job_uuid, ms_uuid,
                 "An unexpected error occurred while analyzing your chapter. Please try again.",
                 "Chapter analysis failed", "process_chapter_analysis",
+                chapter_uuid=ch_uuid,
             )
 
 

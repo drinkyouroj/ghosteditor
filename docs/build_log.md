@@ -282,8 +282,24 @@
 - Responsive layout with mobile breakpoints
 - Production build: 213KB JS + 28KB CSS gzipped (65KB JS gzipped)
 
+### P0 Error Recovery Fixes (2026-03-13)
+- **Chapter status revert on failure**: When chapter analysis fails permanently, chapter status reverts from `analyzing` to `extracted` so it's eligible for retry
+- **Transient error detection**: Added "connect" keyword to catch `APIConnectionError` messages ("Could not connect")
+- **Restart from error**: `/analyze` endpoint now accepts `error` status manuscripts, allowing users to retry failed analyses without manual DB intervention
+- **Frontend retry button**: "Retry Analysis" button shown on manuscript error state for paid manuscripts
+
 ### Known limitations
 - Stripe products/prices created inline (not pre-configured via Dashboard) — fine for MVP
 - No billing history page (Stripe sends receipts directly)
 - Email drip sequences use hardcoded base URL (localhost:5173) — needs config for production
 - No subscription management UI beyond cancel (upgrade/downgrade not needed for 2-tier pricing)
+
+### TODO — P1 Error Visibility
+- [ ] Surface bible drift warnings to users (currently logged but invisible)
+- [ ] Indicate when issues are capped at 15 per chapter (silent truncation)
+- [ ] Surface S3 deletion failures for GDPR audit trail (currently swallowed)
+- [ ] Warn users when chapters under 500 words return empty analysis
+
+### TODO — Chapter Detection Improvements
+- [ ] Strip Project Gutenberg preamble/license text before chapter detection (caused blank bible on Alice in Wonderland test — license text was treated as Chapter 1)
+- [ ] Add heuristic: if Chapter 1 text has no character names, dialogue, or narrative markers, flag it as likely preamble and skip or warn
