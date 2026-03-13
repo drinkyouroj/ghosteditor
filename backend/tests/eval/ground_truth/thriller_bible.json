@@ -1,44 +1,45 @@
 {
   "characters": [
     {
-      "name": "Richard Hannay",
+      "name": "Carruthers",
       "role": "protagonist",
-      "description": "A restless South African mining engineer recently returned to London, becomes embroiled in an espionage plot after Scudder's murder."
+      "description": "Young Foreign Office clerk, bored with London society during the off-season, narrator of the story. Receives an unexpected letter from Davies inviting him to go sailing."
     },
     {
-      "name": "Franklin Scudder",
-      "role": "minor",
-      "description": "An American freelance spy who reveals a conspiracy to Hannay, then is murdered in Hannay's flat, leaving behind a coded notebook."
+      "name": "Arthur Davies",
+      "aliases": ["Davies"],
+      "role": "supporting",
+      "description": "Amateur sailor who owns the yacht Dolorosa, earnest and unpretentious. Sends an urgent and somewhat mysterious invitation to Carruthers to join him cruising in the Baltic."
     }
   ],
   "voice_profile": {
     "pov": "first person",
     "tense": "past",
-    "tone": "terse and urgent, adventure"
+    "tone": "measured and ironic with self-deprecating wit"
   },
   "settings": [
     {
-      "name": "Hannay's Portland Place flat",
-      "description": "Hannay's London flat where Scudder takes refuge and is later found murdered."
+      "name": "London",
+      "description": "Carruthers' flat and club in London, where he languishes during the social off-season."
     },
     {
-      "name": "Scottish moorland",
-      "description": "The open Scottish countryside where Hannay flees to evade pursuit."
+      "name": "The yacht / Baltic Sea",
+      "description": "Davies' small yacht and the Baltic/North Sea sailing grounds, the anticipated destination."
     }
   ],
   "plot_threads": [
     {
-      "thread": "The Black Stone conspiracy — a foreign plot against Britain that Scudder uncovered"
+      "thread": "Carruthers debating whether to accept Davies' unexpected invitation to go sailing"
     },
     {
-      "thread": "Hannay framed for Scudder's murder and on the run from both police and conspirators"
+      "thread": "Social snobbery versus the appeal of adventure — Carruthers weighing his London life against the unknown"
     },
     {
-      "thread": "Decoding Scudder's notebook to understand the full conspiracy"
+      "thread": "Mysterious undertone to Davies' urgent invitation suggesting something beyond a casual cruise"
     }
   ],
   "world_rules": [
-    "Set in pre-WWI Britain with rising international tensions",
-    "Hannay must evade both the police (who suspect him of murder) and the conspirators (who want him silenced)"
+    "Edwardian social hierarchy and the importance of the London social season",
+    "Small-boat sailing in the North Sea and Baltic as a gentleman's pursuit"
   ]
 }

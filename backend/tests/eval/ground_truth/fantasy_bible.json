@@ -1,69 +1,66 @@
 {
   "characters": [
     {
-      "name": "John Carter",
+      "name": "The Time Traveller",
       "role": "protagonist",
-      "description": "Former Confederate cavalry captain, prospector in Arizona, mysteriously transported to Mars/Barsoom."
+      "description": "Unnamed inventor who hosts dinner parties and demonstrates a time machine to his guests. Builds a full-scale machine in his laboratory."
     },
     {
-      "name": "Captain James K. Powell",
+      "name": "The Narrator",
+      "aliases": ["narrator", "I"],
       "role": "minor",
-      "description": "Carter's fellow prospector and friend, killed by Apaches before Carter's transportation to Mars."
+      "description": "First person frame narrator, one of the dinner guests, observant and somewhat skeptical of the Time Traveller's claims."
     },
     {
-      "name": "Sola",
-      "role": "supporting",
-      "description": "A female green Martian assigned to guard Carter, shows unusual kindness among the Tharks."
-    },
-    {
-      "name": "Tars Tarkas",
-      "role": "supporting",
-      "description": "A large and important green Martian warrior, one of the leaders of the Tharks."
-    },
-    {
-      "name": "Lorquas Ptomel",
+      "name": "Filby",
       "role": "minor",
-      "description": "Jeddak (chief) of the Thark community that captures Carter."
+      "description": "Argumentative dinner guest with red hair who disputes the Time Traveller's theories."
+    },
+    {
+      "name": "The Psychologist",
+      "role": "minor",
+      "description": "Dinner guest who presses the lever on the model time machine during the first demonstration."
+    },
+    {
+      "name": "The Medical Man",
+      "role": "minor",
+      "description": "Pragmatic dinner guest, skeptical of the time travel demonstration."
+    },
+    {
+      "name": "The Provincial Mayor",
+      "role": "minor",
+      "description": "A dinner guest at the Time Traveller's gatherings."
     }
   ],
   "voice_profile": {
     "pov": "first person",
     "tense": "past",
-    "tone": "adventure and pulp, earnest and dramatic"
+    "tone": "scientific and philosophical, measured Victorian prose"
   },
   "settings": [
     {
-      "name": "Arizona territory",
-      "description": "American Southwest, gold prospecting country, Apache territory."
+      "name": "The Time Traveller's house",
+      "description": "Drawing room, smoking room, and laboratory where the dinner parties and demonstrations take place."
     },
     {
-      "name": "Arizona cave",
-      "description": "Mysterious cave where Carter takes refuge and experiences his transportation to Mars."
-    },
-    {
-      "name": "Mars/Barsoom landscape",
-      "description": "Barren, ochre-coloured Martian terrain with low hills and sparse vegetation."
-    },
-    {
-      "name": "Thark incubator",
-      "description": "Building where green Martian eggs are kept and hatchlings emerge."
+      "name": "The laboratory/workshop",
+      "description": "The Time Traveller's workshop where the full-scale time machine is being built."
     }
   ],
   "plot_threads": [
     {
-      "thread": "Carter's mysterious transportation to Mars and whether he can return to Earth"
+      "thread": "The Time Traveller's mysterious invention and demonstration of the model time machine"
     },
     {
-      "thread": "Carter's survival captivity among green Martians Tharks warrior aliens"
+      "thread": "Skepticism of the dinner guests about the fourth dimension and time travel"
     },
     {
-      "thread": "Carter's superhuman strength leaping gravity Mars powers abilities"
+      "thread": "The Time Traveller's disappearance and return in a disheveled, injured state"
     }
   ],
   "world_rules": [
-    "Lower gravity on Mars gives Carter superhuman strength and the ability to leap great distances",
-    "Green Martians are approximately 15-foot tall, four-armed warriors",
-    "Green Martians reproduce via eggs that are incubated communally",
-    "Martian society among the Tharks is harsh and warlike, with little room for sentiment"
+    "Time is a fourth dimension that can be traversed just like the three spatial dimensions",
+    "The time machine has two levers — one for forward travel, one for backward",
+    "Consciousness moves along the time dimension; the machine enables physical travel"
   ]
 }

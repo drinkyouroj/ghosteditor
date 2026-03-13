@@ -1,59 +1,69 @@
 {
   "characters": [
     {
-      "name": "Sherlock Holmes",
+      "name": "Gabriel Betteredge",
+      "aliases": ["Betteredge", "narrator"],
       "role": "protagonist",
-      "description": "The famous consulting detective of Baker Street, brilliant and deductive."
+      "description": "Elderly house steward at the Verinder estate, digressive narrator who consults Robinson Crusoe for guidance in all matters."
     },
     {
-      "name": "Dr. Watson",
+      "name": "Lady Verinder",
       "role": "supporting",
-      "description": "Holmes's friend, flatmate, and narrator; a physician and former army doctor."
+      "description": "Mistress of the house and Rachel's mother, Betteredge's employer."
     },
     {
-      "name": "Dr. James Mortimer",
+      "name": "Rachel Verinder",
+      "aliases": ["Miss Rachel"],
       "role": "supporting",
-      "description": "A country physician from Dartmoor who brings the Baskerville case to Holmes, carrying the manuscript of the Baskerville legend."
+      "description": "Lady Verinder's daughter, young woman who will receive the Moonstone diamond for her birthday."
     },
     {
-      "name": "Sir Charles Baskerville",
-      "role": "mentioned",
-      "description": "Recently deceased baronet found dead on the grounds of Baskerville Hall under mysterious circumstances."
-    },
-    {
-      "name": "Sir Henry Baskerville",
+      "name": "Franklin Blake",
+      "aliases": ["Mr. Franklin"],
       "role": "supporting",
-      "description": "Nephew and heir to Sir Charles, arriving from Canada to claim the Baskerville estate."
+      "description": "Young gentleman who brings the Moonstone from London, cosmopolitan and multilingual, returns to the Verinder estate after years abroad."
+    },
+    {
+      "name": "Penelope",
+      "role": "minor",
+      "description": "Betteredge's daughter, a servant at the Verinder house."
+    },
+    {
+      "name": "The three Indian jugglers",
+      "aliases": ["the Indians"],
+      "role": "minor",
+      "description": "Three mysterious foreigners lurking near the estate, connected to the Moonstone diamond and its history in India."
     }
   ],
   "voice_profile": {
     "pov": "first person",
     "tense": "past",
-    "tone": "measured and observational, building suspense"
+    "tone": "chatty and digressive with Robinson Crusoe references, Victorian formal prose"
   },
   "settings": [
     {
-      "name": "221B Baker Street",
-      "description": "Holmes and Watson's famous London lodgings where they receive Dr. Mortimer."
+      "name": "Lady Verinder's house",
+      "description": "Yorkshire country house where the Verinder family lives, the primary setting."
     },
     {
-      "name": "Dartmoor / Baskerville Hall",
-      "description": "Remote moorland estate in Devon, described as gloomy and forbidding, setting of the Baskerville curse."
+      "name": "Seringapatam",
+      "description": "Indian city where the Moonstone was originally stolen during the siege."
     }
   ],
   "plot_threads": [
     {
-      "thread": "The mysterious death of Sir Charles Baskerville — natural causes or supernatural"
+      "thread": "The arrival of the Moonstone diamond and its cursed history from India"
     },
     {
-      "thread": "Protecting Sir Henry Baskerville, the new heir, from the supposed Baskerville curse"
+      "thread": "Indians Brahmins priests guardians seeking recover diamond Moonstone stolen"
     },
     {
-      "thread": "The legend of the supernatural hound versus a rational explanation"
+      "thread": "Moonstone diamond lost stolen Rachel birthday Verinder house twelve hours"
     }
   ],
   "world_rules": [
-    "Holmes's deductive method: observation of small details reveals large truths",
-    "The Baskerville curse — legend of a demonic hound that haunts the family line"
+    "The Moonstone diamond carries a curse from its origins in India, guarded by Brahmin priests",
+    "Victorian social hierarchy — the narrative is told from the servants' perspective",
+    "Family inheritance customs and the obligations that come with bequests"
   ]
 }

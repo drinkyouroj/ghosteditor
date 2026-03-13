@@ -1,45 +1,103 @@
 {
   "characters": [
     {
-      "name": "Ishmael",
+      "name": "Nick Carraway",
+      "aliases": ["Nick"],
       "role": "protagonist",
-      "description": "The narrator, a philosophical young man drawn to the sea whenever he feels restless or melancholy."
+      "description": "Narrator from Minnesota, Yale graduate, bond salesman who rents a small house in West Egg next to Gatsby's mansion. Second cousin once removed to Daisy."
     },
     {
-      "name": "Queequeg",
+      "name": "Jay Gatsby",
+      "aliases": ["Gatsby"],
       "role": "supporting",
-      "description": "A Pacific Islander and skilled harpooner, initially frightening but becomes Ishmael's close companion and bedmate at the inn."
+      "description": "Nick's mysterious wealthy neighbor who throws lavish parties at his mansion, associated with the green light across the bay. Background and source of wealth are unknown."
+    },
+    {
+      "name": "Tom Buchanan",
+      "aliases": ["Tom"],
+      "role": "supporting",
+      "description": "Nick's college acquaintance, Daisy's husband, old-money wealthy, physically imposing former football player with racist views."
+    },
+    {
+      "name": "Daisy Buchanan",
+      "aliases": ["Daisy"],
+      "role": "supporting",
+      "description": "Nick's second cousin once removed, Tom's wife, charming and seemingly shallow, lives in East Egg."
+    },
+    {
+      "name": "Jordan Baker",
+      "aliases": ["Jordan"],
+      "role": "supporting",
+      "description": "Professional golfer, Daisy's friend, somewhat dishonest, becomes Nick's romantic interest."
+    },
+    {
+      "name": "Myrtle Wilson",
+      "role": "minor",
+      "description": "Tom's mistress, lives in the valley of ashes, married to George Wilson the garage owner."
+    },
+    {
+      "name": "George Wilson",
+      "role": "minor",
+      "description": "Garage owner in the valley of ashes, Myrtle's husband, spiritless and anaemic."
+    },
+    {
+      "name": "Meyer Wolfsheim",
+      "role": "minor",
+      "description": "Gatsby's business associate, mentioned in connection with Gatsby's mysterious background."
+    },
+    {
+      "name": "Owl Eyes",
+      "role": "minor",
+      "description": "Drunk man in Gatsby's library who is amazed that the books are real."
     }
   ],
   "voice_profile": {
     "pov": "first person",
     "tense": "past",
-    "tone": "philosophical and literary with digressions and dry humour"
+    "tone": "lyrical and elegiac with rich metaphorical prose"
   },
   "settings": [
     {
-      "name": "Manhattan",
-      "description": "The island city where Ishmael begins his journey, drawn to the waterfront."
+      "name": "West Egg",
+      "description": "Nick's small cottage and Gatsby's enormous mansion on the less fashionable side of Long Island."
     },
     {
-      "name": "New Bedford",
-      "description": "Whaling port town where Ishmael arrives on his way to Nantucket."
+      "name": "East Egg",
+      "description": "The Buchanans' house, the fashionable old-money side of Long Island."
     },
     {
-      "name": "The Spouter-Inn",
-      "description": "Peter Coffin's inn in New Bedford where Ishmael stays and shares a bed with Queequeg."
+      "name": "Valley of Ashes",
+      "description": "Desolate industrial wasteland between Long Island and New York, site of Wilson's garage and the billboard of the eyes of Doctor T.J. Eckleburg."
+    },
+    {
+      "name": "New York City",
+      "description": "Tom's apartment where he conducts his affair with Myrtle, site of the drunken party in Chapter II."
+    },
+    {
+      "name": "Gatsby's mansion/parties",
+      "description": "Gatsby's enormous house where he throws lavish parties every weekend, attended by hundreds of strangers."
     }
   ],
   "plot_threads": [
     {
-      "thread": "Ishmael's journey to find a whaling ship and go to sea"
+      "thread": "Gatsby's mysterious background and source of wealth — rumors and speculation"
     },
     {
-      "thread": "The unlikely friendship between Ishmael and Queequeg, the cannibal harpooner"
+      "thread": "The green light across the bay — Gatsby watching Daisy's dock, symbolizing his longing"
+    },
+    {
+      "thread": "Tom's affair with Myrtle Wilson and the tension it creates"
+    },
+    {
+      "thread": "Nick's growing entanglement with the world of East Egg and West Egg"
+    },
+    {
+      "thread": "Gatsby and Daisy's past connection, hinted at by Jordan Baker"
     }
   ],
   "world_rules": [
-    "The whaling industry is a major economic force, drawing men from all walks of life",
-    "New Bedford and Nantucket are the centres of the American whaling trade"
+    "Jazz Age class divisions: old money (East Egg) versus new money (West Egg)",
+    "Prohibition-era hypocrisy — alcohol flows freely at Gatsby's parties despite the law",
+    "The American Dream mythology — self-invention and the pursuit of wealth and status"
   ]
 }

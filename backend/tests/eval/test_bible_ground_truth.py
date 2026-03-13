@@ -12,6 +12,7 @@ with @pytest.mark.api so they can be run selectively:
 
 import asyncio
 import json
+import re
 import pytest
 from pathlib import Path
 
@@ -28,10 +29,10 @@ END_MARKER = "*** END OF THE PROJECT GUTENBERG EBOOK"
 
 GENRE_MAP = {
     "pride_and_prejudice_full.txt": ("Romance", "romance"),
-    "princess_of_mars_full.txt": ("Fantasy / Science Fiction", "fantasy"),
-    "moby_dick_full.txt": ("Literary Fiction", "literary"),
-    "thirty_nine_steps_full.txt": ("Thriller", "thriller"),
-    "hound_of_baskervilles_full.txt": ("Mystery", "mystery"),
+    "time_machine_full.txt": ("Fantasy", "fantasy"),
+    "riddle_of_sands_full.txt": ("Thriller", "thriller"),
+    "great_gatsby_full.txt": ("Literary Fiction", "literary"),
+    "moonstone_full.txt": ("Mystery", "mystery"),
 }
 
 GROUND_TRUTH_FILES = {
@@ -57,18 +58,91 @@ def _strip_gutenberg(text: str) -> str:
     return text.strip()
 
 
+def _split_time_machine(text: str, count: int) -> list[dict]:
+    """Custom chapter splitting for The Time Machine.
+
+    Section markers are formatted as " I." (space + Roman numeral + period)
+    at the start of a line.
+    """
+    pattern = re.compile(r"^ [IVX]+\.\n", re.MULTILINE)
+    matches = list(pattern.finditer(text))
+
+    if not matches:
+        # Fallback: treat entire text as one chapter
+        return [{"chapter_number": 1, "title": None, "text": text,
+                 "word_count": len(text.split())}]
+
+    chapters = []
+    for i, match in enumerate(matches[:count]):
+        start = match.start()
+        if i + 1 < len(matches):
+            end = matches[i + 1].start()
+        else:
+            end = len(text)
+        ch_text = text[start:end].strip()
+        chapters.append({
+            "chapter_number": i + 1,
+            "title": match.group().strip(),
+            "text": ch_text,
+            "word_count": len(ch_text.split()),
+        })
+
+    return chapters
+
+
+def _split_great_gatsby(text: str, count: int) -> list[dict]:
+    """Custom chapter splitting for The Great Gatsby.
+
+    Chapters are separated by centered Roman numerals on their own line
+    (lots of leading whitespace + Roman numeral).
+    """
+    pattern = re.compile(r"^\s{10,}[IVX]+\s*$", re.MULTILINE)
+    matches = list(pattern.finditer(text))
+
+    if not matches:
+        # Fallback: treat entire text as one chapter
+        return [{"chapter_number": 1, "title": None, "text": text,
+                 "word_count": len(text.split())}]
+
+    chapters = []
+    for i, match in enumerate(matches[:count]):
+        start = match.start()
+        if i + 1 < len(matches):
+            end = matches[i + 1].start()
+        else:
+            end = len(text)
+        ch_text = text[start:end].strip()
+        chapters.append({
+            "chapter_number": i + 1,
+            "title": match.group().strip(),
+            "text": ch_text,
+            "word_count": len(ch_text.split()),
+        })
+
+    return chapters
+
+
 def _load_chapters(filename: str, count: int) -> list[dict]:
     """Load a Gutenberg text, strip headers, detect chapters, return first `count`.
 
-    Uses the same chapter-finding heuristic as test_story_bible_generation.py:
-    find the chapter whose title matches "CHAPTER 1" (or similar), then take
-    that chapter and the next `count - 1` chapters.
+    Uses custom splitting for Time Machine and Great Gatsby where
+    detect_chapters cannot reliably find chapter boundaries. For all other
+    books, uses detect_chapters with the standard Chapter 1 search heuristic.
     """
     path = SAMPLES_DIR / filename
     if not path.exists():
         pytest.skip(f"Sample file {filename} not found")
     text = path.read_text(encoding="utf-8-sig")
     text = _strip_gutenberg(text)
+
+    # --- Custom splitting for books that detect_chapters can't handle ---
+    if filename == "time_machine_full.txt":
+        return _split_time_machine(text, count)
+
+    if filename == "great_gatsby_full.txt":
+        return _split_great_gatsby(text, count)
+
+    # --- Standard detect_chapters for everything else ---
     chapters = detect_chapters(text)
 
     # Find the index of "Chapter 1" in the detected chapters.

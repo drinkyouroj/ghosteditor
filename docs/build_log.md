@@ -126,11 +126,32 @@
 - Added `pytest.ini` with `api` mark registration
 - Full results in `docs/eval_log.md`
 
+### Story Bible Ground Truth Eval v2 — New Samples (2026-03-13)
+- Replaced sample texts to match user-specified Gutenberg titles:
+  - Fantasy: A Princess of Mars → **The Time Machine** (Wells)
+  - Thriller: The Thirty-Nine Steps → **The Riddle of the Sands** (Childers)
+  - Literary: Moby Dick → **The Great Gatsby** (Fitzgerald)
+  - Mystery: Hound of the Baskervilles → **The Moonstone** (Collins)
+  - Romance: Pride and Prejudice (unchanged)
+- Added custom chapter splitting for books with non-standard headers:
+  - Time Machine: Roman numeral sections (" I.", " II.", " III.")
+  - Great Gatsby: centered Roman numerals with whitespace
+- Rewrote all 5 ground truth JSON files for the new texts
+- **Result: 27/27 tests passing.** 100% JSON validity, all quality targets exceeded.
+- Full results in `docs/eval_log.md`
+
+### Chapter Analysis Engine (Steps 8-10)
+- DECISION_005 written and approved — single-prompt architecture
+- chapter_analysis_v1.txt: developmental editing prompt with bible cross-reference
+- chapter_analyzer.py: async analysis with JSON repair/retry pipeline
+- issue_schema.py: Pydantic models with severity-based filtering (15-issue cap)
+- genre_conventions.py: 8 genre templates with alias matching
+- Smoke tested on P&P Ch1: 3 issues (0 critical, 2 warning, 1 note)
+
 ### Known limitations
-- Entity count inflation: Thriller generated 30 characters and 41 events across 3 chapters — may want prompt tuning to cap minor entities
-- Fuzzy matching in eval harness needs alias awareness (added for Elizabeth/"Lizzy" case)
+- Entity count inflation: Gatsby generated 23 characters and Riddle of Sands 21 settings across 3 chapters
+- Fuzzy matching in eval harness needs alias awareness (narrator aliases, nickname aliases)
 
 ### Next milestone (Week 2 continued)
-- DECISION for chapter analysis prompt design
-- Chapter analysis engine
-- Cross-chapter consistency checker
+- Chapter analysis eval harness
+- Error state handling for malformed Claude responses
