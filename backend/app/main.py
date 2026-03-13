@@ -45,9 +45,13 @@ app = FastAPI(
 )
 
 app.add_middleware(ContentSizeLimitMiddleware)
+cors_origins = ["http://localhost:5173"]
+if settings.base_url and settings.base_url != "http://localhost:5173":
+    cors_origins.append(settings.base_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
