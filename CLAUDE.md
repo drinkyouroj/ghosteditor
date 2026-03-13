@@ -66,6 +66,205 @@ Write the exchange to `docs/decisions/DECISION_[NNN]_[slug].md` before writing t
 
 ---
 
+## Git Workflow
+
+GhostEditor uses Git Flow. Every branch, commit, and push follows the rules below without
+exception. This is not optional — a clean git history is part of the Definition of Done.
+
+### Branch Structure
+
+```
+main        — production-ready code only. Never commit directly. Tagged releases only.
+develop     — integration branch. All feature branches merge here via PR.
+feature/*   — all active development happens here.
+hotfix/*    — emergency fixes branched from main, merged back to main AND develop.
+```
+
+### Branch Naming
+
+Feature branches are always tied to a DECISION doc:
+
+```
+feature/DECISION-NNN-slug
+```
+
+Examples:
+- `feature/DECISION-001-database-schema`
+- `feature/DECISION-002-chapter-analysis-prompt`
+- `feature/DECISION-003-stripe-integration`
+
+For work that does not require a DECISION doc (routine code, tests, CSS, UI copy):
+
+```
+feature/short-kebab-description
+```
+
+Examples:
+- `feature/docker-compose-setup`
+- `feature/registration-unit-tests`
+- `feature/landing-page-copy`
+
+Hotfixes use:
+```
+hotfix/short-kebab-description
+```
+
+### Creating a Feature Branch
+
+Always branch from `develop`, never from `main`:
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/DECISION-NNN-slug
+```
+
+### Commit Rules
+
+**Format:** Conventional Commits. Every commit message follows this structure:
+
+```
+<type>(<scope>): <short imperative description>
+
+[optional body — explain WHY, not WHAT]
+```
+
+**Types:**
+- `feat` — new feature or behavior
+- `fix` — bug fix
+- `docs` — DECISION docs, build log, eval log, README, comments
+- `chore` — deps, config, tooling, migrations boilerplate
+- `test` — adding or updating tests
+- `refactor` — code change that neither fixes a bug nor adds a feature
+- `style` — formatting, whitespace, CSS (no logic change)
+- `perf` — performance improvement
+
+**Scope** is optional but encouraged. Use the subsystem: `auth`, `upload`, `prompts`,
+`jobs`, `frontend`, `db`, `infra`, `eval`.
+
+**Good commit messages:**
+```
+docs(decisions): add DECISION-001 database schema
+feat(db): add initial Alembic migration for users and manuscripts
+feat(auth): implement JWT issuance in httpOnly cookie
+fix(upload): reject files failing magic bytes check
+test(eval): add story bible eval for Project Gutenberg sample 1
+chore(infra): add postgres and redis services to docker-compose
+```
+
+**Bad commit messages (never write these):**
+```
+wip
+fix stuff
+update
+changes
+more work on auth
+```
+
+### Commit Granularity
+
+Commit per logical change — not per file, not per hour, not per task. A logical change is
+the smallest unit of work that leaves the codebase in a valid state.
+
+Examples of correct granularity:
+- One commit to add a migration, a separate commit to add the model, a separate commit to
+  add the repository layer
+- One commit for the DECISION doc, a separate commit for the prompt file it describes,
+  a separate commit for the eval test
+
+Do not batch unrelated changes into one commit. Do not split a single logical change across
+multiple commits just to pad history.
+
+### DECISION Docs and Code: Two-Commit Rule
+
+When a DECISION doc gates implementation, always commit in this order:
+
+1. **First commit — the DECISION doc:**
+   ```
+   docs(decisions): add DECISION-NNN slug
+   ```
+   Push immediately. The doc must exist in the remote before any implementation code lands.
+
+2. **Subsequent commits — implementation:**
+   Each logical unit of implementation gets its own commit, as described above.
+
+Never bundle a DECISION doc and its implementation code in the same commit.
+
+### Merging
+
+When a feature branch is complete and all Definition of Done criteria are met:
+
+```bash
+# Ensure develop is current
+git checkout develop
+git pull origin develop
+
+# Rebase feature branch onto develop (keeps history linear)
+git checkout feature/DECISION-NNN-slug
+git rebase develop
+
+# Merge into develop (no fast-forward — preserves branch context)
+git checkout develop
+git merge --no-ff feature/DECISION-NNN-slug -m "feat: merge DECISION-NNN slug"
+git push origin develop
+
+# Delete the feature branch remotely and locally
+git push origin --delete feature/DECISION-NNN-slug
+git branch -d feature/DECISION-NNN-slug
+```
+
+Never merge directly into `main`. Main is updated only at release milestones (end of each
+week block) via a merge from `develop`, tagged with a version.
+
+### Tagging Releases
+
+At the end of each week block, after merging `develop` into `main`:
+
+```bash
+git checkout main
+git merge --no-ff develop -m "chore: release week-N milestone"
+git tag -a vN.0 -m "Week N milestone: [one-line summary of what shipped]"
+git push origin main
+git push origin --tags
+```
+
+Tag naming: `v1.0` (Week 1), `v2.0` (Week 2), `v3.0` (Week 3), `v4.0` (soft launch).
+
+### Pushing
+
+Push automatically after every commit. Do not accumulate local commits without pushing.
+
+```bash
+git push origin <current-branch>
+```
+
+If the push is rejected due to diverged history, rebase — do not merge:
+
+```bash
+git pull --rebase origin <current-branch>
+git push origin <current-branch>
+```
+
+### What Never Gets Committed
+
+Ensure `.gitignore` covers these before the first commit. If any of these are ever found
+in the repo, treat it as a critical incident:
+
+```
+.env
+*.env.*          # any environment file variant
+__pycache__/
+*.pyc
+node_modules/
+*.log
+.DS_Store
+```
+
+Secrets committed to git — even once, even to a feature branch — must be rotated
+immediately. A git history rewrite is not sufficient; assume the secret is compromised.
+
+---
+
 ## Project Structure
 
 ```
@@ -197,10 +396,13 @@ These are not suggestions. Do not ship without them.
 
 A feature is done when:
 1. The DECISION doc exists (if protocol was required)
-2. Code is written and runs without errors
-3. At least one unit test exists
-4. ADVERSARY has reviewed the implementation and signed off (or filed a new DECISION)
-5. The feature is documented in `docs/build_log.md` with date and any known limitations
+2. The DECISION doc commit is pushed to remote before any implementation commit
+3. Code is written and runs without errors
+4. At least one unit test exists
+5. ADVERSARY has reviewed the implementation and signed off (or filed a new DECISION)
+6. All commits follow Conventional Commits format with meaningful messages
+7. The feature branch has been merged into `develop` and deleted
+8. The feature is documented in `docs/build_log.md` with date and any known limitations
 
 ---
 
@@ -256,11 +458,14 @@ pytest tests/unit/ -v
 If this is a fresh session and no code exists yet:
 
 1. Read `docs/blueprint.md` fully before writing a single line of code
-2. Write `DECISION_001` — the database schema — using the three-agent protocol
-3. Wait for JUDGE's verdict before creating any migrations
-4. Proceed with Week 1, Step 1: `infra/docker-compose.yml`
+2. Initialize git: `git init`, create `develop` branch, push both `main` and `develop` to remote
+3. Write `DECISION_001` — the database schema — using the three-agent protocol
+4. Commit and push the DECISION doc (`docs(decisions): add DECISION-001 database-schema`) before any code
+5. Wait for JUDGE's verdict before creating any migrations
+6. Proceed with Week 1, Step 1: `infra/docker-compose.yml`
 
 Do not skip the DECISION_001 step. The schema touches everything.
+Do not skip the git initialization step. A repo without `develop` will break the workflow.
 
 
 <claude-mem-context>
