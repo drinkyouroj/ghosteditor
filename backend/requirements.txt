@@ -27,7 +27,7 @@ python-docx==1.1.2
 pypdf2==3.0.1
 
 # Email
-resend==2.5.0
+resend==2.5.1
 
 # Payments
 stripe==11.4.1

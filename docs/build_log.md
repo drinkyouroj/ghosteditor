@@ -108,8 +108,29 @@
 
 ### Week 1 Complete
 
-### Next milestone (Week 2)
+---
+
+## 2026-03-13 — Week 2 Ground Truth Eval
+
+### Story Bible Ground Truth Eval Harness (Step 11)
+- Created 5 ground truth JSON files in `tests/eval/ground_truth/` (romance, fantasy, literary, thriller, mystery)
+- Each ground truth covers first 3 chapters with hand-curated characters, voice profile, settings, plot threads
+- Built `test_bible_ground_truth.py` — 27 parametrized tests comparing Claude output vs ground truth
+- Incremental 3-chapter generation: chapter 1 from scratch, chapters 2-3 update existing bible
+- Disk-based caching of generated bibles to avoid re-running ~20min of API calls during iteration
+- **Result: 27/27 tests passing.** All quality targets exceeded:
+  - 100% JSON validity, 100% character recall, 100% voice profile match
+  - 100% plot thread recall, 100% setting recall, 0 protagonist hallucinations
+- Moved root `tests/conftest.py` (FastAPI app fixtures) to `tests/unit/conftest.py` to prevent eval tests from importing the full app stack
+- Fixed `resend==2.5.0` → `2.5.1` (removed PyPI version)
+- Added `pytest.ini` with `api` mark registration
+- Full results in `docs/eval_log.md`
+
+### Known limitations
+- Entity count inflation: Thriller generated 30 characters and 41 events across 3 chapters — may want prompt tuning to cap minor entities
+- Fuzzy matching in eval harness needs alias awareness (added for Elizabeth/"Lizzy" case)
+
+### Next milestone (Week 2 continued)
 - DECISION for chapter analysis prompt design
 - Chapter analysis engine
 - Cross-chapter consistency checker
-- Eval harness with ground truth JSON

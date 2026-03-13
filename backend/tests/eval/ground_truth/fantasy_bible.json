@@ -1,0 +1,69 @@
+{
+  "characters": [
+    {
+      "name": "John Carter",
+      "role": "protagonist",
+      "description": "Former Confederate cavalry captain, prospector in Arizona, mysteriously transported to Mars/Barsoom."
+    },
+    {
+      "name": "Captain James K. Powell",
+      "role": "minor",
+      "description": "Carter's fellow prospector and friend, killed by Apaches before Carter's transportation to Mars."
+    },
+    {
+      "name": "Sola",
+      "role": "supporting",
+      "description": "A female green Martian assigned to guard Carter, shows unusual kindness among the Tharks."
+    },
+    {
+      "name": "Tars Tarkas",
+      "role": "supporting",
+      "description": "A large and important green Martian warrior, one of the leaders of the Tharks."
+    },
+    {
+      "name": "Lorquas Ptomel",
+      "role": "minor",
+      "description": "Jeddak (chief) of the Thark community that captures Carter."
+    }
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "adventure and pulp, earnest and dramatic"
+  },
+  "settings": [
+    {
+      "name": "Arizona territory",
+      "description": "American Southwest, gold prospecting country, Apache territory."
+    },
+    {
+      "name": "Arizona cave",
+      "description": "Mysterious cave where Carter takes refuge and experiences his transportation to Mars."
+    },
+    {
+      "name": "Mars/Barsoom landscape",
+      "description": "Barren, ochre-coloured Martian terrain with low hills and sparse vegetation."
+    },
+    {
+      "name": "Thark incubator",
+      "description": "Building where green Martian eggs are kept and hatchlings emerge."
+    }
+  ],
+  "plot_threads": [
+    {
+      "thread": "Carter's mysterious transportation to Mars and whether he can return to Earth"
+    },
+    {
+      "thread": "Carter's survival captivity among green Martians Tharks warrior aliens"
+    },
+    {
+      "thread": "Carter's superhuman strength leaping gravity Mars powers abilities"
+    }
+  ],
+  "world_rules": [
+    "Lower gravity on Mars gives Carter superhuman strength and the ability to leap great distances",
+    "Green Martians are approximately 15-foot tall, four-armed warriors",
+    "Green Martians reproduce via eggs that are incubated communally",
+    "Martian society among the Tharks is harsh and warlike, with little room for sentiment"
+  ]
+}

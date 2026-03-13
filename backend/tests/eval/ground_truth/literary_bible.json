@@ -1,0 +1,45 @@
+{
+  "characters": [
+    {
+      "name": "Ishmael",
+      "role": "protagonist",
+      "description": "The narrator, a philosophical young man drawn to the sea whenever he feels restless or melancholy."
+    },
+    {
+      "name": "Queequeg",
+      "role": "supporting",
+      "description": "A Pacific Islander and skilled harpooner, initially frightening but becomes Ishmael's close companion and bedmate at the inn."
+    }
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "philosophical and literary with digressions and dry humour"
+  },
+  "settings": [
+    {
+      "name": "Manhattan",
+      "description": "The island city where Ishmael begins his journey, drawn to the waterfront."
+    },
+    {
+      "name": "New Bedford",
+      "description": "Whaling port town where Ishmael arrives on his way to Nantucket."
+    },
+    {
+      "name": "The Spouter-Inn",
+      "description": "Peter Coffin's inn in New Bedford where Ishmael stays and shares a bed with Queequeg."
+    }
+  ],
+  "plot_threads": [
+    {
+      "thread": "Ishmael's journey to find a whaling ship and go to sea"
+    },
+    {
+      "thread": "The unlikely friendship between Ishmael and Queequeg, the cannibal harpooner"
+    }
+  ],
+  "world_rules": [
+    "The whaling industry is a major economic force, drawing men from all walks of life",
+    "New Bedford and Nantucket are the centres of the American whaling trade"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "characters": [
+    {
+      "name": "Richard Hannay",
+      "role": "protagonist",
+      "description": "A restless South African mining engineer recently returned to London, becomes embroiled in an espionage plot after Scudder's murder."
+    },
+    {
+      "name": "Franklin Scudder",
+      "role": "minor",
+      "description": "An American freelance spy who reveals a conspiracy to Hannay, then is murdered in Hannay's flat, leaving behind a coded notebook."
+    }
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "terse and urgent, adventure"
+  },
+  "settings": [
+    {
+      "name": "Hannay's Portland Place flat",
+      "description": "Hannay's London flat where Scudder takes refuge and is later found murdered."
+    },
+    {
+      "name": "Scottish moorland",
+      "description": "The open Scottish countryside where Hannay flees to evade pursuit."
+    }
+  ],
+  "plot_threads": [
+    {
+      "thread": "The Black Stone conspiracy — a foreign plot against Britain that Scudder uncovered"
+    },
+    {
+      "thread": "Hannay framed for Scudder's murder and on the run from both police and conspirators"
+    },
+    {
+      "thread": "Decoding Scudder's notebook to understand the full conspiracy"
+    }
+  ],
+  "world_rules": [
+    "Set in pre-WWI Britain with rising international tensions",
+    "Hannay must evade both the police (who suspect him of murder) and the conspirators (who want him silenced)"
+  ]
+}

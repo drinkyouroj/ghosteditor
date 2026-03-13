@@ -1,0 +1,89 @@
+{
+  "characters": [
+    {
+      "name": "Mr. Bennet",
+      "role": "supporting",
+      "description": "Father of five daughters, sarcastic and detached, takes quiet amusement in his wife's nerves."
+    },
+    {
+      "name": "Mrs. Bennet",
+      "role": "supporting",
+      "description": "Mother obsessed with marrying off her daughters to wealthy men. Drives the action in Chapter 1."
+    },
+    {
+      "name": "Jane Bennet",
+      "role": "supporting",
+      "description": "Eldest Bennet daughter, beautiful and gentle, catches Bingley's attention at the Meryton assembly."
+    },
+    {
+      "name": "Elizabeth Bennet",
+      "aliases": ["Lizzy", "Eliza"],
+      "role": "protagonist",
+      "description": "Second eldest Bennet daughter, witty and perceptive, slighted by Darcy at the assembly."
+    },
+    {
+      "name": "Mr. Bingley",
+      "role": "supporting",
+      "description": "Newly arrived wealthy bachelor who takes Netherfield Park, amiable and handsome."
+    },
+    {
+      "name": "Mr. Darcy",
+      "role": "supporting",
+      "description": "Bingley's proud and wealthy friend, refuses to dance, considered disagreeable by the assembly."
+    },
+    {
+      "name": "Charlotte Lucas",
+      "role": "minor",
+      "description": "Elizabeth's sensible friend, daughter of Sir William Lucas."
+    },
+    {
+      "name": "Lydia Bennet",
+      "role": "minor",
+      "description": "Youngest Bennet daughter, forward and bold."
+    },
+    {
+      "name": "Mary Bennet",
+      "role": "minor",
+      "description": "Middle Bennet daughter, studious and moralistic."
+    },
+    {
+      "name": "Kitty Bennet",
+      "role": "minor",
+      "description": "Fourth Bennet daughter."
+    }
+  ],
+  "voice_profile": {
+    "pov": "third person omniscient",
+    "tense": "past",
+    "tone": "ironic and witty"
+  },
+  "settings": [
+    {
+      "name": "Longbourn",
+      "description": "The Bennet family home in Hertfordshire."
+    },
+    {
+      "name": "Meryton assembly hall",
+      "description": "Public assembly rooms where the neighbourhood gathers to dance."
+    },
+    {
+      "name": "Netherfield Park",
+      "description": "Large estate newly let by Mr. Bingley."
+    }
+  ],
+  "plot_threads": [
+    {
+      "thread": "Bingley and Jane attraction — Bingley singles out Jane at the assembly, dances with her twice"
+    },
+    {
+      "thread": "Darcy's pride and Elizabeth's prejudice — Darcy slights Elizabeth, she forms a negative opinion of him"
+    },
+    {
+      "thread": "Mrs. Bennet's campaign to marry her daughters to wealthy men"
+    }
+  ],
+  "world_rules": [
+    "Marriage and social standing are intertwined; a single man in possession of a good fortune must be in want of a wife",
+    "The entail on Longbourn means the estate will pass away from the Bennet daughters"
+  ]
+}

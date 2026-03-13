@@ -1,0 +1,59 @@
+{
+  "characters": [
+    {
+      "name": "Sherlock Holmes",
+      "role": "protagonist",
+      "description": "The famous consulting detective of Baker Street, brilliant and deductive."
+    },
+    {
+      "name": "Dr. Watson",
+      "role": "supporting",
+      "description": "Holmes's friend, flatmate, and narrator; a physician and former army doctor."
+    },
+    {
+      "name": "Dr. James Mortimer",
+      "role": "supporting",
+      "description": "A country physician from Dartmoor who brings the Baskerville case to Holmes, carrying the manuscript of the Baskerville legend."
+    },
+    {
+      "name": "Sir Charles Baskerville",
+      "role": "mentioned",
+      "description": "Recently deceased baronet found dead on the grounds of Baskerville Hall under mysterious circumstances."
+    },
+    {
+      "name": "Sir Henry Baskerville",
+      "role": "supporting",
+      "description": "Nephew and heir to Sir Charles, arriving from Canada to claim the Baskerville estate."
+    }
+  ],
+  "voice_profile": {
+    "pov": "first person",
+    "tense": "past",
+    "tone": "measured and observational, building suspense"
+  },
+  "settings": [
+    {
+      "name": "221B Baker Street",
+      "description": "Holmes and Watson's famous London lodgings where they receive Dr. Mortimer."
+    },
+    {
+      "name": "Dartmoor / Baskerville Hall",
+      "description": "Remote moorland estate in Devon, described as gloomy and forbidding, setting of the Baskerville curse."
+    }
+  ],
+  "plot_threads": [
+    {
+      "thread": "The mysterious death of Sir Charles Baskerville — natural causes or supernatural"
+    },
+    {
+      "thread": "Protecting Sir Henry Baskerville, the new heir, from the supposed Baskerville curse"
+    },
+    {
+      "thread": "The legend of the supernatural hound versus a rational explanation"
+    }
+  ],
+  "world_rules": [
+    "Holmes's deductive method: observation of small details reveals large truths",
+    "The Baskerville curse — legend of a demonic hound that haunts the family line"
+  ]
+}
