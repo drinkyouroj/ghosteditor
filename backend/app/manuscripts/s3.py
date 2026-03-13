@@ -5,12 +5,23 @@ from app.config import settings
 
 
 def get_s3_client():
-    return boto3.client(
-        "s3",
-        aws_access_key_id=settings.aws_access_key_id,
-        aws_secret_access_key=settings.aws_secret_access_key,
-        region_name=settings.aws_region,
-    )
+    kwargs = {
+        "aws_access_key_id": settings.aws_access_key_id,
+        "aws_secret_access_key": settings.aws_secret_access_key,
+        "region_name": settings.aws_region,
+    }
+    if settings.s3_endpoint_url:
+        kwargs["endpoint_url"] = settings.s3_endpoint_url
+    return boto3.client("s3", **kwargs)
+
+
+def ensure_bucket_exists() -> None:
+    """Create the bucket if it doesn't exist (for MinIO local dev)."""
+    client = get_s3_client()
+    try:
+        client.head_bucket(Bucket=settings.s3_bucket_name)
+    except ClientError:
+        client.create_bucket(Bucket=settings.s3_bucket_name)
 
 
 def upload_to_s3(content: bytes, s3_key: str) -> None:

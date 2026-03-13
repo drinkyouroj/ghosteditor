@@ -18,11 +18,12 @@ class Settings(BaseSettings):
     # Claude API
     anthropic_api_key: str = ""
 
-    # AWS S3
+    # AWS S3 / MinIO
     aws_access_key_id: str = ""
     aws_secret_access_key: str = ""
     s3_bucket_name: str = "ghosteditor-manuscripts"
     aws_region: str = "us-east-1"
+    s3_endpoint_url: str = ""  # Set to http://localhost:9000 for MinIO
 
     # Email
     resend_api_key: str = ""

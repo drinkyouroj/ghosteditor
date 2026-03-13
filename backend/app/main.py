@@ -4,6 +4,7 @@ from starlette.responses import Response as StarletteResponse
 
 from app.analysis.router import router as bible_router
 from app.auth.router import router as auth_router
+from app.config import settings
 from app.manuscripts.router import router as manuscripts_router
 from app.stripe.router import router as stripe_router
 
@@ -56,6 +57,17 @@ app.include_router(auth_router)
 app.include_router(manuscripts_router)
 app.include_router(bible_router)
 app.include_router(stripe_router)
+
+
+@app.on_event("startup")
+async def startup():
+    """Create S3 bucket on startup (for MinIO local dev)."""
+    if settings.s3_endpoint_url:
+        from app.manuscripts.s3 import ensure_bucket_exists
+        try:
+            ensure_bucket_exists()
+        except Exception:
+            pass  # MinIO may not be running yet
 
 
 @app.get("/health")
