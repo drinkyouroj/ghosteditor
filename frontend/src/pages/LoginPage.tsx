@@ -21,7 +21,7 @@ export function LoginPage({ onLogin }: Props) {
     try {
       const user = await login(email, password)
       onLogin(user)
-      navigate('/')
+      navigate('/dashboard')
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Login failed')
     } finally {

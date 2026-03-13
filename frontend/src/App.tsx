@@ -12,6 +12,7 @@ import { SettingsPage } from './pages/SettingsPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { PricingPage } from './pages/PricingPage'
+import { LandingPage } from './pages/LandingPage'
 import { getMe, type User } from './api/client'
 
 export function App() {
@@ -39,12 +40,13 @@ export function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage onLogin={setUser} />} />
-      <Route path="/register" element={user ? <Navigate to="/" /> : <RegisterPage />} />
+      <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage onLogin={setUser} />} />
+      <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LandingPage />} />
       <Route element={<Layout user={user} onLogout={() => setUser(null)} />}>
-        <Route path="/" element={user ? <DashboardPage /> : <Navigate to="/login" />} />
+        <Route path="/dashboard" element={user ? <DashboardPage /> : <Navigate to="/login" />} />
         <Route path="/upload" element={user ? <UploadPage /> : <Navigate to="/login" />} />
         <Route path="/manuscripts/:id" element={user ? <ManuscriptPage /> : <Navigate to="/login" />} />
         <Route path="/manuscripts/:id/bible" element={user ? <BiblePage /> : <Navigate to="/login" />} />

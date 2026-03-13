@@ -19,11 +19,11 @@ export function Layout({ user, onLogout }: Props) {
   return (
     <div className="layout">
       <header className="header">
-        <Link to="/" className="logo">GhostEditor</Link>
+        <Link to="/dashboard" className="logo">GhostEditor</Link>
         <nav className="nav">
           {user && (
             <>
-              <Link to="/">Dashboard</Link>
+              <Link to="/dashboard">Dashboard</Link>
               <Link to="/upload">Upload</Link>
               <Link to="/settings">Settings</Link>
               <span className="nav-email">{user.email}</span>

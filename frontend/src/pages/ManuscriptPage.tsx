@@ -71,7 +71,7 @@ export function ManuscriptPage() {
     <div>
       <div className="ms-header">
         <div>
-          <Link to="/" className="back-link">Back to dashboard</Link>
+          <Link to="/dashboard" className="back-link">Back to dashboard</Link>
           <h1>{manuscript.title}</h1>
           <div className="ms-meta">
             {manuscript.genre && <span>{manuscript.genre}</span>}
