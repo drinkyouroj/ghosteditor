@@ -103,7 +103,7 @@ async def create_checkout_session(
         await db.commit()
 
     # Build checkout session params
-    base_url = "http://localhost:5173"  # TODO: use config for production
+    base_url = settings.base_url
     common_params = {
         "customer": user.stripe_customer_id,
         "success_url": f"{base_url}/manuscripts/{body.manuscript_id}?payment=success",

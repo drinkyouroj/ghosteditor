@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
 
+    # App
+    base_url: str = "http://localhost:5173"  # Frontend URL for emails and Stripe redirects
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 

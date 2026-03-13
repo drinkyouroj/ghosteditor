@@ -25,6 +25,7 @@ anthropic==0.42.0
 # File processing
 python-docx==1.1.2
 pypdf2==3.0.1
+langdetect==1.0.9
 
 # Email
 resend==2.5.1

@@ -22,6 +22,7 @@ from app.manuscripts.schemas import (
 )
 from app.manuscripts.s3 import upload_to_s3
 from app.manuscripts.validation import validate_file
+from app.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/manuscripts", tags=["manuscripts"])
 
@@ -41,6 +42,9 @@ async def upload_manuscript(
 
     Per DECISION_006 Amendment 4: free-tier users limited to 3 manuscripts.
     """
+    # Per-user rate limit: 5 uploads per hour
+    await check_rate_limit(str(user.id), action="upload")
+
     # Free-tier upload limit
     if user.subscription_status == SubscriptionStatus.free:
         count_result = await db.execute(

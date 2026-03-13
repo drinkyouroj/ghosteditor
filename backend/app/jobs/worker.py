@@ -152,6 +152,16 @@ async def _recover_stalled_jobs(ctx):
             job.current_step = "Recovery: job timed out"
             job.completed_at = datetime.now(timezone.utc)
 
+            # Revert chapter status for chapter analysis jobs
+            if job.chapter_id:
+                ch_result = await session.execute(
+                    select(Chapter).where(Chapter.id == job.chapter_id)
+                )
+                ch = ch_result.scalar_one_or_none()
+                if ch and ch.status == ChapterStatus.analyzing:
+                    ch.status = ChapterStatus.extracted
+                    logger.info(f"Reverted stalled chapter {job.chapter_id} to 'extracted'")
+
             # Reset manuscript status from stuck intermediate state
             ms_result = await session.execute(
                 select(Manuscript).where(Manuscript.id == job.manuscript_id)
@@ -407,7 +417,7 @@ async def process_bible_generation(ctx, job_id: str, manuscript_id: str):
                     )
                     user = user_result.scalar_one_or_none()
                     if user:
-                        bible_url = f"http://localhost:5173/manuscripts/{manuscript_id}/bible"
+                        bible_url = f"{settings.base_url}/manuscripts/{manuscript_id}/bible"
                         send_bible_ready_email(user.email, manuscript.title, bible_url)
 
                     await schedule_drip_emails(

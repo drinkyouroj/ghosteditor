@@ -288,6 +288,12 @@
 - **Restart from error**: `/analyze` endpoint now accepts `error` status manuscripts, allowing users to retry failed analyses without manual DB intervention
 - **Frontend retry button**: "Retry Analysis" button shown on manuscript error state for paid manuscripts
 
+### Pre-Launch Hardening (2026-03-13)
+- **Rate limiting**: Redis-backed sliding window rate limiter on `/manuscripts/upload` (5 uploads/hour per user). Fails open if Redis is unavailable.
+- **Non-English detection**: `langdetect` library checks extracted text before sending to Claude. Rejects non-English manuscripts with user-friendly error message.
+- **Stalled job chapter revert**: `_recover_stalled_jobs` now reverts chapter status from `analyzing` → `extracted` for timed-out chapter analysis jobs, matching the behavior of `_fail_job_with_retry`.
+- **Configurable base URL**: Replaced all hardcoded `localhost:5173` URLs with `settings.base_url` config (Stripe redirects, drip emails, worker notifications).
+
 ### Known limitations
 - Stripe products/prices created inline (not pre-configured via Dashboard) — fine for MVP
 - No billing history page (Stripe sends receipts directly)

@@ -19,7 +19,9 @@ from app.db.models import EmailEvent, Manuscript, PaymentStatus, User
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = "http://localhost:5173"  # TODO: use config for production
+from app.config import settings
+
+BASE_URL = settings.base_url
 
 # Drip schedule: (event_type, delay from bible creation)
 DRIP_SCHEDULE = [

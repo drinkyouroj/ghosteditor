@@ -62,6 +62,22 @@ def extract_text_from_txt(content: bytes) -> str:
 
 
 MIN_EXTRACTED_WORDS = 50  # Minimum words after extraction to be considered valid
+LANGUAGE_SAMPLE_SIZE = 5000  # Characters to sample for language detection
+
+
+def detect_language(text: str) -> str | None:
+    """Detect the language of text. Returns ISO 639-1 code or None on failure.
+
+    Per blueprint: 'Non-English manuscript detection before Claude analysis —
+    return error, don't analyze.'
+    """
+    try:
+        from langdetect import detect, DetectorFactory
+        DetectorFactory.seed = 0  # Deterministic results
+        sample = text[:LANGUAGE_SAMPLE_SIZE]
+        return detect(sample)
+    except Exception:
+        return None
 
 
 def extract_text(content: bytes, ext: str) -> str:
@@ -88,6 +104,16 @@ def extract_text(content: bytes, ext: str) -> str:
             f"Only {word_count} words extracted — the file appears to be nearly empty. "
             "Please upload a file with at least a few paragraphs of text."
         )
+
+    # Language detection — reject non-English manuscripts
+    lang = detect_language(text)
+    if lang is not None and lang != "en":
+        logger.info(f"Non-English manuscript detected: language={lang}")
+        raise ExtractionError(
+            "GhostEditor currently supports English-language manuscripts only. "
+            f"This text was detected as '{lang}'."
+        )
+
     return text
 
 
