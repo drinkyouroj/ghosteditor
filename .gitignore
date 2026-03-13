@@ -138,6 +138,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# Node / Frontend
+node_modules/
+
 # IDE / Editor
 .idea/
 .vscode/
