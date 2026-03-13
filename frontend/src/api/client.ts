@@ -144,3 +144,66 @@ export interface StoryBible {
 export function getStoryBible(manuscriptId: string) {
   return request<StoryBible>(`/bible/${manuscriptId}`)
 }
+
+// --- Analysis Feedback ---
+
+export interface Issue {
+  type: string
+  severity: string
+  chapter_location: string
+  description: string
+  original_text: string | null
+  suggestion: string
+}
+
+export interface PacingAnalysis {
+  scene_count: number
+  scene_types: string[]
+  tension_arc: string
+  characters_present: string[]
+  chapter_summary: string
+}
+
+export interface GenreNotes {
+  conventions_met: string[]
+  conventions_missed: string[]
+  genre_fit_score: string
+}
+
+export interface ChapterFeedback {
+  chapter_id: string
+  chapter_number: number
+  title: string | null
+  word_count: number | null
+  status: string
+  issues: Issue[]
+  issue_counts: { critical: number; warning: number; note: number }
+  pacing: PacingAnalysis | null
+  genre_notes: GenreNotes | null
+}
+
+export interface FeedbackSummary {
+  total_issues: number
+  critical: number
+  warning: number
+  note: number
+  chapters_analyzed: number
+  chapters_total: number
+}
+
+export interface ManuscriptFeedback {
+  manuscript_id: string
+  title: string
+  genre: string | null
+  status: string
+  summary: FeedbackSummary
+  chapters: ChapterFeedback[]
+}
+
+export function getManuscriptFeedback(manuscriptId: string, filters?: { severity?: string; issue_type?: string }) {
+  const params = new URLSearchParams()
+  if (filters?.severity) params.set('severity', filters.severity)
+  if (filters?.issue_type) params.set('issue_type', filters.issue_type)
+  const qs = params.toString()
+  return request<ManuscriptFeedback>(`/bible/${manuscriptId}/feedback${qs ? `?${qs}` : ''}`)
+}

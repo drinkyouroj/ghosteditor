@@ -40,3 +40,25 @@
 .chapter-list tbody tr:hover {
   background: var(--color-bg);
 }
+
+.ms-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-secondary {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--color-surface);
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg);
+  text-decoration: none;
+}

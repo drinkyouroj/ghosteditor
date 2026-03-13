@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { UploadPage } from './pages/UploadPage'
 import { ManuscriptPage } from './pages/ManuscriptPage'
 import { BiblePage } from './pages/BiblePage'
+import { FeedbackPage } from './pages/FeedbackPage'
 import { getMe, type User } from './api/client'
 
 export function App() {
@@ -41,6 +42,7 @@ export function App() {
         <Route path="/upload" element={user ? <UploadPage /> : <Navigate to="/login" />} />
         <Route path="/manuscripts/:id" element={user ? <ManuscriptPage /> : <Navigate to="/login" />} />
         <Route path="/manuscripts/:id/bible" element={user ? <BiblePage /> : <Navigate to="/login" />} />
+        <Route path="/manuscripts/:id/feedback" element={user ? <FeedbackPage /> : <Navigate to="/login" />} />
       </Route>
     </Routes>
   )

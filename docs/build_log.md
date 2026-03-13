@@ -181,5 +181,26 @@
   - Upload page job polling fixed: checks for `completed` (not `complete`) to match `JobStatus` enum
 - 19 error handling tests written and passing (extraction edge cases, transient error detection, Claude API error mocking)
 
-### Next milestone (Week 2 continued)
-- Pacing prompt (`chapter_pacing_v1.txt`) per DECISION_005 three-prompt design
+### Week 2 Complete
+
+---
+
+## 2026-03-13 — Week 3 Frontend Polish
+
+### Feedback Dashboard (Step 15)
+- **Backend**: `GET /bible/{manuscript_id}/feedback` endpoint
+  - Returns all chapters with analysis results (issues, pacing, genre notes)
+  - Supports `?severity=` and `?issue_type=` query parameter filters
+  - Includes summary counts (total issues by severity, chapters analyzed vs total)
+  - User-scoped with full auth requirement (not provisional)
+  - Issues sorted by severity (critical first)
+- **Frontend**: `FeedbackPage.tsx` — full feedback dashboard
+  - Summary bar with issue counts by severity and analysis progress
+  - Sidebar with chapter tabs showing per-chapter issue count badges (color-coded)
+  - Per-chapter detail view: pacing analysis, genre fit score, and filtered issue list
+  - Expandable issue cards: click to reveal original text snippet and suggestion
+  - Filter dropdowns for severity and issue type
+  - Responsive layout (sidebar → horizontal scroll on mobile)
+- **Navigation**: "View Feedback" button on dashboard (complete manuscripts) and manuscript detail page
+- **API client**: Added `ManuscriptFeedback`, `ChapterFeedback`, `Issue`, `PacingAnalysis`, `GenreNotes` types
+- Production build: 189KB JS + 16KB CSS gzipped

@@ -78,6 +78,15 @@
   text-decoration: none;
 }
 
+.btn-feedback {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-feedback:hover {
+  background: #eef2ff;
+}
+
 .btn-danger {
   color: var(--color-danger);
   border-color: var(--color-danger);

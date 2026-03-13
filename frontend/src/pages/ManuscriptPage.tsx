@@ -31,11 +31,18 @@ export function ManuscriptPage() {
             <span className={`status status-${manuscript.status}`}>{manuscript.status}</span>
           </div>
         </div>
-        {(manuscript.status === 'complete' || manuscript.status === 'generating_bible') && (
-          <Link to={`/manuscripts/${id}/bible`} className="btn-primary">
-            View Story Bible
-          </Link>
-        )}
+        <div className="ms-actions">
+          {manuscript.status === 'complete' && (
+            <Link to={`/manuscripts/${id}/feedback`} className="btn-primary">
+              View Feedback
+            </Link>
+          )}
+          {(manuscript.status === 'complete' || manuscript.status === 'bible_complete' || manuscript.status === 'analyzing') && (
+            <Link to={`/manuscripts/${id}/bible`} className="btn-secondary">
+              Story Bible
+            </Link>
+          )}
+        </div>
       </div>
 
       {manuscript.chapters.length > 0 && (

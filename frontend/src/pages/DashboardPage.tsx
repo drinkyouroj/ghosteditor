@@ -72,6 +72,11 @@ export function DashboardPage() {
                 </div>
               </div>
               <div className="manuscript-actions">
+                {m.status === 'complete' && (
+                  <Link to={`/manuscripts/${m.id}/feedback`} className="btn-small btn-feedback">
+                    View Feedback
+                  </Link>
+                )}
                 {(m.status === 'complete' || m.status === 'bible_complete' || m.status === 'analyzing') && (
                   <Link to={`/manuscripts/${m.id}/bible`} className="btn-small">
                     Story Bible
