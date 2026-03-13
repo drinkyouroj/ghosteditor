@@ -136,6 +136,14 @@ export function getJobStatus(jobId: string) {
   return request<JobStatus>(`/manuscripts/jobs/${jobId}`)
 }
 
+// --- Analysis ---
+
+export function startAnalysis(manuscriptId: string) {
+  return request<{ message: string; chapters_queued: number }>(`/manuscripts/${manuscriptId}/analyze`, {
+    method: 'POST',
+  })
+}
+
 // --- Story Bible ---
 
 export interface StoryBible {

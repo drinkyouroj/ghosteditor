@@ -421,8 +421,13 @@ async def process_bible_generation(ctx, job_id: str, manuscript_id: str):
 async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter_id: str):
     """Analyze a single chapter using Claude API.
 
-    Called after payment confirmation (per DECISION_006).
-    Updates chapter status and stores analysis results.
+    For each chapter:
+    1. Update the story bible with new information from this chapter
+    2. Analyze the chapter against the updated bible
+    3. Chain to the next unanalyzed chapter
+
+    Chapters are processed sequentially so the bible accumulates
+    characters, timeline, and plot threads as the manuscript progresses.
     """
     session_factory = _get_session_factory()
     job_uuid = uuid.UUID(job_id)
@@ -436,7 +441,7 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
                 status=JobStatus.running,
                 started_at=datetime.now(timezone.utc),
                 current_step="Preparing chapter analysis",
-                progress_pct=10,
+                progress_pct=5,
                 attempts=Job.attempts + 1,
             )
 
@@ -453,20 +458,78 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
                 select(StoryBible).where(StoryBible.manuscript_id == ms_uuid)
             )
             bible_row = bible_result.scalar_one_or_none()
-            bible_json = bible_row.bible_json if bible_row else None
+            existing_bible = bible_row.bible_json if bible_row else None
 
+            # --- Step 1: Update story bible with this chapter ---
+            # Skip bible update for chapter 1 (already generated during initial bible pass)
+            if chapter.chapter_number > 1 and bible_row is not None:
+                await _update_job(
+                    session, job_uuid,
+                    current_step=f"Updating bible with Chapter {chapter.chapter_number}",
+                    progress_pct=15,
+                )
+
+                bible_schema, bible_warnings = await generate_story_bible(
+                    chapter_text=chapter.raw_text,
+                    chapter_number=chapter.chapter_number,
+                    genre=manuscript.genre,
+                    existing_bible=existing_bible,
+                )
+
+                bible_dict = bible_schema.model_dump()
+
+                # Update bible row
+                new_version = bible_row.version + 1
+                bible_row.bible_json = bible_dict
+                bible_row.version = new_version
+
+                # Save version snapshot
+                version = StoryBibleVersion(
+                    story_bible_id=bible_row.id,
+                    bible_json=bible_dict,
+                    version=new_version,
+                    created_by_chapter_id=chapter.id,
+                )
+                session.add(version)
+
+                # Enforce version cap
+                if new_version > MAX_BIBLE_VERSIONS:
+                    delete_version = new_version - MAX_BIBLE_VERSIONS
+                    old_result = await session.execute(
+                        select(StoryBibleVersion).where(
+                            StoryBibleVersion.story_bible_id == bible_row.id,
+                            StoryBibleVersion.version == delete_version,
+                        )
+                    )
+                    old_version = old_result.scalar_one_or_none()
+                    if old_version:
+                        await session.delete(old_version)
+
+                await session.commit()
+
+                for w in bible_warnings:
+                    logger.warning(f"Bible update warning (Chapter {chapter.chapter_number}): {w}")
+
+                # Use the updated bible for analysis
+                existing_bible = bible_dict
+
+                logger.info(
+                    f"Bible updated for manuscript {manuscript_id} "
+                    f"(Chapter {chapter.chapter_number}, v{new_version})"
+                )
+
+            # --- Step 2: Analyze chapter against current bible ---
             await _update_job(
                 session, job_uuid,
                 current_step=f"Analyzing Chapter {chapter.chapter_number}",
-                progress_pct=30,
+                progress_pct=50,
             )
 
-            # Call Claude for analysis
             analysis_result, warnings = await analyze_chapter(
                 chapter_text=chapter.raw_text,
                 chapter_number=chapter.chapter_number,
                 genre=manuscript.genre,
-                bible_json=bible_json,
+                bible_json=existing_bible,
             )
 
             await _update_job(session, job_uuid, current_step="Saving analysis", progress_pct=80)
@@ -495,17 +558,43 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
                 progress_pct=100,
             )
 
-            # Check if all chapters are analyzed → update manuscript status
-            all_chapters = await session.execute(
-                select(Chapter).where(Chapter.manuscript_id == ms_uuid)
+            # --- Step 3: Chain to next chapter or mark complete ---
+            next_ch_result = await session.execute(
+                select(Chapter).where(
+                    Chapter.manuscript_id == ms_uuid,
+                    Chapter.status == ChapterStatus.extracted,
+                ).order_by(Chapter.chapter_number).limit(1)
             )
-            chapters = all_chapters.scalars().all()
-            if all(c.status == ChapterStatus.analyzed for c in chapters):
+            next_chapter = next_ch_result.scalar_one_or_none()
+
+            if next_chapter is not None:
+                # Enqueue next chapter
+                next_job = Job(
+                    manuscript_id=ms_uuid,
+                    chapter_id=next_chapter.id,
+                    job_type=JobType.chapter_analysis,
+                    current_step=f"Queued: Chapter {next_chapter.chapter_number}",
+                )
+                session.add(next_job)
+                await session.commit()
+                await session.refresh(next_job)
+
+                redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+                await redis.enqueue_job(
+                    "process_chapter_analysis",
+                    str(next_job.id), manuscript_id, str(next_chapter.id),
+                )
+                logger.info(
+                    f"Chained to Chapter {next_chapter.chapter_number} "
+                    f"for manuscript {manuscript_id}"
+                )
+            else:
+                # All chapters analyzed
                 manuscript.status = ManuscriptStatus.complete
                 await session.commit()
                 logger.info(f"All chapters analyzed for manuscript {manuscript_id}")
 
-        except ChapterAnalysisError as e:
+        except (ChapterAnalysisError, StoryBibleError) as e:
             logger.error(f"Chapter analysis error for chapter {chapter_id}: {e}")
             await _fail_job_with_retry(
                 session_factory, job_uuid, ms_uuid,

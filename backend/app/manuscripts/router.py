@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_current_user_allow_provisional
 from app.config import settings
-from app.db.models import Chapter, Job, JobType, Manuscript, ManuscriptStatus, PaymentStatus, SubscriptionStatus, User
+from app.db.models import Chapter, ChapterStatus, Job, JobType, JobStatus, Manuscript, ManuscriptStatus, PaymentStatus, SubscriptionStatus, User
 from app.db.session import get_db
 
 FREE_TIER_MANUSCRIPT_LIMIT = 3  # Per DECISION_006 Amendment 4
@@ -188,6 +188,73 @@ async def delete_manuscript(
             delete_from_s3(s3_key)
         except Exception as e:
             logger.warning(f"Failed to delete S3 key {s3_key}: {e}")
+
+
+@router.post("/{manuscript_id}/analyze", status_code=202)
+async def start_chapter_analysis(
+    manuscript_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Enqueue chapter analysis jobs for all extracted chapters.
+
+    Requires manuscript to be paid and bible_complete.
+    Skips chapters that are already analyzed or currently analyzing.
+    """
+    result = await db.execute(
+        select(Manuscript).where(
+            Manuscript.id == manuscript_id,
+            Manuscript.user_id == user.id,
+            Manuscript.deleted_at.is_(None),
+        )
+    )
+    manuscript = result.scalar_one_or_none()
+    if manuscript is None:
+        raise HTTPException(status_code=404, detail="Manuscript not found")
+
+    if manuscript.payment_status != PaymentStatus.paid:
+        raise HTTPException(status_code=402, detail="Payment required before analysis")
+
+    if manuscript.status not in (ManuscriptStatus.bible_complete, ManuscriptStatus.complete):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Manuscript must have a completed story bible first (current: {manuscript.status.value})",
+        )
+
+    # Find chapters eligible for analysis (ordered)
+    chapters_result = await db.execute(
+        select(Chapter).where(
+            Chapter.manuscript_id == manuscript_id,
+            Chapter.status.in_([ChapterStatus.extracted]),
+        ).order_by(Chapter.chapter_number)
+    )
+    chapters = chapters_result.scalars().all()
+
+    if not chapters:
+        raise HTTPException(status_code=409, detail="No chapters available for analysis")
+
+    # Update manuscript status
+    manuscript.status = ManuscriptStatus.analyzing
+    await db.flush()
+
+    # Only enqueue the first chapter — the worker chains to the next
+    first_chapter = chapters[0]
+    job = Job(
+        manuscript_id=manuscript_id,
+        chapter_id=first_chapter.id,
+        job_type=JobType.chapter_analysis,
+        current_step=f"Queued: Chapter {first_chapter.chapter_number}",
+    )
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
+
+    redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+    await redis.enqueue_job(
+        "process_chapter_analysis", str(job.id), str(manuscript_id), str(first_chapter.id),
+    )
+
+    return {"message": f"Analysis started for {len(chapters)} chapters", "chapters_queued": len(chapters)}
 
 
 @router.get("/jobs/{job_id}", response_model=JobResponse)

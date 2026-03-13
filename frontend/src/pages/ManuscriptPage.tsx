@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
-import { getManuscript, type ManuscriptDetail, ApiError } from '../api/client'
+import { getManuscript, startAnalysis, type ManuscriptDetail, ApiError } from '../api/client'
 import './ManuscriptPage.css'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -30,6 +30,7 @@ export function ManuscriptPage() {
   const [searchParams] = useSearchParams()
   const [manuscript, setManuscript] = useState<ManuscriptDetail | null>(null)
   const [error, setError] = useState('')
+  const [analysisLoading, setAnalysisLoading] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const paymentStatus = searchParams.get('payment')
 
@@ -38,6 +39,15 @@ export function ManuscriptPage() {
     getManuscript(id)
       .then(setManuscript)
       .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to load'))
+  }
+
+  const handleStartAnalysis = () => {
+    if (!id) return
+    setAnalysisLoading(true)
+    startAnalysis(id)
+      .then(() => fetchManuscript())
+      .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to start analysis'))
+      .finally(() => setAnalysisLoading(false))
   }
 
   useEffect(() => {
@@ -91,6 +101,15 @@ export function ManuscriptPage() {
             <Link to={`/manuscripts/${id}/bible`} className="btn-secondary">
               Story Bible
             </Link>
+          )}
+          {manuscript.status === 'bible_complete' && manuscript.payment_status === 'paid' && (
+            <button
+              className="btn-primary"
+              onClick={handleStartAnalysis}
+              disabled={analysisLoading}
+            >
+              {analysisLoading ? 'Starting...' : 'Run Chapter Analysis'}
+            </button>
           )}
         </div>
       </div>
