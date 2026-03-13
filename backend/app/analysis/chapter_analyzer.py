@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 PROMPT_VERSION = "chapter_analysis_v1"
-MAX_TOKENS = 8192
+MAX_TOKENS = 16384
 MIN_CHAPTER_WORDS = 500
 
 

@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 PROMPT_VERSION = "story_bible_v1"
-MAX_TOKENS = 16384
+MAX_TOKENS = 32768
 
 
 def _load_prompt(name: str) -> str:
@@ -191,7 +191,7 @@ async def _call_claude(prompt: str, max_tokens: int = MAX_TOKENS) -> str:
     try:
         client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
         message = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model="claude-sonnet-4-20250514",
             max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
         )
