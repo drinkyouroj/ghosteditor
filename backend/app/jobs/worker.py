@@ -17,7 +17,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from arq import create_pool
+from arq import create_pool, cron
 from arq.connections import RedisSettings
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -37,6 +37,7 @@ from app.db.models import (
     PaymentStatus,
     StoryBible,
     StoryBibleVersion,
+    User,
 )
 from app.manuscripts.extraction import ExtractionError, check_word_count, detect_chapters, extract_text
 from app.manuscripts.s3 import download_from_s3
@@ -381,6 +382,27 @@ async def process_bible_generation(ctx, job_id: str, manuscript_id: str):
                 progress_pct=100,
             )
 
+            # Schedule drip emails for unpaid manuscripts + send bible-ready notification
+            if manuscript.payment_status == PaymentStatus.unpaid:
+                try:
+                    from app.email.drip import schedule_drip_emails
+                    from app.email.sender import send_bible_ready_email
+
+                    user_result = await session.execute(
+                        select(User).where(User.id == manuscript.user_id)
+                    )
+                    user = user_result.scalar_one_or_none()
+                    if user:
+                        bible_url = f"http://localhost:5173/manuscripts/{manuscript_id}/bible"
+                        send_bible_ready_email(user.email, manuscript.title, bible_url)
+
+                    await schedule_drip_emails(
+                        session, manuscript.user_id, ms_uuid,
+                        datetime.now(timezone.utc),
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to schedule drip emails: {e}")
+
         except StoryBibleError as e:
             logger.error(f"Bible generation error for manuscript {manuscript_id}: {e}")
             await _fail_job_with_retry(
@@ -498,9 +520,23 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
             )
 
 
+async def process_drip_emails(ctx):
+    """Process pending drip emails. Run periodically via arq cron."""
+    session_factory = _get_session_factory()
+    async with session_factory() as session:
+        from app.email.drip import process_pending_emails
+        count = await process_pending_emails(session)
+        if count > 0:
+            logger.info(f"Processed {count} pending email events")
+
+
 class WorkerSettings:
     """arq worker settings."""
     functions = [process_text_extraction, process_bible_generation, process_chapter_analysis]
+    cron_jobs = [
+        # Run drip email dispatch every hour at :00
+        cron(process_drip_emails, minute=0),
+    ]
     on_startup = _recover_stalled_jobs
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_jobs = 5
