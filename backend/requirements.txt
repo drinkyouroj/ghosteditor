@@ -36,6 +36,7 @@ stripe==11.4.1
 
 # Config
 pydantic-settings==2.7.1
+eval_type_backport==0.2.2
 
 # Testing
 pytest==8.3.4
