@@ -3,6 +3,7 @@ from __future__ import annotations
 import enum
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import (
     Boolean,
@@ -85,22 +86,22 @@ class User(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    password_hash: Mapped[str | None] = mapped_column(Text, nullable=True)
+    password_hash: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    verification_token: Mapped[str | None] = mapped_column(Text, nullable=True)
-    verification_token_expires: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    password_reset_token: Mapped[str | None] = mapped_column(Text, nullable=True)
-    password_reset_token_expires: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    verification_token: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    verification_token_expires: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    password_reset_token: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    password_reset_token_expires: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     is_provisional: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    stripe_customer_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    stripe_customer_id: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     subscription_status: Mapped[SubscriptionStatus] = mapped_column(
         Enum(SubscriptionStatus, name="subscription_status", create_constraint=False, create_type=False),
         nullable=False,
         default=SubscriptionStatus.free,
     )
     token_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
-    tos_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    tos_accepted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
 
@@ -114,9 +115,9 @@ class Manuscript(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     title: Mapped[str] = mapped_column(Text, nullable=False)
-    genre: Mapped[str | None] = mapped_column(Text, nullable=True)
-    word_count_est: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    chapter_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    genre: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    word_count_est: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    chapter_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     status: Mapped[ManuscriptStatus] = mapped_column(
         Enum(ManuscriptStatus, name="manuscript_status", create_constraint=False, create_type=False),
         nullable=False,
@@ -127,15 +128,15 @@ class Manuscript(Base):
         nullable=False,
         default=PaymentStatus.unpaid,
     )
-    s3_key: Mapped[str | None] = mapped_column(Text, nullable=True)
-    stripe_session_id: Mapped[str | None] = mapped_column(Text, nullable=True)
-    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    s3_key: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    stripe_session_id: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
 
     user: Mapped["User"] = relationship(back_populates="manuscripts")
     chapters: Mapped[list["Chapter"]] = relationship(back_populates="manuscript")
-    story_bible: Mapped["StoryBible | None"] = relationship(back_populates="manuscript", uselist=False)
+    story_bible: Mapped[Optional["StoryBible"]] = relationship(back_populates="manuscript", uselist=False)
     jobs: Mapped[list["Job"]] = relationship(back_populates="manuscript")
 
 
@@ -146,10 +147,10 @@ class Chapter(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     manuscript_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("manuscripts.id"), nullable=False)
     chapter_number: Mapped[int] = mapped_column(Integer, nullable=False)
-    title: Mapped[str | None] = mapped_column(Text, nullable=True)
-    raw_text: Mapped[str | None] = mapped_column(Text, nullable=True)
-    s3_key: Mapped[str | None] = mapped_column(Text, nullable=True)
-    word_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    title: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    raw_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    s3_key: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    word_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     status: Mapped[ChapterStatus] = mapped_column(
         Enum(ChapterStatus, name="chapter_status", create_constraint=False, create_type=False),
         nullable=False,
@@ -186,7 +187,7 @@ class StoryBibleVersion(Base):
     story_bible_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("story_bibles.id"), nullable=False)
     bible_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
-    created_by_chapter_id: Mapped[uuid.UUID | None] = mapped_column(
+    created_by_chapter_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("chapters.id"), nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
@@ -201,8 +202,8 @@ class ChapterAnalysis(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     chapter_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("chapters.id"), nullable=False)
     issues_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    pacing_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    genre_notes: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    pacing_json: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    genre_notes: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
     prompt_version: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
 
@@ -214,7 +215,7 @@ class Job(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     manuscript_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("manuscripts.id"), nullable=False)
-    chapter_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("chapters.id"), nullable=True)
+    chapter_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("chapters.id"), nullable=True)
     job_type: Mapped[JobType] = mapped_column(
         Enum(JobType, name="job_type", create_constraint=False, create_type=False), nullable=False
     )
@@ -224,12 +225,12 @@ class Job(Base):
     progress_pct: Mapped[int] = mapped_column(
         Integer, CheckConstraint("progress_pct >= 0 AND progress_pct <= 100"), nullable=False, default=0
     )
-    current_step: Mapped[str | None] = mapped_column(Text, nullable=True)
-    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    current_step: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=3)
-    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
 
@@ -242,11 +243,11 @@ class EmailEvent(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     event_type: Mapped[str] = mapped_column(Text, nullable=False)
-    manuscript_id: Mapped[uuid.UUID | None] = mapped_column(
+    manuscript_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("manuscripts.id"), nullable=True
     )
     scheduled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
 
     user: Mapped["User"] = relationship(back_populates="email_events")
