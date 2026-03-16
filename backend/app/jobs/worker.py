@@ -658,4 +658,4 @@ class WorkerSettings:
     on_startup = _recover_stalled_jobs
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_jobs = 5
-    job_timeout = 900  # 15 minutes per job — bible update (Sonnet) + chapter analysis (Haiku), each may retry on truncation
+    job_timeout = 3600  # 60 minutes per job — local models can be very slow on bible generation

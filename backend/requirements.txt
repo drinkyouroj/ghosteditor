@@ -19,8 +19,9 @@ arq==0.26.1
 # AWS S3
 boto3==1.35.86
 
-# Claude API
+# LLM APIs
 anthropic==0.42.0
+openai==1.82.0
 
 # File processing
 python-docx==1.1.2

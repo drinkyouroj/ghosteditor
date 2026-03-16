@@ -15,18 +15,18 @@ import json
 import logging
 from pathlib import Path
 
-import anthropic
 from pydantic import ValidationError
 
 from app.analysis.bible_schema import StoryBibleSchema
-from app.analysis.json_repair import is_truncated, parse_json_response
+from app.analysis.json_repair import parse_json_response
+from app.analysis.llm_client import LLMError, call_llm
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 PROMPT_VERSION = "story_bible_v1"
-MAX_TOKENS = 32768
+MAX_TOKENS = 64000
 
 
 def _load_prompt(name: str) -> str:
@@ -103,17 +103,14 @@ async def generate_story_bible(
             chapter_text=sanitized_text,
         )
 
-    # Call Claude API
-    raw_response = await _call_claude(prompt)
+    # Call LLM API
+    try:
+        raw_response = await call_llm(prompt, settings.llm_model_bible, MAX_TOKENS)
+    except LLMError as e:
+        raise StoryBibleError(str(e))
 
     # JSON repair pipeline (JUDGE amendment #2)
     parsed = parse_json_response(raw_response)
-
-    if parsed is None and is_truncated(raw_response):
-        logger.warning("Response appears truncated, retrying with higher max_tokens")
-        retry_tokens = min(MAX_TOKENS * 2, 65536)  # cap at model max
-        raw_response = await _call_claude(prompt, max_tokens=retry_tokens)
-        parsed = parse_json_response(raw_response)
 
     if parsed is None:
         logger.warning(
@@ -125,7 +122,10 @@ async def generate_story_bible(
             "\n\nIMPORTANT: Your previous response was not valid JSON. "
             "Respond with ONLY valid JSON. No text before or after the JSON object."
         )
-        raw_response = await _call_claude(retry_prompt)
+        try:
+            raw_response = await call_llm(retry_prompt, settings.llm_model_bible, MAX_TOKENS)
+        except LLMError as e:
+            raise StoryBibleError(str(e))
         parsed = parse_json_response(raw_response)
 
     if parsed is None:
@@ -134,7 +134,7 @@ async def generate_story_bible(
             f"Final response starts with: {raw_response[:500]!r}"
         )
         raise StoryBibleError(
-            "Failed to get valid JSON from Claude after retries. "
+            "Failed to get valid JSON after retries. "
             "The chapter may contain content that causes formatting issues."
         )
 
@@ -148,7 +148,10 @@ async def generate_story_bible(
             f"\n\nIMPORTANT: Your previous response had schema errors:\n{error_details}\n"
             "Please fix these errors and respond with valid JSON matching the schema exactly."
         )
-        raw_response = await _call_claude(retry_prompt)
+        try:
+            raw_response = await call_llm(retry_prompt, settings.llm_model_bible, MAX_TOKENS)
+        except LLMError as e:
+            raise StoryBibleError(str(e))
         parsed = parse_json_response(raw_response)
         if parsed is None:
             raise StoryBibleError(f"Schema validation failed after retry: {error_details}")
@@ -182,51 +185,6 @@ async def generate_story_bible(
             ).voice_profile
 
     return validated, warnings
-
-
-async def _call_claude(prompt: str, max_tokens: int = MAX_TOKENS) -> str:
-    """Call Claude API and return the text response.
-
-    Translates Anthropic API errors into StoryBibleError with user-friendly messages.
-    """
-    try:
-        client = anthropic.AsyncAnthropic(
-            api_key=settings.anthropic_api_key,
-            timeout=300.0,  # 5 minute timeout per API call
-        )
-        message = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return message.content[0].text
-    except anthropic.RateLimitError:
-        raise StoryBibleError(
-            "Our AI service is temporarily busy. Please try again in a few minutes."
-        )
-    except anthropic.AuthenticationError:
-        logger.error("Anthropic API authentication failed — check ANTHROPIC_API_KEY")
-        raise StoryBibleError(
-            "AI service configuration error. Please contact support."
-        )
-    except anthropic.APIStatusError as e:
-        logger.error(f"Anthropic API error {e.status_code}: {e.message}")
-        if e.status_code == 529:  # Overloaded
-            raise StoryBibleError(
-                "Our AI service is temporarily overloaded. Please try again in a few minutes."
-            )
-        raise StoryBibleError(
-            "AI service encountered an error. Please try again."
-        )
-    except anthropic.APITimeoutError:
-        raise StoryBibleError(
-            "AI service timed out while analyzing your chapter. "
-            "This can happen with very long chapters — please try again."
-        )
-    except anthropic.APIConnectionError:
-        raise StoryBibleError(
-            "Could not connect to AI service. Please check your connection and try again."
-        )
 
 
 class StoryBibleError(Exception):

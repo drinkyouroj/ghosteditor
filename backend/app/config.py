@@ -15,8 +15,15 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
     provisional_token_expire_minutes: int = 60
 
-    # Claude API
+    # LLM API
+    llm_backend: str = "anthropic"  # "anthropic", "openai", or "groq"
     anthropic_api_key: str = ""
+    anthropic_base_url: str = ""  # Leave empty for Anthropic default
+    openai_api_key: str = ""  # Also used for local models (can be "none" for local)
+    openai_base_url: str = ""  # e.g. http://localhost:11434/v1 for Ollama
+    groq_api_key: str = ""
+    llm_model_bible: str = "claude-haiku-4-5-20251001"
+    llm_model_analysis: str = "claude-haiku-4-5-20251001"
 
     # AWS S3 / MinIO
     aws_access_key_id: str = ""

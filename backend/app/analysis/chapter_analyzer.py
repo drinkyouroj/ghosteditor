@@ -8,12 +8,12 @@ import json
 import logging
 from pathlib import Path
 
-import anthropic
 from pydantic import ValidationError
 
 from app.analysis.genre_conventions import get_genre_conventions
 from app.analysis.issue_schema import ChapterAnalysisResult, validate_and_filter
-from app.analysis.json_repair import is_truncated, parse_json_response
+from app.analysis.json_repair import parse_json_response
+from app.analysis.llm_client import LLMError, call_llm
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -115,16 +115,14 @@ async def analyze_chapter(
         chapter_text=sanitized_text,
     )
 
-    # Call Claude API
-    raw_response = await _call_claude(prompt)
+    # Call LLM API
+    try:
+        raw_response = await call_llm(prompt, settings.llm_model_analysis, MAX_TOKENS)
+    except LLMError as e:
+        raise ChapterAnalysisError(str(e))
 
     # JSON repair pipeline
     parsed = parse_json_response(raw_response)
-
-    if parsed is None and is_truncated(raw_response):
-        logger.warning("Response appears truncated, retrying with higher max_tokens")
-        raw_response = await _call_claude(prompt, max_tokens=MAX_TOKENS * 2)
-        parsed = parse_json_response(raw_response)
 
     if parsed is None:
         logger.warning(
@@ -136,7 +134,10 @@ async def analyze_chapter(
             "\n\nIMPORTANT: Your previous response was not valid JSON. "
             "Respond with ONLY valid JSON. No text before or after the JSON object."
         )
-        raw_response = await _call_claude(retry_prompt)
+        try:
+            raw_response = await call_llm(retry_prompt, settings.llm_model_analysis, MAX_TOKENS)
+        except LLMError as e:
+            raise ChapterAnalysisError(str(e))
         parsed = parse_json_response(raw_response)
 
     if parsed is None:
@@ -145,7 +146,7 @@ async def analyze_chapter(
             f"Final response starts with: {raw_response[:500]!r}"
         )
         raise ChapterAnalysisError(
-            "Failed to get valid JSON from Claude after retries. "
+            "Failed to get valid JSON after retries. "
             "The chapter may contain content that causes formatting issues."
         )
 
@@ -159,7 +160,10 @@ async def analyze_chapter(
             f"\n\nIMPORTANT: Your previous response had schema errors:\n{error_details}\n"
             "Please fix these errors and respond with valid JSON matching the schema exactly."
         )
-        raw_response = await _call_claude(retry_prompt)
+        try:
+            raw_response = await call_llm(retry_prompt, settings.llm_model_analysis, MAX_TOKENS)
+        except LLMError as e:
+            raise ChapterAnalysisError(str(e))
         parsed = parse_json_response(raw_response)
         if parsed is None:
             raise ChapterAnalysisError(f"Schema validation failed after retry: {error_details}")
@@ -172,51 +176,6 @@ async def analyze_chapter(
     validated = validate_and_filter(validated)
 
     return validated, warnings
-
-
-async def _call_claude(prompt: str, max_tokens: int = MAX_TOKENS) -> str:
-    """Call Claude API and return the text response.
-
-    Translates Anthropic API errors into ChapterAnalysisError with user-friendly messages.
-    """
-    try:
-        client = anthropic.AsyncAnthropic(
-            api_key=settings.anthropic_api_key,
-            timeout=300.0,  # 5 minute timeout per API call
-        )
-        message = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return message.content[0].text
-    except anthropic.RateLimitError:
-        raise ChapterAnalysisError(
-            "Our AI service is temporarily busy. Please try again in a few minutes."
-        )
-    except anthropic.AuthenticationError:
-        logger.error("Anthropic API authentication failed — check ANTHROPIC_API_KEY")
-        raise ChapterAnalysisError(
-            "AI service configuration error. Please contact support."
-        )
-    except anthropic.APIStatusError as e:
-        logger.error(f"Anthropic API error {e.status_code}: {e.message}")
-        if e.status_code == 529:  # Overloaded
-            raise ChapterAnalysisError(
-                "Our AI service is temporarily overloaded. Please try again in a few minutes."
-            )
-        raise ChapterAnalysisError(
-            "AI service encountered an error. Please try again."
-        )
-    except anthropic.APITimeoutError:
-        raise ChapterAnalysisError(
-            "AI service timed out while analyzing your chapter. "
-            "This can happen with very long chapters — please try again."
-        )
-    except anthropic.APIConnectionError:
-        raise ChapterAnalysisError(
-            "Could not connect to AI service. Please check your connection and try again."
-        )
 
 
 class ChapterAnalysisError(Exception):
