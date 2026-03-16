@@ -12,6 +12,8 @@ Error handling strategy:
 - Stalled jobs (stuck in "running" beyond timeout) are recovered via on_startup cleanup.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import uuid

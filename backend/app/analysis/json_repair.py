@@ -7,6 +7,8 @@ Per DECISION_004 JUDGE amendment #2:
 4. Return None if all repairs fail (caller should retry)
 """
 
+from __future__ import annotations
+
 import json
 import re
 

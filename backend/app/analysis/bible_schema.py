@@ -4,6 +4,8 @@ Per DECISION_004 JUDGE amendment #5: validate Claude's output against a schema,
 not just json.loads(). Provides type coercion and clear error messages.
 """
 
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 
 

@@ -13,6 +13,8 @@ Chapter detection supports:
 - Full title capture including subtitles on the next line
 """
 
+from __future__ import annotations
+
 import io
 import logging
 import re

@@ -6,6 +6,8 @@ Per DECISION_006: Stripe Checkout (hosted) with webhooks for payment confirmatio
 - Beta coupon: Stripe Promotion Code "BETA" ($20 off)
 """
 
+from __future__ import annotations
+
 import logging
 import uuid
 

@@ -4,6 +4,8 @@ Follows the same pattern as bible_schema.py: strict schema validation
 of Claude's JSON output with sensible defaults for optional fields.
 """
 
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 
 

@@ -7,6 +7,8 @@ Per blueprint: Use Resend (free tier: 3,000 emails/mo). Email sequences stored
 as scheduled tasks in PostgreSQL (EmailEvent table).
 """
 
+from __future__ import annotations
+
 import logging
 
 import resend

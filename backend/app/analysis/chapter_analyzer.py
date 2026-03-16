@@ -4,6 +4,8 @@ Handles Claude API calls, JSON repair, schema validation, and retry logic.
 Follows the same patterns as story_bible.py.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path
