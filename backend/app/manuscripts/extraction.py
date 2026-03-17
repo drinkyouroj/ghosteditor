@@ -969,7 +969,11 @@ async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
             warnings = []
 
     # --- Post-processing ---
-    chapters = _merge_short_sections(chapters)
+    # Only merge short sections for auto-split and regex methods.
+    # LLM-split sections are intentional — the LLM identified them as
+    # distinct sections (e.g. a short Prologue) and they should be kept.
+    if chapters and chapters[0].get("split_method") != "llm":
+        chapters = _merge_short_sections(chapters)
 
     # Cap at MAX_CHAPTERS
     if len(chapters) > MAX_CHAPTERS:
