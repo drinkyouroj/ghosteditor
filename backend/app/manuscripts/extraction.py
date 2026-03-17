@@ -506,22 +506,65 @@ def _sanitize_sample(text: str) -> str:
     return text.replace("</manuscript_sample>", "&lt;/manuscript_sample&gt;")
 
 
+def _normalize_whitespace(s: str) -> str:
+    """Collapse all whitespace (including newlines) to single spaces and strip."""
+    return re.sub(r"\s+", " ", s).strip()
+
+
 def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
     """Find a marker in text, skipping the front matter / ToC region.
 
     Per JUDGE: prefer occurrences NOT in the first 5% of text.
+    Tries exact match first, then normalized whitespace match,
+    then first-line-only match for multi-line markers.
     Returns character position or -1 if not found.
     """
     toc_boundary = int(len(text) * 0.05)
 
-    # First, try to find the marker after the ToC region
+    # Strategy 1: exact match after ToC region
     pos = text.find(marker, max(search_start, toc_boundary))
     if pos != -1:
         return pos
 
-    # Fall back to finding it anywhere after search_start
+    # Strategy 2: exact match anywhere after search_start
     pos = text.find(marker, search_start)
-    return pos
+    if pos != -1:
+        return pos
+
+    # Strategy 3: try matching just the first line of the marker
+    # (LLM sometimes returns multi-line markers)
+    first_line = marker.split("\n")[0].strip()
+    if first_line and first_line != marker.strip():
+        pos = text.find(first_line, max(search_start, toc_boundary))
+        if pos != -1:
+            logger.info(f"Matched marker via first line: {first_line!r}")
+            return pos
+        pos = text.find(first_line, search_start)
+        if pos != -1:
+            logger.info(f"Matched marker via first line (pre-ToC): {first_line!r}")
+            return pos
+
+    # Strategy 4: normalized whitespace matching
+    # Build a regex from the marker with flexible whitespace
+    marker_normalized = _normalize_whitespace(marker)
+    if marker_normalized:
+        # Escape regex chars and replace spaces with \s+
+        parts = [re.escape(word) for word in marker_normalized.split()]
+        pattern = r"\s+".join(parts)
+        try:
+            for match in re.finditer(pattern, text[max(search_start, toc_boundary):]):
+                actual_pos = max(search_start, toc_boundary) + match.start()
+                logger.info(f"Matched marker via whitespace normalization: {marker[:60]!r}")
+                return actual_pos
+            # Try before ToC boundary as fallback
+            for match in re.finditer(pattern, text[search_start:]):
+                actual_pos = search_start + match.start()
+                logger.info(f"Matched marker via whitespace normalization (pre-ToC): {marker[:60]!r}")
+                return actual_pos
+        except re.error:
+            pass
+
+    return -1
 
 
 def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: str | None) -> list[dict]:
@@ -536,7 +579,7 @@ def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: 
     # Determine where to start searching (after front matter)
     search_start = 0
     if front_matter_end_marker:
-        fm_pos = text.find(front_matter_end_marker)
+        fm_pos = _find_marker_position(text, front_matter_end_marker, 0)
         if fm_pos != -1:
             search_start = fm_pos + len(front_matter_end_marker)
             logger.info(f"Front matter ends at position {search_start}")
