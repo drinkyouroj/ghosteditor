@@ -567,6 +567,110 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
     return -1
 
 
+def _infer_missing_markers(
+    text: str, positions: list[tuple[int, str]], search_start: int
+) -> list[tuple[int, str]]:
+    """Detect sequential patterns in markers and fill in gaps.
+
+    If we found "ACT I", "ACT III", "ACT IV", "ACT V", infer "ACT II" is missing
+    and search for it. Works with Roman numerals, Arabic numbers, and word numbers.
+    """
+    if len(positions) < 2:
+        return positions
+
+    titles = [title for _, title in positions]
+
+    # Try to extract a common prefix + numbering pattern
+    # Check for Roman numeral pattern: "ACT I", "ACT III", etc.
+    roman_pattern = re.compile(r"^(.+?\s+)(I{1,3}|IV|V|VI{0,3}|IX|X|XI{0,3}|XIV|XV)$", re.IGNORECASE)
+    arabic_pattern = re.compile(r"^(.+?\s+)(\d+)(.*)$")
+
+    # Try Roman numerals first
+    roman_matches = [roman_pattern.match(t) for t in titles]
+    if all(m is not None for m in roman_matches):
+        prefix = roman_matches[0].group(1)
+        found_numerals = set()
+        max_val = 0
+        for m in roman_matches:
+            val = _roman_to_int(m.group(2).upper())
+            if val > 0:
+                found_numerals.add(val)
+                max_val = max(max_val, val)
+
+        # Find gaps
+        all_positions = list(positions)
+        for val in range(1, max_val + 1):
+            if val not in found_numerals:
+                numeral = _int_to_roman(val)
+                candidate = prefix + numeral
+                pos = _find_marker_position(text, candidate, search_start)
+                if pos != -1:
+                    logger.info(f"Inferred missing marker: {candidate!r} at position {pos}")
+                    all_positions.append((pos, candidate))
+                else:
+                    logger.warning(f"Could not find inferred marker: {candidate!r}")
+
+        if len(all_positions) > len(positions):
+            all_positions.sort(key=lambda x: x[0])
+            return all_positions
+
+    # Try Arabic numerals
+    arabic_matches = [arabic_pattern.match(t) for t in titles]
+    if all(m is not None for m in arabic_matches):
+        prefix = arabic_matches[0].group(1)
+        suffix = arabic_matches[0].group(3)
+        found_nums = set()
+        max_num = 0
+        for m in arabic_matches:
+            num = int(m.group(2))
+            found_nums.add(num)
+            max_num = max(max_num, num)
+
+        all_positions = list(positions)
+        for num in range(1, max_num + 1):
+            if num not in found_nums:
+                candidate = f"{prefix}{num}{suffix}"
+                pos = _find_marker_position(text, candidate, search_start)
+                if pos != -1:
+                    logger.info(f"Inferred missing marker: {candidate!r} at position {pos}")
+                    all_positions.append((pos, candidate))
+
+        if len(all_positions) > len(positions):
+            all_positions.sort(key=lambda x: x[0])
+            return all_positions
+
+    return positions
+
+
+def _roman_to_int(s: str) -> int:
+    """Convert a Roman numeral string to integer."""
+    values = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100}
+    total = 0
+    prev = 0
+    for c in reversed(s.upper()):
+        val = values.get(c, 0)
+        if val < prev:
+            total -= val
+        else:
+            total += val
+        prev = val
+    return total
+
+
+def _int_to_roman(n: int) -> str:
+    """Convert an integer to a Roman numeral string."""
+    pairs = [
+        (100, "C"), (90, "XC"), (50, "L"), (40, "XL"),
+        (10, "X"), (9, "IX"), (5, "V"), (4, "IV"), (1, "I"),
+    ]
+    result = ""
+    for value, numeral in pairs:
+        while n >= value:
+            result += numeral
+            n -= value
+    return result
+
+
 def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: str | None) -> list[dict]:
     """Split text using LLM-provided section markers.
 
@@ -610,6 +714,9 @@ def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: 
         if pos - deduped[-1][0] > 20:
             deduped.append((pos, title))
     positions = deduped
+
+    # Infer missing markers from patterns in found markers
+    positions = _infer_missing_markers(text, positions, search_start)
 
     # Build chapters from positions
     chapters = []
