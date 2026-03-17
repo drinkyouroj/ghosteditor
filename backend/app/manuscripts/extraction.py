@@ -585,17 +585,21 @@ def _infer_missing_markers(
     roman_pattern = re.compile(r"^(.+?\s+)(I{1,3}|IV|V|VI{0,3}|IX|X|XI{0,3}|XIV|XV)$", re.IGNORECASE)
     arabic_pattern = re.compile(r"^(.+?\s+)(\d+)(.*)$")
 
-    # Try Roman numerals first
-    roman_matches = [roman_pattern.match(t) for t in titles]
-    if all(m is not None for m in roman_matches):
-        prefix = roman_matches[0].group(1)
+    # Try Roman numerals — only require 2+ titles to match, not all
+    roman_matched = [(i, m) for i, m in enumerate(roman_pattern.match(t) for t in titles) if m is not None]
+    if len(roman_matched) >= 2:
+        # Use the most common prefix among matched titles
+        prefixes = [m.group(1) for _, m in roman_matched]
+        prefix = max(set(prefixes), key=prefixes.count)
+
         found_numerals = set()
         max_val = 0
-        for m in roman_matches:
-            val = _roman_to_int(m.group(2).upper())
-            if val > 0:
-                found_numerals.add(val)
-                max_val = max(max_val, val)
+        for _, m in roman_matched:
+            if m.group(1) == prefix:
+                val = _roman_to_int(m.group(2).upper())
+                if val > 0:
+                    found_numerals.add(val)
+                    max_val = max(max_val, val)
 
         # Find gaps
         all_positions = list(positions)
@@ -614,14 +618,15 @@ def _infer_missing_markers(
             all_positions.sort(key=lambda x: x[0])
             return all_positions
 
-    # Try Arabic numerals
-    arabic_matches = [arabic_pattern.match(t) for t in titles]
-    if all(m is not None for m in arabic_matches):
-        prefix = arabic_matches[0].group(1)
-        suffix = arabic_matches[0].group(3)
+    # Try Arabic numerals — only require 2+ titles to match
+    arabic_matched = [(i, m) for i, m in enumerate(arabic_pattern.match(t) for t in titles) if m is not None]
+    if len(arabic_matched) >= 2:
+        # Use most common prefix/suffix
+        prefix = arabic_matched[0][1].group(1)
+        suffix = arabic_matched[0][1].group(3)
         found_nums = set()
         max_num = 0
-        for m in arabic_matches:
+        for _, m in arabic_matched:
             num = int(m.group(2))
             found_nums.add(num)
             max_num = max(max_num, num)
