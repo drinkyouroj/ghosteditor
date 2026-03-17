@@ -8,9 +8,16 @@ IMPORTANT RULES:
 3. Include enough context in each marker to be unique (e.g., "ACT I" is fine if there is only one "ACT I" in the body text, distinct from any table of contents).
 4. If the manuscript has a TABLE OF CONTENTS, use it to identify ALL sections — even sections in the omitted middle of the sample. The ToC tells you the complete list of section markers to return.
 5. Return markers as they would appear as section headers in the body text, NOT as they appear in the ToC (though they are usually the same).
-6. Only return markers for actual content sections (chapters, acts, scenes, parts, cantos, stories, poems, etc.). Do NOT return the ToC itself, title pages, dramatis personae, dedications, epigraphs, forewords, or introductions as sections.
+6. Only return markers for actual content sections (chapters, acts, scenes, parts, cantos, stories, poems, etc.). Do NOT return the ToC itself, title pages, dramatis personae, dedications, epigraphs, forewords, or introductions as sections. However, if there IS a Prologue that contains actual narrative content, include it as the first section.
 7. If you cannot identify any clear structural pattern, return an empty sections array.
 8. For plays: split by Act, not by individual scenes. Each Act is one section.
+
+FRONT MATTER:
+- "front_matter_end_marker" is CRITICAL. It must be a line from the text that marks the LAST line of front matter (title page, table of contents, cast of characters / dramatis personae, etc.) BEFORE the actual story/play content begins.
+- The system will skip everything before this marker when searching for section headers, so it must be set correctly.
+- For plays, this is typically the last line of the dramatis personae or cast list.
+- For novels, this might be the last line of a foreword, dedication, or table of contents.
+- If there is no front matter, set to null.
 
 Respond ONLY with valid JSON. No preamble, no explanation, no markdown code fences. Your entire response must be parseable by json.loads().
 
@@ -25,7 +32,7 @@ JSON schema:
     }}
   ],
   "has_front_matter": true,
-  "front_matter_end_marker": "A single line from the text marking where front matter ends and real content begins, or null if no front matter"
+  "front_matter_end_marker": "The last line of front matter before actual content begins, or null if no front matter"
 }}
 
 <manuscript_sample>

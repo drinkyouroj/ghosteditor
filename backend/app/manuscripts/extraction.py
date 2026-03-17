@@ -512,76 +512,49 @@ def _normalize_whitespace(s: str) -> str:
 
 
 def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
-    """Find a marker in text, skipping the front matter / ToC region.
+    """Find a marker in text, searching from search_start onward.
 
-    Per JUDGE: prefer occurrences NOT in the first 5% of text.
-    Tries exact match first, then normalized whitespace match,
-    then first-line-only match for multi-line markers.
+    The caller is responsible for setting search_start past any front matter
+    (using the LLM's front_matter_end_marker). No hardcoded ToC heuristics.
+
+    Uses word-boundary matching to prevent 'ACT I' matching inside 'ACT II'.
+    Tries exact match, then stripped punctuation, then first-line, all with
+    case-sensitive then case-insensitive.
     Returns character position or -1 if not found.
     """
-    toc_boundary = int(len(text) * 0.05)
-
-    # Strategy 1: exact match after ToC region
-    pos = text.find(marker, max(search_start, toc_boundary))
-    if pos != -1:
-        return pos
-
-    # Strategy 2: exact match anywhere after search_start
-    pos = text.find(marker, search_start)
-    if pos != -1:
-        return pos
-
-    # Strategy 3: strip trailing punctuation and retry
+    # Build candidate markers: original, punctuation-stripped, first-line
+    candidates = [marker]
     marker_stripped = marker.rstrip(".,;:!?")
     if marker_stripped != marker:
-        pos = text.find(marker_stripped, max(search_start, toc_boundary))
-        if pos != -1:
-            logger.info(f"Matched marker after stripping punctuation: {marker_stripped!r}")
-            return pos
-        pos = text.find(marker_stripped, search_start)
-        if pos != -1:
-            logger.info(f"Matched marker after stripping punctuation (pre-ToC): {marker_stripped!r}")
-            return pos
-
-    # Strategy 4: try matching just the first line of the marker
-    # (LLM sometimes returns multi-line markers)
+        candidates.append(marker_stripped)
     first_line = marker.split("\n")[0].strip()
     if first_line and first_line != marker.strip():
-        pos = text.find(first_line, max(search_start, toc_boundary))
-        if pos != -1:
-            logger.info(f"Matched marker via first line: {first_line!r}")
-            return pos
-        pos = text.find(first_line, search_start)
-        if pos != -1:
-            logger.info(f"Matched marker via first line (pre-ToC): {first_line!r}")
-            return pos
+        candidates.append(first_line)
 
-    # Strategy 4: case-insensitive exact match
-    marker_lower = marker.lower()
-    text_lower = text.lower()
-    pos = text_lower.find(marker_lower, max(search_start, toc_boundary))
-    if pos != -1:
-        logger.info(f"Matched marker via case-insensitive match: {marker[:60]!r}")
-        return pos
-    pos = text_lower.find(marker_lower, search_start)
-    if pos != -1:
-        logger.info(f"Matched marker via case-insensitive match (pre-ToC): {marker[:60]!r}")
-        return pos
+    for candidate in candidates:
+        words = _normalize_whitespace(candidate).split()
+        if not words:
+            continue
+        pattern = r"\s+".join(re.escape(w) for w in words) + r"(?!\w)"
 
-    # Strategy 5: normalized whitespace + case-insensitive matching
-    marker_normalized = _normalize_whitespace(marker)
-    if marker_normalized:
-        # Escape regex chars and replace spaces with \s+
-        parts = [re.escape(word) for word in marker_normalized.split()]
-        pattern = r"\s+".join(parts)
+        # Case-sensitive match from search_start
         try:
-            for match in re.finditer(pattern, text[max(search_start, toc_boundary):], re.IGNORECASE):
-                actual_pos = max(search_start, toc_boundary) + match.start()
-                logger.info(f"Matched marker via whitespace+case normalization: {marker[:60]!r}")
+            for match in re.finditer(pattern, text[search_start:]):
+                actual_pos = search_start + match.start()
+                if candidate != marker:
+                    logger.info(f"Matched marker variant {candidate!r} at pos={actual_pos}")
                 return actual_pos
+        except re.error:
+            pass
+
+        # Case-insensitive match from search_start
+        try:
             for match in re.finditer(pattern, text[search_start:], re.IGNORECASE):
                 actual_pos = search_start + match.start()
-                logger.info(f"Matched marker via whitespace+case normalization (pre-ToC): {marker[:60]!r}")
+                if candidate != marker:
+                    logger.info(f"Matched marker variant (ci) {candidate!r} at pos={actual_pos}")
+                else:
+                    logger.info(f"Matched marker case-insensitive {candidate!r} at pos={actual_pos}")
                 return actual_pos
         except re.error:
             pass
