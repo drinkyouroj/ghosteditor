@@ -12,7 +12,7 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from app.manuscripts.extraction import detect_chapters, extract_text_from_txt, check_word_count
+from app.manuscripts.extraction import detect_chapters_sync as detect_chapters, extract_text_from_txt, check_word_count
 
 SAMPLES_DIR = Path(__file__).parent / "samples"
 

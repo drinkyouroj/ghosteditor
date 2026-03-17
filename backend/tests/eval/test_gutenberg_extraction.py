@@ -7,7 +7,7 @@ romance, fantasy, literary fiction, thriller, and mystery genres.
 import pytest
 from pathlib import Path
 
-from app.manuscripts.extraction import detect_chapters
+from app.manuscripts.extraction import detect_chapters_sync as detect_chapters
 
 SAMPLES_DIR = Path(__file__).parent / "samples"
 

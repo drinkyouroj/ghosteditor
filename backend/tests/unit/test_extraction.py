@@ -3,7 +3,7 @@ import pytest
 from app.manuscripts.extraction import (
     ExtractionError,
     check_word_count,
-    detect_chapters,
+    detect_chapters_sync as detect_chapters,
     extract_text_from_txt,
 )
 

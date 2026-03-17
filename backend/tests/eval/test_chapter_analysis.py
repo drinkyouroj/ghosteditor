@@ -96,7 +96,7 @@ def _split_great_gatsby(text: str, count: int) -> list[dict]:
 
 def _load_chapters(filename: str, count: int) -> list[dict]:
     """Load a Gutenberg text, strip headers, detect chapters, return first `count`."""
-    from app.manuscripts.extraction import detect_chapters
+    from app.manuscripts.extraction import detect_chapters_sync as detect_chapters
 
     path = SAMPLES_DIR / filename
     if not path.exists():

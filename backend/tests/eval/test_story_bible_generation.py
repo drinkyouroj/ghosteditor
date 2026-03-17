@@ -15,7 +15,7 @@ from pathlib import Path
 
 from app.analysis.story_bible import generate_story_bible
 from app.analysis.bible_schema import StoryBibleSchema
-from app.manuscripts.extraction import detect_chapters
+from app.manuscripts.extraction import detect_chapters_sync as detect_chapters
 
 SAMPLES_DIR = Path(__file__).parent / "samples"
 RESULTS_DIR = Path(__file__).parent / "bible_results"

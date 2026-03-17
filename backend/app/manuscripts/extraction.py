@@ -5,19 +5,19 @@ Per DECISION_003 JUDGE amendments:
 - Minimum 200 words per chapter (merge short sections with next).
 - Cap at 150 chapters; fall back to single chapter if exceeded.
 
-Chapter detection supports:
-- "Chapter 1", "Chapter One", "CHAPTER I.", "CHAPTER XIV" formats
-- Standalone Roman numerals on their own line (Gutenberg style)
-- Gutenberg preamble/license stripping
-- TOC filtering (short segments between headers)
-- Full title capture including subtitles on the next line
+Per DECISION_007:
+- LLM-assisted structure detection for any manuscript format.
+- Fallback chain: LLM -> auto-split -> regex.
+- Supports novels, plays, poetry, essays, screenplays, etc.
 """
 
 from __future__ import annotations
 
 import io
+import json
 import logging
 import re
+from pathlib import Path
 
 from docx import Document as DocxDocument
 from PyPDF2 import PdfReader
@@ -311,8 +311,8 @@ def _extract_title(text: str, pos: int, matched_header: str) -> str:
     return title
 
 
-def detect_chapters(text: str) -> list[dict]:
-    """Detect chapter boundaries in text. Returns list of {chapter_number, title, text, word_count}.
+def _detect_chapters_regex(text: str) -> list[dict]:
+    """Regex-based chapter detection (fallback). Returns list of {chapter_number, title, text, word_count}.
 
     Per JUDGE: merge chapters < 200 words with next; cap at 150; no bare-number regex.
     """
@@ -438,6 +438,394 @@ def detect_chapters(text: str) -> list[dict]:
 
     logger.info(f"Detected {len(merged)} chapters")
     return merged
+
+
+# ---------------------------------------------------------------------------
+# Sync alias for tests that use the old regex-based detection directly
+# ---------------------------------------------------------------------------
+
+detect_chapters_sync = _detect_chapters_regex
+
+
+# ---------------------------------------------------------------------------
+# LLM-assisted structure detection (DECISION_007)
+# ---------------------------------------------------------------------------
+
+SPLITTING_PROMPT_PATH = Path(__file__).parent.parent / "analysis" / "prompts" / "splitting_v1.txt"
+SAMPLE_START_WORDS = 3000
+SAMPLE_END_WORDS = 1000
+SAMPLE_FULL_THRESHOLD = 5000
+AUTO_SPLIT_TARGET_WORDS = 4000
+AUTO_SPLIT_WINDOW = 500  # words to search for a good break point
+SPLITTING_MAX_TOKENS = 4096
+
+# Visual separator patterns for auto-split
+_VISUAL_SEPARATORS = re.compile(
+    r"(?:^|\n)[ \t]*(?:\* \* \*|---+|___+|===+|###|~ ~ ~|• • •)[ \t]*(?:\n|$)",
+    re.MULTILINE,
+)
+
+
+def _sample_manuscript(text: str) -> str:
+    """Extract a representative sample from the manuscript for structure detection."""
+    words = text.split()
+    if len(words) <= SAMPLE_FULL_THRESHOLD:
+        return text
+
+    # First ~3000 words
+    start_sample = " ".join(words[:SAMPLE_START_WORDS])
+    # Find the actual character position for a clean break
+    start_end = 0
+    word_count = 0
+    for i, ch in enumerate(text):
+        if ch in (" ", "\n", "\r", "\t"):
+            word_count += 1
+            if word_count >= SAMPLE_START_WORDS:
+                start_end = i
+                break
+    if start_end == 0:
+        start_end = len(text)
+    start_text = text[:start_end]
+
+    # Last ~1000 words
+    end_start = len(text)
+    word_count = 0
+    for i in range(len(text) - 1, -1, -1):
+        if text[i] in (" ", "\n", "\r", "\t"):
+            word_count += 1
+            if word_count >= SAMPLE_END_WORDS:
+                end_start = i
+                break
+    end_text = text[end_start:]
+
+    return start_text + "\n\n[... middle of manuscript omitted ...]\n\n" + end_text
+
+
+def _sanitize_sample(text: str) -> str:
+    """Escape closing manuscript_sample tags to prevent prompt injection."""
+    return text.replace("</manuscript_sample>", "&lt;/manuscript_sample&gt;")
+
+
+def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
+    """Find a marker in text, skipping the front matter / ToC region.
+
+    Per JUDGE: prefer occurrences NOT in the first 5% of text.
+    Returns character position or -1 if not found.
+    """
+    toc_boundary = int(len(text) * 0.05)
+
+    # First, try to find the marker after the ToC region
+    pos = text.find(marker, max(search_start, toc_boundary))
+    if pos != -1:
+        return pos
+
+    # Fall back to finding it anywhere after search_start
+    pos = text.find(marker, search_start)
+    return pos
+
+
+def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: str | None) -> list[dict]:
+    """Split text using LLM-provided section markers.
+
+    Returns list of {chapter_number, title, text, word_count, split_method} or
+    empty list if markers can't be matched.
+    """
+    if not sections:
+        return []
+
+    # Determine where to start searching (after front matter)
+    search_start = 0
+    if front_matter_end_marker:
+        fm_pos = text.find(front_matter_end_marker)
+        if fm_pos != -1:
+            search_start = fm_pos + len(front_matter_end_marker)
+            logger.info(f"Front matter ends at position {search_start}")
+
+    # Find positions for each marker
+    positions = []
+    for section in sections:
+        marker = section.get("marker", "")
+        title = section.get("title", marker)
+        if not marker:
+            continue
+
+        pos = _find_marker_position(text, marker, search_start)
+        if pos == -1:
+            logger.warning(f"Could not find marker in text: {marker[:80]!r}")
+            continue
+
+        positions.append((pos, title))
+
+    if not positions:
+        logger.warning("No LLM markers could be matched in the text")
+        return []
+
+    # Sort by position and deduplicate
+    positions.sort(key=lambda x: x[0])
+    deduped = [positions[0]]
+    for pos, title in positions[1:]:
+        if pos - deduped[-1][0] > 20:
+            deduped.append((pos, title))
+    positions = deduped
+
+    # Build chapters from positions
+    chapters = []
+    for i, (pos, title) in enumerate(positions):
+        end = positions[i + 1][0] if i + 1 < len(positions) else len(text)
+        chapter_text = text[pos:end].strip()
+        word_count = len(chapter_text.split())
+
+        chapters.append({
+            "chapter_number": i + 1,
+            "title": title,
+            "text": chapter_text,
+            "word_count": word_count,
+            "split_method": "llm",
+        })
+
+    logger.info(f"LLM splitting produced {len(chapters)} sections")
+    return chapters
+
+
+def _auto_split(text: str) -> list[dict]:
+    """Split text into ~4000-word chunks at natural break points.
+
+    Prefers splitting at visual separators (* * *, ---, etc.) or paragraph
+    boundaries. Used as fallback when LLM splitting fails.
+    """
+    words = text.split()
+    total_words = len(words)
+
+    if total_words <= AUTO_SPLIT_TARGET_WORDS:
+        return [{
+            "chapter_number": 1,
+            "title": None,
+            "text": text,
+            "word_count": total_words,
+            "split_method": "auto",
+        }]
+
+    # Find all visual separator positions
+    separator_positions = set()
+    for match in _VISUAL_SEPARATORS.finditer(text):
+        separator_positions.add(match.start())
+
+    # Find all paragraph break positions (double newline)
+    para_breaks = set()
+    for match in re.finditer(r"\n\s*\n", text):
+        para_breaks.add(match.start())
+
+    chapters = []
+    current_start = 0
+    chapter_num = 1
+
+    while current_start < len(text):
+        remaining_text = text[current_start:]
+        remaining_words = len(remaining_text.split())
+
+        # If remaining text fits in one chunk, take it all
+        if remaining_words <= AUTO_SPLIT_TARGET_WORDS + AUTO_SPLIT_WINDOW:
+            chapters.append({
+                "chapter_number": chapter_num,
+                "title": f"Section {chapter_num}",
+                "text": remaining_text.strip(),
+                "word_count": remaining_words,
+                "split_method": "auto",
+            })
+            break
+
+        # Find the target character position for ~4000 words
+        word_count = 0
+        target_pos = len(text)
+        for i in range(current_start, len(text)):
+            if text[i] in (" ", "\n"):
+                word_count += 1
+                if word_count >= AUTO_SPLIT_TARGET_WORDS:
+                    target_pos = i
+                    break
+
+        # Search for a visual separator near the target
+        best_split = None
+        window_start = max(current_start, target_pos - AUTO_SPLIT_WINDOW * 6)  # ~6 chars per word
+        window_end = min(len(text), target_pos + AUTO_SPLIT_WINDOW * 6)
+
+        for sep_pos in separator_positions:
+            if window_start <= sep_pos <= window_end:
+                if best_split is None or abs(sep_pos - target_pos) < abs(best_split - target_pos):
+                    best_split = sep_pos
+
+        # If no separator, find nearest paragraph break
+        if best_split is None:
+            for pb_pos in para_breaks:
+                if window_start <= pb_pos <= window_end:
+                    if best_split is None or abs(pb_pos - target_pos) < abs(best_split - target_pos):
+                        best_split = pb_pos
+
+        # If still nothing, just split at target
+        if best_split is None:
+            best_split = target_pos
+
+        chunk_text = text[current_start:best_split].strip()
+        if chunk_text:
+            chapters.append({
+                "chapter_number": chapter_num,
+                "title": f"Section {chapter_num}",
+                "text": chunk_text,
+                "word_count": len(chunk_text.split()),
+                "split_method": "auto",
+            })
+            chapter_num += 1
+
+        current_start = best_split
+
+    logger.info(f"Auto-split produced {len(chapters)} sections at ~{AUTO_SPLIT_TARGET_WORDS} words each")
+    return chapters
+
+
+def _merge_short_sections(chapters: list[dict]) -> list[dict]:
+    """Merge sections shorter than MIN_CHAPTER_WORDS with the next section."""
+    if not chapters:
+        return chapters
+
+    merged = []
+    carry = None
+    for ch in chapters:
+        if carry is not None:
+            ch["text"] = carry["text"] + "\n\n" + ch["text"]
+            ch["word_count"] = len(ch["text"].split())
+            if carry["title"] is not None:
+                ch["title"] = carry["title"]
+            carry = None
+
+        if ch["word_count"] < MIN_CHAPTER_WORDS and ch is not chapters[-1]:
+            carry = ch
+        else:
+            merged.append(ch)
+
+    if carry is not None:
+        if merged:
+            merged[-1]["text"] += "\n\n" + carry["text"]
+            merged[-1]["word_count"] = len(merged[-1]["text"].split())
+        else:
+            merged.append(carry)
+
+    # Renumber
+    for i, ch in enumerate(merged):
+        ch["chapter_number"] = i + 1
+
+    return merged
+
+
+async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
+    """Detect chapter/section boundaries using LLM-assisted structure detection.
+
+    Returns (chapters_list, warnings_list).
+    Each chapter dict has: chapter_number, title, text, word_count, split_method.
+
+    Fallback chain per DECISION_007:
+    1. LLM-assisted splitting (sends sample to LLM for structure detection)
+    2. Auto-split at ~4K words at natural break points
+    3. Regex-based chapter detection (legacy)
+    """
+    from app.analysis.llm_client import LLMError, call_llm
+    from app.analysis.json_repair import parse_json_response
+    from app.config import settings
+
+    warnings = []
+    chapters = []
+
+    # --- Tier 1: LLM-assisted splitting ---
+    try:
+        model = settings.llm_model_splitting or settings.llm_model_analysis
+        sample = _sample_manuscript(text)
+        sanitized = _sanitize_sample(sample)
+
+        prompt_template = SPLITTING_PROMPT_PATH.read_text()
+        prompt = prompt_template.format(manuscript_sample=sanitized)
+
+        logger.info(f"Calling LLM for structure detection (model={model}, sample_len={len(sample)})")
+        raw_response = await call_llm(prompt, model, SPLITTING_MAX_TOKENS)
+
+        parsed = parse_json_response(raw_response)
+        if parsed is None:
+            logger.warning(f"LLM splitting response was not valid JSON: {raw_response[:200]!r}")
+        else:
+            manuscript_type = parsed.get("manuscript_type", "unknown")
+            structure_desc = parsed.get("structure_description", "")
+            sections = parsed.get("sections", [])
+            front_matter_end = parsed.get("front_matter_end_marker")
+
+            logger.info(
+                f"LLM detected manuscript_type={manuscript_type}, "
+                f"structure={structure_desc!r}, sections={len(sections)}"
+            )
+
+            if sections:
+                chapters = _split_by_markers(text, sections, front_matter_end)
+
+    except LLMError as e:
+        logger.warning(f"LLM splitting failed: {e}")
+        warnings.append(
+            "Structure detection encountered an error. Your manuscript "
+            "has been split using basic pattern matching. You may want to retry."
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error in LLM splitting: {e}", exc_info=True)
+        warnings.append(
+            "Structure detection encountered an error. Your manuscript "
+            "has been split using basic pattern matching. You may want to retry."
+        )
+
+    # --- Tier 2: Auto-split fallback ---
+    if not chapters:
+        if not warnings:
+            # LLM returned no sections (not an error, just no structure found)
+            warnings.append(
+                "No clear section structure was detected in your manuscript. "
+                "It has been automatically divided into sections for analysis. "
+                "Results may be less accurate."
+            )
+        chapters = _auto_split(text)
+
+    # --- Tier 3: If auto-split produces only 1 section, try regex ---
+    if len(chapters) == 1:
+        regex_chapters = _detect_chapters_regex(text)
+        if len(regex_chapters) > 1:
+            # Regex found structure that auto-split missed
+            logger.info(f"Regex fallback found {len(regex_chapters)} chapters")
+            for ch in regex_chapters:
+                ch["split_method"] = "regex"
+            chapters = regex_chapters
+            # Clear the "no structure" warning since regex found some
+            warnings = []
+
+    # --- Post-processing ---
+    chapters = _merge_short_sections(chapters)
+
+    # Cap at MAX_CHAPTERS
+    if len(chapters) > MAX_CHAPTERS:
+        logger.warning(
+            f"Splitting yielded {len(chapters)} sections (max {MAX_CHAPTERS}). "
+            "Falling back to single section."
+        )
+        full_text = "\n\n".join(ch["text"] for ch in chapters)
+        chapters = [{
+            "chapter_number": 1,
+            "title": None,
+            "text": full_text,
+            "word_count": len(full_text.split()),
+            "split_method": "auto",
+        }]
+
+    # Ensure split_method is set on all chapters
+    for ch in chapters:
+        ch.setdefault("split_method", "unknown")
+
+    logger.info(
+        f"Final split: {len(chapters)} sections "
+        f"(method={chapters[0].get('split_method', 'unknown') if chapters else 'none'})"
+    )
+    return chapters, warnings
 
 
 def check_word_count(chapters: list[dict]) -> int:

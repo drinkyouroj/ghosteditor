@@ -218,8 +218,11 @@ async def process_text_extraction(ctx, job_id: str, manuscript_id: str):
 
             await _update_job(session, job_uuid, current_step="Detecting chapters", progress_pct=50)
 
-            # Detect chapters
-            chapters_data = detect_chapters(full_text)
+            # Detect chapters (LLM-assisted, per DECISION_007)
+            chapters_data, split_warnings = await detect_chapters(full_text)
+            if split_warnings:
+                for w in split_warnings:
+                    logger.warning(f"Splitting warning for manuscript {manuscript_id}: {w}")
             total_words = check_word_count(chapters_data)
 
             await _update_job(session, job_uuid, current_step="Saving chapters", progress_pct=70)

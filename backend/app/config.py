@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     llm_model_bible: str = "claude-haiku-4-5-20251001"
     llm_model_analysis: str = "claude-haiku-4-5-20251001"
+    llm_model_splitting: str = ""  # Defaults to llm_model_analysis if empty
 
     # AWS S3 / MinIO
     aws_access_key_id: str = ""
