@@ -531,7 +531,19 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
     if pos != -1:
         return pos
 
-    # Strategy 3: try matching just the first line of the marker
+    # Strategy 3: strip trailing punctuation and retry
+    marker_stripped = marker.rstrip(".,;:!?")
+    if marker_stripped != marker:
+        pos = text.find(marker_stripped, max(search_start, toc_boundary))
+        if pos != -1:
+            logger.info(f"Matched marker after stripping punctuation: {marker_stripped!r}")
+            return pos
+        pos = text.find(marker_stripped, search_start)
+        if pos != -1:
+            logger.info(f"Matched marker after stripping punctuation (pre-ToC): {marker_stripped!r}")
+            return pos
+
+    # Strategy 4: try matching just the first line of the marker
     # (LLM sometimes returns multi-line markers)
     first_line = marker.split("\n")[0].strip()
     if first_line and first_line != marker.strip():
@@ -730,16 +742,23 @@ def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: 
         logger.warning("No LLM markers could be matched in the text")
         return []
 
+    logger.info(f"Matched {len(positions)} markers: {[(p, t) for p, t in positions]}")
+
     # Sort by position and deduplicate
     positions.sort(key=lambda x: x[0])
     deduped = [positions[0]]
     for pos, title in positions[1:]:
         if pos - deduped[-1][0] > 20:
             deduped.append((pos, title))
+        else:
+            logger.info(f"Dedup removed marker {title!r} at pos={pos} (too close to {deduped[-1][1]!r} at {deduped[-1][0]})")
     positions = deduped
+
+    logger.info(f"After dedup: {len(positions)} markers: {[(p, t) for p, t in positions]}")
 
     # Infer missing markers from patterns in found markers
     positions = _infer_missing_markers(text, positions, search_start)
+    logger.info(f"After inference: {len(positions)} markers: {[(p, t) for p, t in positions]}")
 
     # Build chapters from positions
     chapters = []
@@ -871,6 +890,7 @@ def _merge_short_sections(chapters: list[dict]) -> list[dict]:
             carry = None
 
         if ch["word_count"] < MIN_CHAPTER_WORDS and ch is not chapters[-1]:
+            logger.info(f"Merging short section {ch['title']!r} ({ch['word_count']} words) into next")
             carry = ch
         else:
             merged.append(ch)
@@ -930,8 +950,11 @@ async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
 
             logger.info(
                 f"LLM detected manuscript_type={manuscript_type}, "
-                f"structure={structure_desc!r}, sections={len(sections)}"
+                f"structure={structure_desc!r}, sections={len(sections)}, "
+                f"front_matter_end={front_matter_end!r}"
             )
+            for s in sections:
+                logger.info(f"  LLM section: marker={s.get('marker', '')!r}, title={s.get('title', '')!r}")
 
             if sections:
                 chapters = _split_by_markers(text, sections, front_matter_end)

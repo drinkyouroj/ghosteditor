@@ -225,6 +225,16 @@ async def process_text_extraction(ctx, job_id: str, manuscript_id: str):
                     logger.warning(f"Splitting warning for manuscript {manuscript_id}: {w}")
             total_words = check_word_count(chapters_data)
 
+            logger.info(
+                f"Manuscript {manuscript_id}: {len(chapters_data)} chapters detected, "
+                f"{total_words} total words"
+            )
+            for ch_data in chapters_data:
+                logger.info(
+                    f"  Ch {ch_data['chapter_number']}: {ch_data.get('title', 'untitled')!r} "
+                    f"({ch_data['word_count']} words, method={ch_data.get('split_method', '?')})"
+                )
+
             await _update_job(session, job_uuid, current_step="Saving chapters", progress_pct=70)
 
             # Create chapter rows
