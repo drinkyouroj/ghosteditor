@@ -544,22 +544,32 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
             logger.info(f"Matched marker via first line (pre-ToC): {first_line!r}")
             return pos
 
-    # Strategy 4: normalized whitespace matching
-    # Build a regex from the marker with flexible whitespace
+    # Strategy 4: case-insensitive exact match
+    marker_lower = marker.lower()
+    text_lower = text.lower()
+    pos = text_lower.find(marker_lower, max(search_start, toc_boundary))
+    if pos != -1:
+        logger.info(f"Matched marker via case-insensitive match: {marker[:60]!r}")
+        return pos
+    pos = text_lower.find(marker_lower, search_start)
+    if pos != -1:
+        logger.info(f"Matched marker via case-insensitive match (pre-ToC): {marker[:60]!r}")
+        return pos
+
+    # Strategy 5: normalized whitespace + case-insensitive matching
     marker_normalized = _normalize_whitespace(marker)
     if marker_normalized:
         # Escape regex chars and replace spaces with \s+
         parts = [re.escape(word) for word in marker_normalized.split()]
         pattern = r"\s+".join(parts)
         try:
-            for match in re.finditer(pattern, text[max(search_start, toc_boundary):]):
+            for match in re.finditer(pattern, text[max(search_start, toc_boundary):], re.IGNORECASE):
                 actual_pos = max(search_start, toc_boundary) + match.start()
-                logger.info(f"Matched marker via whitespace normalization: {marker[:60]!r}")
+                logger.info(f"Matched marker via whitespace+case normalization: {marker[:60]!r}")
                 return actual_pos
-            # Try before ToC boundary as fallback
-            for match in re.finditer(pattern, text[search_start:]):
+            for match in re.finditer(pattern, text[search_start:], re.IGNORECASE):
                 actual_pos = search_start + match.start()
-                logger.info(f"Matched marker via whitespace normalization (pre-ToC): {marker[:60]!r}")
+                logger.info(f"Matched marker via whitespace+case normalization (pre-ToC): {marker[:60]!r}")
                 return actual_pos
         except re.error:
             pass
