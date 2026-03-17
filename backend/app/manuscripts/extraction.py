@@ -611,18 +611,22 @@ def _infer_missing_markers(
                     found_numerals.add(val)
                     max_val = max(max_val, val)
 
-        # Find gaps
+        # Find gaps — try Roman numeral first, then Arabic fallback
         all_positions = list(positions)
         for val in range(1, max_val + 1):
             if val not in found_numerals:
                 numeral = _int_to_roman(val)
                 candidate = prefix + numeral
                 pos = _find_marker_position(text, candidate, search_start)
+                if pos == -1:
+                    # Try Arabic numeral as fallback
+                    candidate = prefix + str(val)
+                    pos = _find_marker_position(text, candidate, search_start)
                 if pos != -1:
                     logger.info(f"Inferred missing marker: {candidate!r} at position {pos}")
                     all_positions.append((pos, candidate))
                 else:
-                    logger.warning(f"Could not find inferred marker: {candidate!r}")
+                    logger.warning(f"Could not find inferred marker for value {val}")
 
         if len(all_positions) > len(positions):
             all_positions.sort(key=lambda x: x[0])
@@ -646,6 +650,10 @@ def _infer_missing_markers(
             if num not in found_nums:
                 candidate = f"{prefix}{num}{suffix}"
                 pos = _find_marker_position(text, candidate, search_start)
+                if pos == -1:
+                    # Try Roman numeral as fallback
+                    candidate = f"{prefix}{_int_to_roman(num)}{suffix}"
+                    pos = _find_marker_position(text, candidate, search_start)
                 if pos != -1:
                     logger.info(f"Inferred missing marker: {candidate!r} at position {pos}")
                     all_positions.append((pos, candidate))

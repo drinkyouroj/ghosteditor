@@ -40,8 +40,9 @@ class Settings(BaseSettings):
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
 
-    # Rate limiting
+    # Rate limiting & dev overrides
     rate_limit_exempt_emails: str = ""  # Comma-separated emails exempt from rate limits
+    auto_paid_emails: str = ""  # Comma-separated emails whose manuscripts are auto-marked as paid
 
     # App
     base_url: str = "http://localhost:5173"  # Frontend URL for emails and Stripe redirects

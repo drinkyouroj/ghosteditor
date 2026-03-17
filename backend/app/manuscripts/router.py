@@ -74,8 +74,12 @@ async def upload_manuscript(
     except Exception:
         raise HTTPException(status_code=500, detail="Failed to store file. Please try again.")
 
-    # Create manuscript row — subscribers get auto-paid status (Amendment 2)
-    payment = PaymentStatus.paid if user.subscription_status == SubscriptionStatus.subscribed else PaymentStatus.unpaid
+    # Create manuscript row — subscribers and auto-paid users get paid status
+    auto_paid = False
+    if settings.auto_paid_emails:
+        exempt = {e.strip().lower() for e in settings.auto_paid_emails.split(",") if e.strip()}
+        auto_paid = user.email.lower() in exempt
+    payment = PaymentStatus.paid if (user.subscription_status == SubscriptionStatus.subscribed or auto_paid) else PaymentStatus.unpaid
     manuscript = Manuscript(
         id=manuscript_id,
         user_id=user.id,
