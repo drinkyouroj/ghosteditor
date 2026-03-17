@@ -45,7 +45,7 @@ async def upload_manuscript(
     Per DECISION_006 Amendment 4: free-tier users limited to 3 manuscripts.
     """
     # Per-user rate limit: 5 uploads per hour
-    await check_rate_limit(str(user.id), action="upload")
+    await check_rate_limit(str(user.id), action="upload", user_email=user.email)
 
     # Free-tier upload limit
     if user.subscription_status == SubscriptionStatus.free:

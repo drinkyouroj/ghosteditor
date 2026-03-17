@@ -24,12 +24,18 @@ async def check_rate_limit(
     action: str = "upload",
     max_requests: int = UPLOAD_RATE_LIMIT,
     window: timedelta = UPLOAD_RATE_WINDOW,
+    user_email: str | None = None,
 ):
     """Check and increment rate limit for a user action.
 
     Raises HTTP 429 if the limit is exceeded.
     Uses Redis INCR + EXPIRE for a simple fixed-window counter.
     """
+    # Check if user is exempt
+    if user_email and settings.rate_limit_exempt_emails:
+        exempt = {e.strip().lower() for e in settings.rate_limit_exempt_emails.split(",") if e.strip()}
+        if user_email.lower() in exempt:
+            return
     key = f"ratelimit:{action}:{user_id}"
     window_seconds = int(window.total_seconds())
 
