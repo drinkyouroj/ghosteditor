@@ -1,7 +1,29 @@
 const BASE = ''
 
+export const TIMEOUT_DEFAULT = 30_000
+export const TIMEOUT_UPLOAD = 120_000
+
+async function fetchWithTimeout(
+  url: string,
+  init?: RequestInit & { timeout?: number },
+): Promise<Response> {
+  const { timeout = TIMEOUT_DEFAULT, ...fetchInit } = init ?? {}
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeout)
+  try {
+    return await fetch(url, { ...fetchInit, signal: controller.signal })
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new ApiError(0, 'Request timed out. Please check your connection and try again.')
+    }
+    throw err
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetchWithTimeout(`${BASE}${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...init?.headers },
     ...init,
@@ -120,10 +142,11 @@ export function uploadManuscript(file: File, title: string, genre?: string) {
   form.append('title', title)
   if (genre) form.append('genre', genre)
 
-  return fetch('/manuscripts/upload', {
+  return fetchWithTimeout('/manuscripts/upload', {
     method: 'POST',
     credentials: 'include',
     body: form,
+    timeout: TIMEOUT_UPLOAD,
   }).then(async (res) => {
     if (!res.ok) {
       const body = await res.json().catch(() => ({ detail: res.statusText }))
