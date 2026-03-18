@@ -68,33 +68,39 @@ async def process_pending_emails(db: AsyncSession):
 
     now = datetime.now(timezone.utc)
 
-    # Get all due, unsent events
+    # Get all due, unsent events with user and manuscript in a single query
     result = await db.execute(
-        select(EmailEvent)
+        select(EmailEvent, User, Manuscript)
+        .join(User, EmailEvent.user_id == User.id)
+        .join(Manuscript, EmailEvent.manuscript_id == Manuscript.id)
         .where(
             EmailEvent.sent_at.is_(None),
             EmailEvent.scheduled_at <= now,
         )
         .order_by(EmailEvent.scheduled_at)
     )
-    events = result.scalars().all()
+    rows = result.all()
 
-    for event in events:
-        # Get user and manuscript
-        user_result = await db.execute(
-            select(User).where(User.id == event.user_id, User.deleted_at.is_(None))
+    # Also mark orphaned events (deleted user/manuscript) — separate query
+    orphaned_result = await db.execute(
+        select(EmailEvent)
+        .outerjoin(User, EmailEvent.user_id == User.id)
+        .outerjoin(Manuscript, EmailEvent.manuscript_id == Manuscript.id)
+        .where(
+            EmailEvent.sent_at.is_(None),
+            EmailEvent.scheduled_at <= now,
+            (User.id.is_(None)) | (User.deleted_at.is_not(None))
+            | (Manuscript.id.is_(None)) | (Manuscript.deleted_at.is_not(None)),
         )
-        user = user_result.scalar_one_or_none()
-        if not user:
-            event.sent_at = now  # Mark as processed (user deleted)
-            continue
+    )
+    for orphaned_event in orphaned_result.scalars().all():
+        orphaned_event.sent_at = now
 
-        ms_result = await db.execute(
-            select(Manuscript).where(Manuscript.id == event.manuscript_id)
-        )
-        manuscript = ms_result.scalar_one_or_none()
-        if not manuscript or manuscript.deleted_at is not None:
-            event.sent_at = now  # Mark as processed (manuscript deleted)
+    events = []
+    for event, user, manuscript in rows:
+        # Skip deleted users/manuscripts
+        if user.deleted_at is not None or manuscript.deleted_at is not None:
+            event.sent_at = now
             continue
 
         # Skip if already paid — no need for drip emails
@@ -103,6 +109,9 @@ async def process_pending_emails(db: AsyncSession):
             logger.info(f"Skipping drip email {event.event_type} — manuscript already paid")
             continue
 
+        events.append((event, user, manuscript))
+
+    for event, user, manuscript in events:
         bible_url = f"{BASE_URL}/manuscripts/{manuscript.id}/bible"
         pricing_url = f"{BASE_URL}/manuscripts/{manuscript.id}/pricing"
 
@@ -127,4 +136,4 @@ async def process_pending_emails(db: AsyncSession):
             logger.warning(f"Failed to send {event.event_type} to {user.email}, marking as processed")
 
     await db.commit()
-    return len(events)
+    return len(rows)

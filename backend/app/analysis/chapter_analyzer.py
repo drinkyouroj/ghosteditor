@@ -16,6 +16,7 @@ from app.analysis.genre_conventions import get_genre_conventions
 from app.analysis.issue_schema import ChapterAnalysisResult, validate_and_filter
 from app.analysis.json_repair import is_truncated, parse_json_response
 from app.analysis.llm_client import LLMError, call_llm
+from app.analysis.utils import sanitize_manuscript_text as _sanitize_manuscript_text
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -29,11 +30,6 @@ MIN_CHAPTER_WORDS = 500
 def _load_prompt(name: str) -> str:
     path = PROMPTS_DIR / f"{name}.txt"
     return path.read_text()
-
-
-def _sanitize_manuscript_text(text: str) -> str:
-    """Escape closing manuscript_text tags to prevent prompt injection."""
-    return text.replace("</manuscript_text>", "&lt;/manuscript_text&gt;")
 
 
 def _format_bible_section(bible_json: dict | None, key: str) -> str:

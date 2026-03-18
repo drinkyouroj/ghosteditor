@@ -11,6 +11,7 @@ from pathlib import Path
 from app.analysis.argument_map_schema import ArgumentMapSchema
 from app.analysis.llm_client import call_llm
 from app.analysis.json_repair import parse_json_response
+from app.analysis.utils import sanitize_manuscript_text as _sanitize_manuscript_text
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -21,11 +22,6 @@ PROMPT_PATH = Path(__file__).parent / "prompts" / "argument_map_v1.txt"
 class ArgumentMapError(Exception):
     """Raised when argument map generation fails."""
     pass
-
-
-def _sanitize_manuscript_text(text: str) -> str:
-    """Escape closing manuscript_text tags to prevent prompt injection."""
-    return text.replace("</manuscript_text>", "&lt;/manuscript_text&gt;")
 
 
 async def generate_argument_map(

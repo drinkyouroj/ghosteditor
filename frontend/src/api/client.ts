@@ -359,7 +359,7 @@ export interface ArgumentMap {
 }
 
 export function getArgumentMap(manuscriptId: string) {
-  return request<ArgumentMap>(`/bible/${manuscriptId}/argument-map`)
+  return request<ArgumentMap>(`/argument-map/${manuscriptId}`)
 }
 
 // --- Nonfiction Feedback ---
@@ -377,4 +377,12 @@ export interface NonfictionDocumentSummary {
 
 export interface NonfictionFeedback extends ManuscriptFeedback {
   document_summary: NonfictionDocumentSummary | null
+}
+
+export function getNonfictionFeedback(manuscriptId: string, filters?: { severity?: string; issue_type?: string }) {
+  const params = new URLSearchParams()
+  if (filters?.severity) params.set('severity', filters.severity)
+  if (filters?.issue_type) params.set('issue_type', filters.issue_type)
+  const qs = params.toString()
+  return request<NonfictionFeedback>(`/argument-map/${manuscriptId}/feedback${qs ? `?${qs}` : ''}`)
 }

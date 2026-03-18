@@ -3,16 +3,22 @@ from botocore.exceptions import ClientError
 
 from app.config import settings
 
+_s3_client = None
+
 
 def get_s3_client():
-    kwargs = {
-        "aws_access_key_id": settings.aws_access_key_id,
-        "aws_secret_access_key": settings.aws_secret_access_key,
-        "region_name": settings.aws_region,
-    }
-    if settings.s3_endpoint_url:
-        kwargs["endpoint_url"] = settings.s3_endpoint_url
-    return boto3.client("s3", **kwargs)
+    """Return a lazily-initialized, cached S3 client."""
+    global _s3_client
+    if _s3_client is None:
+        kwargs = {
+            "aws_access_key_id": settings.aws_access_key_id,
+            "aws_secret_access_key": settings.aws_secret_access_key,
+            "region_name": settings.aws_region,
+        }
+        if settings.s3_endpoint_url:
+            kwargs["endpoint_url"] = settings.s3_endpoint_url
+        _s3_client = boto3.client("s3", **kwargs)
+    return _s3_client
 
 
 def ensure_bucket_exists() -> None:

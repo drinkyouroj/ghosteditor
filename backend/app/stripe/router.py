@@ -191,21 +191,25 @@ async def stripe_webhook(request: Request):
     return {"status": "ok"}
 
 
+def _get_webhook_session_factory():
+    """Return a shared session factory for webhook handlers.
+
+    Webhook handlers run outside the normal FastAPI request lifecycle
+    so they cannot use Depends(get_db). This lazy singleton avoids
+    creating a new engine per webhook event.
+    """
+    from app.db.session import async_session
+    return async_session
+
+
 async def _handle_checkout_completed(session):
     """Process successful checkout — unlock manuscript analysis."""
     from arq import create_pool
     from arq.connections import RedisSettings
 
-    from app.analysis.chapter_analyzer import analyze_chapter
     from app.db.models import Chapter, ChapterStatus
 
-    session_factory_mod = __import__("app.db.session", fromlist=["async_session_factory"])
-
-    from sqlalchemy.ext.asyncio import AsyncSession as AS
-    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
-    engine = create_async_engine(settings.database_url, echo=False)
-    SessionFactory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
+    SessionFactory = _get_webhook_session_factory()
 
     manuscript_id = session.metadata.get("manuscript_id")
     user_id = session.metadata.get("user_id")
@@ -307,16 +311,10 @@ async def _handle_checkout_completed(session):
 
             logger.info(f"Payment confirmed for manuscript {manuscript_id}, {len(chapters)} analysis jobs enqueued")
 
-    await engine.dispose()
-
 
 async def _handle_subscription_cancelled(subscription):
     """Handle subscription cancellation — update user status."""
-    from sqlalchemy.ext.asyncio import AsyncSession as AS
-    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
-    engine = create_async_engine(settings.database_url, echo=False)
-    SessionFactory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
+    SessionFactory = _get_webhook_session_factory()
 
     async with SessionFactory() as db:
         result = await db.execute(
@@ -328,16 +326,10 @@ async def _handle_subscription_cancelled(subscription):
             await db.commit()
             logger.info(f"Subscription cancelled for user {user.id}")
 
-    await engine.dispose()
-
 
 async def _handle_subscription_updated(subscription):
     """Handle subscription status changes (e.g., past_due, active)."""
-    from sqlalchemy.ext.asyncio import AsyncSession as AS
-    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
-    engine = create_async_engine(settings.database_url, echo=False)
-    SessionFactory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
+    SessionFactory = _get_webhook_session_factory()
 
     async with SessionFactory() as db:
         result = await db.execute(
@@ -350,8 +342,6 @@ async def _handle_subscription_updated(subscription):
             elif subscription.status in ("canceled", "unpaid", "past_due"):
                 user.subscription_status = SubscriptionStatus.free
             await db.commit()
-
-    await engine.dispose()
 
 
 @router.get("/subscription", response_model=SubscriptionResponse)

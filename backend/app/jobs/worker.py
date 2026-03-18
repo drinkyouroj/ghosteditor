@@ -62,9 +62,12 @@ STALE_JOB_TIMEOUT_MINUTES = 15  # Jobs running longer than this are considered s
 TRANSIENT_ERROR_KEYWORDS = ["temporarily busy", "temporarily overloaded", "timed out", "connection", "connect"]
 
 
+_worker_engine = create_async_engine(settings.database_url, echo=False)
+_worker_session_factory = async_sessionmaker(_worker_engine, class_=AsyncSession, expire_on_commit=False)
+
+
 def _get_session_factory():
-    engine = create_async_engine(settings.database_url, echo=False)
-    return async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    return _worker_session_factory
 
 
 async def _update_job(session: AsyncSession, job_id: uuid.UUID, **kwargs):

@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
+  getManuscript,
   getManuscriptFeedback,
+  getNonfictionFeedback,
   type ManuscriptFeedback,
   type NonfictionFeedback,
   type NonfictionDocumentSummary,
@@ -68,16 +70,21 @@ export function FeedbackPage() {
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [expandedIssue, setExpandedIssue] = useState<number | null>(null)
 
-  const fetchFeedback = useCallback(() => {
+  const fetchFeedback = useCallback(async () => {
     if (!id) return
-    getManuscriptFeedback(id)
-      .then((data) => {
-        setFeedback(data)
-        // Default to first analyzed chapter
-        const firstAnalyzed = data.chapters.findIndex((ch) => ch.status === 'analyzed')
-        if (firstAnalyzed >= 0) setActiveChapter(firstAnalyzed)
-      })
-      .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to load feedback'))
+    try {
+      // Fetch manuscript to determine document type, then call the correct feedback endpoint
+      const manuscript = await getManuscript(id)
+      const data = manuscript.document_type === 'nonfiction'
+        ? await getNonfictionFeedback(id)
+        : await getManuscriptFeedback(id)
+      setFeedback(data)
+      // Default to first analyzed chapter
+      const firstAnalyzed = data.chapters.findIndex((ch) => ch.status === 'analyzed')
+      if (firstAnalyzed >= 0) setActiveChapter(firstAnalyzed)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Failed to load feedback')
+    }
   }, [id])
 
   useEffect(() => {

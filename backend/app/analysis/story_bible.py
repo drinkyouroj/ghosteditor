@@ -22,6 +22,7 @@ from pydantic import ValidationError
 from app.analysis.bible_schema import StoryBibleSchema
 from app.analysis.json_repair import is_truncated, parse_json_response
 from app.analysis.llm_client import LLMError, call_llm
+from app.analysis.utils import sanitize_manuscript_text as _sanitize_manuscript_text
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -34,13 +35,6 @@ MAX_TOKENS = 64000
 def _load_prompt(name: str) -> str:
     path = PROMPTS_DIR / f"{name}.txt"
     return path.read_text()
-
-
-def _sanitize_manuscript_text(text: str) -> str:
-    """Escape closing manuscript_text tags to prevent prompt injection.
-    Per DECISION_004 JUDGE amendment #3.
-    """
-    return text.replace("</manuscript_text>", "&lt;/manuscript_text&gt;")
 
 
 def _check_drift(old_bible: dict, new_bible: dict) -> list[str]:

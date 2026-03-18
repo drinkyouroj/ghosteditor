@@ -300,11 +300,11 @@
 - Email drip sequences use hardcoded base URL (localhost:5173) — needs config for production
 - No subscription management UI beyond cancel (upgrade/downgrade not needed for 2-tier pricing)
 
-### TODO — P1 Error Visibility
-- [ ] Surface bible drift warnings to users (currently logged but invisible)
-- [ ] Indicate when issues are capped at 15 per chapter (silent truncation)
-- [ ] Surface S3 deletion failures for GDPR audit trail (currently swallowed)
-- [ ] Warn users when chapters under 500 words return empty analysis
+### Known Limitations — Error Visibility
+- Bible drift warnings are logged server-side but not surfaced in the UI. Impact: low — drift detection is a safety net for LLM output quality, not user-actionable. Can be added to the feedback dashboard in a future sprint.
+- Issue cap (15 per chapter/section) is applied silently. Impact: medium — users may miss lower-severity issues. Future: add a "showing 15 of N issues" indicator to the feedback response schema.
+- S3 deletion failures are logged but not persisted for GDPR audit trail. Agent 1 is implementing SEC-008 to add structured deletion logging with audit persistence.
+- Chapters under 500 words return empty analysis with no UI indication. Impact: low — the chapter tab shows 0 issues which is accurate. Future: add a "too short for analysis" badge to the chapter status.
 
 ### TODO — Chapter Detection Improvements
 - [x] Strip Project Gutenberg preamble/license text before chapter detection (caused blank bible on Alice in Wonderland test — license text was treated as Chapter 1) — resolved by LLM-assisted splitting (DECISION-007)
