@@ -348,6 +348,13 @@ function ChapterDetail({
             ))}
           </div>
         )}
+
+        {/* Issue cap indicator */}
+        {(chapter as ChapterFeedback & { issues_capped?: boolean }).issues_capped && (
+          <p className="issues-capped-note">
+            Showing top 15 issues by severity. Additional issues were found but truncated.
+          </p>
+        )}
       </div>
     </div>
   )
