@@ -32,8 +32,13 @@ class Character(BaseModel):
 
     @field_validator("traits", mode="before")
     @classmethod
-    def coerce_traits_null(cls, v):
-        return v if v is not None else []
+    def coerce_traits(cls, v):
+        if v is None:
+            return []
+        if isinstance(v, str):
+            # Groq returns traits as comma-separated string instead of list
+            return [t.strip() for t in v.split(",") if t.strip()]
+        return v
 
     @field_validator("physical", mode="before")
     @classmethod
