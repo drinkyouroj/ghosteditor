@@ -3,6 +3,20 @@ const BASE = ''
 export const TIMEOUT_DEFAULT = 30_000
 export const TIMEOUT_UPLOAD = 120_000
 
+let refreshPromise: Promise<boolean> | null = null
+
+async function refreshAccessToken(): Promise<boolean> {
+  try {
+    await fetchWithTimeout(`${BASE}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
 async function fetchWithTimeout(
   url: string,
   init?: RequestInit & { timeout?: number },
@@ -22,13 +36,24 @@ async function fetchWithTimeout(
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init?: RequestInit, _retried = false): Promise<T> {
   const res = await fetchWithTimeout(`${BASE}${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...init?.headers },
     ...init,
   })
   if (!res.ok) {
+    if (res.status === 401 && !_retried) {
+      if (!refreshPromise) {
+        refreshPromise = refreshAccessToken().finally(() => { refreshPromise = null })
+      }
+      const refreshed = await refreshPromise
+      if (refreshed) {
+        return request<T>(path, init, true)
+      }
+      window.location.href = '/login'
+      throw new ApiError(401, 'Session expired')
+    }
     const body = await res.json().catch(() => ({ detail: res.statusText }))
     throw new ApiError(res.status, body.detail ?? 'Request failed')
   }
@@ -136,24 +161,34 @@ export function deleteManuscript(id: string) {
   return request<void>(`/manuscripts/${id}`, { method: 'DELETE' })
 }
 
-export function uploadManuscript(file: File, title: string, genre?: string) {
+export async function uploadManuscript(file: File, title: string, genre?: string, _retried = false): Promise<UploadResult> {
   const form = new FormData()
   form.append('file', file)
   form.append('title', title)
   if (genre) form.append('genre', genre)
 
-  return fetchWithTimeout('/manuscripts/upload', {
+  const res = await fetchWithTimeout('/manuscripts/upload', {
     method: 'POST',
     credentials: 'include',
     body: form,
     timeout: TIMEOUT_UPLOAD,
-  }).then(async (res) => {
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({ detail: res.statusText }))
-      throw new ApiError(res.status, body.detail ?? 'Upload failed')
-    }
-    return res.json() as Promise<UploadResult>
   })
+  if (!res.ok) {
+    if (res.status === 401 && !_retried) {
+      if (!refreshPromise) {
+        refreshPromise = refreshAccessToken().finally(() => { refreshPromise = null })
+      }
+      const refreshed = await refreshPromise
+      if (refreshed) {
+        return uploadManuscript(file, title, genre, true)
+      }
+      window.location.href = '/login'
+      throw new ApiError(401, 'Session expired')
+    }
+    const body = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new ApiError(res.status, body.detail ?? 'Upload failed')
+  }
+  return res.json() as Promise<UploadResult>
 }
 
 export function getJobStatus(jobId: string) {

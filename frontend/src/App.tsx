@@ -32,6 +32,13 @@ export function App() {
 
   useEffect(() => {
     checkAuth()
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAuth()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [checkAuth])
 
   if (loading) {
