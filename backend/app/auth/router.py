@@ -227,11 +227,12 @@ async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(
     """Reset password using token from email."""
     token_hash = hash_token(body.token)
 
+    # SEC-004: Use FOR UPDATE to prevent race conditions on password reset
     result = await db.execute(
         select(User).where(
             User.password_reset_token == token_hash,
             User.deleted_at.is_(None),
-        )
+        ).with_for_update()
     )
     user = result.scalar_one_or_none()
 
@@ -240,6 +241,10 @@ async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(
 
     if user.password_reset_token_expires and user.password_reset_token_expires < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Reset token has expired")
+
+    # Verify token is still present (not consumed by a concurrent request)
+    if user.password_reset_token is None:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
     user.password_hash = hash_password(body.new_password)
     user.password_reset_token = None
