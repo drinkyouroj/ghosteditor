@@ -19,6 +19,7 @@ from app.analysis.nonfiction_analysis_schema import (
     validate_and_filter_section,
 )
 from app.analysis.nonfiction_conventions import get_nonfiction_conventions
+from app.analysis.utils import sanitize_manuscript_text as _sanitize_manuscript_text
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -32,11 +33,6 @@ MIN_SECTION_WORDS = 300
 def _load_prompt(name: str) -> str:
     path = PROMPTS_DIR / f"{name}.txt"
     return path.read_text()
-
-
-def _sanitize_manuscript_text(text: str) -> str:
-    """Escape closing manuscript_text tags to prevent prompt injection."""
-    return text.replace("</manuscript_text>", "&lt;/manuscript_text&gt;")
 
 
 def _format_argument_map_section(argument_map_json: dict | None, key: str) -> str:
