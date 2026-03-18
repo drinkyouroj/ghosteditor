@@ -1,0 +1,7 @@
+{
+    "central_thesis": "research demonstrates",
+    "expected_thread_count_min": 2,
+    "expected_evidence_types": ["citation", "study", "data"],
+    "expected_voice_register": "formal",
+    "expected_format_detection": "academic"
+}
