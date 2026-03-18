@@ -6,7 +6,7 @@ not just json.loads(). Provides type coercion and clear error messages.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class PhysicalDescription(BaseModel):
@@ -29,6 +29,26 @@ class Character(BaseModel):
     traits: list[str] = Field(default_factory=list)
     physical: PhysicalDescription = Field(default_factory=PhysicalDescription)
     relationships: list[Relationship] = Field(default_factory=list)
+
+    @field_validator("traits", mode="before")
+    @classmethod
+    def coerce_traits_null(cls, v):
+        return v if v is not None else []
+
+    @field_validator("physical", mode="before")
+    @classmethod
+    def coerce_physical_null(cls, v):
+        return v if v is not None else {}
+
+    @field_validator("aliases", mode="before")
+    @classmethod
+    def coerce_aliases_null(cls, v):
+        return v if v is not None else []
+
+    @field_validator("relationships", mode="before")
+    @classmethod
+    def coerce_relationships_null(cls, v):
+        return v if v is not None else []
 
 
 class TimelineEvent(BaseModel):
