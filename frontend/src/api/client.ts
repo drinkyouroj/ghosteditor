@@ -398,10 +398,29 @@ export interface NonfictionFeedback extends ManuscriptFeedback {
   document_summary: NonfictionDocumentSummary | null
 }
 
-export function getNonfictionFeedback(manuscriptId: string, filters?: { severity?: string; issue_type?: string }) {
+export async function getNonfictionFeedback(manuscriptId: string, filters?: { severity?: string; issue_type?: string }): Promise<NonfictionFeedback> {
   const params = new URLSearchParams()
   if (filters?.severity) params.set('severity', filters.severity)
   if (filters?.issue_type) params.set('issue_type', filters.issue_type)
   const qs = params.toString()
-  return request<NonfictionFeedback>(`/argument-map/${manuscriptId}/feedback${qs ? `?${qs}` : ''}`)
+  // Backend returns "sections" and "sections_analyzed/sections_total" — normalize
+  // to "chapters" and "chapters_analyzed/chapters_total" for the shared FeedbackPage
+  const raw = await request<Record<string, unknown>>(`/argument-map/${manuscriptId}/feedback${qs ? `?${qs}` : ''}`)
+  const summary = raw.summary as Record<string, unknown> ?? {}
+  return {
+    manuscript_id: raw.manuscript_id as string,
+    title: raw.title as string,
+    genre: (raw.nonfiction_format as string) ?? null,
+    status: raw.status as string,
+    summary: {
+      total_issues: (summary.total_issues as number) ?? 0,
+      critical: (summary.critical as number) ?? 0,
+      warning: (summary.warning as number) ?? 0,
+      note: (summary.note as number) ?? 0,
+      chapters_analyzed: (summary.sections_analyzed as number) ?? 0,
+      chapters_total: (summary.sections_total as number) ?? 0,
+    },
+    chapters: (raw.sections as ChapterFeedback[]) ?? [],
+    document_summary: (raw.document_summary as NonfictionDocumentSummary) ?? null,
+  }
 }

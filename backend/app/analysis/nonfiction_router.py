@@ -144,8 +144,8 @@ async def get_nonfiction_feedback(
             }
 
         section_feedback.append({
-            "section_id": str(ch.id),
-            "section_number": ch.chapter_number,
+            "chapter_id": str(ch.id),
+            "chapter_number": ch.chapter_number,
             "title": ch.title,
             "word_count": ch.word_count,
             "status": ch.status.value,
