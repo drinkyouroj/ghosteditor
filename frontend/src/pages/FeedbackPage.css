@@ -1,3 +1,15 @@
+/* Issue cap indicator */
+.issues-capped-note {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  color: #664d03;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
 /* Feedback Page Layout */
 .feedback-page {
   max-width: 1100px;

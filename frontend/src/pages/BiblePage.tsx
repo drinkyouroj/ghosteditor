@@ -4,6 +4,24 @@ import { getStoryBible, type StoryBible, ApiError } from '../api/client'
 import Spinner from '../components/Spinner'
 import './BiblePage.css'
 
+function DriftWarningBanner({ warnings }: { warnings: string[] }) {
+  const [dismissed, setDismissed] = useState(false)
+  if (dismissed || warnings.length === 0) return null
+
+  return (
+    <div className="drift-warning-banner">
+      <div className="drift-warning-content">
+        {warnings.map((w, i) => (
+          <p key={i} className="drift-warning-text">{w}</p>
+        ))}
+      </div>
+      <button className="drift-warning-dismiss" onClick={() => setDismissed(true)}>
+        Dismiss
+      </button>
+    </div>
+  )
+}
+
 interface Character {
   name: string
   aliases?: string[]
@@ -77,6 +95,7 @@ export function BiblePage() {
   if (!bible) return <Spinner text="Loading story bible..." />
 
   const data = bible.bible as unknown as BibleData
+  const warnings: string[] = (bible as unknown as { warnings?: string[] }).warnings ?? []
 
   return (
     <div>
@@ -87,6 +106,8 @@ export function BiblePage() {
           <p className="bible-meta">Version {bible.version} &middot; Updated {new Date(bible.updated_at).toLocaleDateString()}</p>
         </div>
       </div>
+
+      <DriftWarningBanner warnings={warnings} />
 
       <div className="bible-tabs">
         <button className={tab === 'characters' ? 'active' : ''} onClick={() => setTab('characters')}>

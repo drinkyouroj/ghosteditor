@@ -423,7 +423,16 @@
 - Agent 2 (analyzer + synthesis) — merged cleanly, 4 new files + prompts (already on develop)
 - Agent 3 (worker + API) — merged with conflict resolution (Agent 2's analyzer/synthesis kept as authoritative over Agent 3's stubs)
 
+### Blueprint Gap Fixes (Agent 4)
+- **Gap #33**: Nonfiction section detection wired up — `detect_chapters()` now accepts optional `document_type` parameter. When `nonfiction`, uses header-based detection (markdown #, ALL-CAPS, numbered sections) with fallback to paragraph-boundary chunking at ~1500 words. Skips the LLM splitting path entirely. Worker passes `document_type` from manuscript model.
+- **Gap #38**: Bible drift warnings surfaced in UI — `BiblePage.tsx` and `ArgumentMapPage.tsx` now display warnings from the API response as a dismissible yellow banner at the top of the viewer.
+- **Gap #39**: Issue cap indicator — `FeedbackPage.tsx` now shows a note when `issues_capped` is true: "Showing top 15 issues by severity. Additional issues were found but truncated."
+
+### Next-Sprint Candidates (documented, not implemented)
+- **Gap #40 (LARGE): Manual chapter splitting fallback UI** — The spec mentions a manual chapter splitting UI for cases where auto-detection fails. This requires significant UX design (drag-to-split interface, preview, undo) and is deferred to a future sprint.
+- **Gap #41 (MEDIUM): Word count "process in halves" UX** — The spec says to offer processing in halves for manuscripts over 120K words. Currently the code rejects them with an error. Implementing this requires upload flow changes, split-and-recombine logic, and progress tracking for two parallel processing jobs. Deferred to a future sprint.
+
 ### Known limitations
-- Nonfiction section detection (`detect_chapters` with `document_type=nonfiction`) not yet on develop — referenced in task but not found on Agent 1's branch
+- Nonfiction section detection uses regex header patterns which may miss unconventional header formats — LLM-assisted detection was intentionally excluded per DECISION_008 (structured nonfiction doesn't need it)
 - Eval harness requires LLM API key to run (`@pytest.mark.api`)
 - No ground truth eval for nonfiction yet (only structural validation)

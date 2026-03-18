@@ -236,8 +236,10 @@ async def process_text_extraction(ctx, job_id: str, manuscript_id: str):
 
             await _update_job(session, job_uuid, current_step="Detecting chapters", progress_pct=50)
 
-            # Detect chapters (LLM-assisted, per DECISION_007)
-            chapters_data, split_warnings = await detect_chapters(full_text)
+            # Detect chapters — nonfiction uses header detection (DECISION_008),
+            # fiction uses LLM-assisted splitting (DECISION_007)
+            doc_type = manuscript.document_type.value if manuscript.document_type else None
+            chapters_data, split_warnings = await detect_chapters(full_text, document_type=doc_type)
             if split_warnings:
                 for w in split_warnings:
                     logger.warning(f"Splitting warning for manuscript {manuscript_id}: {w}")
