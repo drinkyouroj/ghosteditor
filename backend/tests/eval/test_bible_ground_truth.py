@@ -20,9 +20,16 @@ from app.analysis.story_bible import generate_story_bible
 from app.analysis.bible_schema import StoryBibleSchema
 from app.manuscripts.extraction import detect_chapters_sync as detect_chapters
 
+from tests.eval.conftest import get_backend_name
+
 SAMPLES_DIR = Path(__file__).parent / "samples"
 GROUND_TRUTH_DIR = Path(__file__).parent / "ground_truth"
-RESULTS_DIR = Path(__file__).parent / "bible_results"
+RESULTS_DIR_BASE = Path(__file__).parent / "bible_results"
+
+
+def _results_dir() -> Path:
+    """Return the backend-scoped results directory."""
+    return RESULTS_DIR_BASE / get_backend_name()
 
 START_MARKER = "*** START OF THE PROJECT GUTENBERG EBOOK"
 END_MARKER = "*** END OF THE PROJECT GUTENBERG EBOOK"
@@ -173,9 +180,10 @@ def _load_ground_truth(genre_key: str) -> dict:
 
 
 def _save_result(genre_key: str, bible: StoryBibleSchema):
-    """Save bible result for manual review."""
-    RESULTS_DIR.mkdir(exist_ok=True)
-    path = RESULTS_DIR / f"{genre_key}_3ch_bible.json"
+    """Save bible result for manual review (scoped by LLM backend)."""
+    results_dir = _results_dir()
+    results_dir.mkdir(parents=True, exist_ok=True)
+    path = results_dir / f"{genre_key}_3ch_bible.json"
     path.write_text(json.dumps(bible.model_dump(), indent=2))
 
 
@@ -190,9 +198,10 @@ _bibles_cache = None
 
 def _try_load_cached_bibles():
     """Try to load previously saved bible results from disk to avoid re-running API calls."""
+    results_dir = _results_dir()
     results = {}
     for _filename, (genre, key) in GENRE_MAP.items():
-        path = RESULTS_DIR / f"{key}_3ch_bible.json"
+        path = results_dir / f"{key}_3ch_bible.json"
         if not path.exists():
             return None  # Missing at least one — regenerate all
         data = json.loads(path.read_text())

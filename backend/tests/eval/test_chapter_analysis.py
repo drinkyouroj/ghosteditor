@@ -18,9 +18,21 @@ from pathlib import Path
 from app.analysis.chapter_analyzer import analyze_chapter
 from app.analysis.issue_schema import ChapterAnalysisResult
 
+from tests.eval.conftest import get_backend_name
+
 SAMPLES_DIR = Path(__file__).parent / "samples"
-BIBLE_RESULTS_DIR = Path(__file__).parent / "bible_results"
-ANALYSIS_RESULTS_DIR = Path(__file__).parent / "analysis_results"
+BIBLE_RESULTS_DIR_BASE = Path(__file__).parent / "bible_results"
+ANALYSIS_RESULTS_DIR_BASE = Path(__file__).parent / "analysis_results"
+
+
+def _bible_results_dir() -> Path:
+    """Return the backend-scoped bible results directory."""
+    return BIBLE_RESULTS_DIR_BASE / get_backend_name()
+
+
+def _analysis_results_dir() -> Path:
+    """Return the backend-scoped analysis results directory."""
+    return ANALYSIS_RESULTS_DIR_BASE / get_backend_name()
 
 START_MARKER = "*** START OF THE PROJECT GUTENBERG EBOOK"
 END_MARKER = "*** END OF THE PROJECT GUTENBERG EBOOK"
@@ -130,8 +142,8 @@ def _load_chapters(filename: str, count: int) -> list[dict]:
 
 
 def _load_cached_bible(genre_key: str) -> dict | None:
-    """Load a cached story bible from the bible eval results."""
-    path = BIBLE_RESULTS_DIR / f"{genre_key}_3ch_bible.json"
+    """Load a cached story bible from the bible eval results (backend-scoped)."""
+    path = _bible_results_dir() / f"{genre_key}_3ch_bible.json"
     if not path.exists():
         return None
     return json.loads(path.read_text())
@@ -145,19 +157,21 @@ _analysis_cache = None
 
 
 def _save_analysis(genre_key: str, ch_num: int, result: ChapterAnalysisResult):
-    """Save analysis result for manual review."""
-    ANALYSIS_RESULTS_DIR.mkdir(exist_ok=True)
-    path = ANALYSIS_RESULTS_DIR / f"{genre_key}_ch{ch_num}_analysis.json"
+    """Save analysis result for manual review (scoped by LLM backend)."""
+    results_dir = _analysis_results_dir()
+    results_dir.mkdir(parents=True, exist_ok=True)
+    path = results_dir / f"{genre_key}_ch{ch_num}_analysis.json"
     path.write_text(json.dumps(result.model_dump(), indent=2))
 
 
 def _try_load_cached_analyses():
-    """Try to load previously saved analysis results from disk."""
+    """Try to load previously saved analysis results from disk (backend-scoped)."""
+    results_dir = _analysis_results_dir()
     results = {}
     for _filename, (genre, key) in GENRE_MAP.items():
         genre_results = {}
         for ch_num in range(1, NUM_CHAPTERS + 1):
-            path = ANALYSIS_RESULTS_DIR / f"{key}_ch{ch_num}_analysis.json"
+            path = results_dir / f"{key}_ch{ch_num}_analysis.json"
             if not path.exists():
                 return None
             data = json.loads(path.read_text())
