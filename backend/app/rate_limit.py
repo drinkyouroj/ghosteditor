@@ -51,7 +51,7 @@ async def check_rate_limit(
                 minutes_remaining = max(1, ttl // 60)
                 raise HTTPException(
                     status_code=429,
-                    detail=f"Rate limit exceeded. Maximum {max_requests} uploads per hour. "
+                    detail=f"Rate limit exceeded. Maximum {max_requests} requests per window. "
                     f"Try again in ~{minutes_remaining} minutes.",
                 )
         finally:

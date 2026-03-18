@@ -28,6 +28,7 @@ from app.config import settings
 from app.db.models import Manuscript, User
 from app.db.session import get_db
 from app.email.sender import send_password_reset_email, send_verification_email
+from app.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -163,6 +164,12 @@ async def complete_registration(
 async def login(body: LoginRequest, response: Response, db: AsyncSession = Depends(get_db)):
     """Login with email and password. Only for full (non-provisional) users."""
     email = body.email.lower().strip()
+
+    # SEC-010: Rate limit login attempts per email
+    await check_rate_limit(
+        email, action="login", max_requests=10, window=timedelta(minutes=15),
+        user_email=email,
+    )
 
     result = await db.execute(select(User).where(User.email == email, User.deleted_at.is_(None)))
     user = result.scalar_one_or_none()
