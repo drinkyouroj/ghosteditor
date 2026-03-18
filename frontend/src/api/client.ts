@@ -345,21 +345,40 @@ export interface StructuralMarkers {
   section_count: number
 }
 
-export interface ArgumentMap {
-  manuscript_id: string
-  version: number
+export interface ArgumentMapData {
   central_thesis: string | null
   claimed_audience: string | null
   argument_threads: ArgumentThread[]
   evidence_log: EvidenceEntry[]
   voice_profile: NonfictionVoiceProfile
   structural_markers: StructuralMarkers
-  evidence_log_condensed: boolean
+  evidence_log_condensed?: boolean
+}
+
+export interface ArgumentMap extends ArgumentMapData {
+  manuscript_id: string
+  version: number
+  warnings: string[]
   updated_at: string
 }
 
-export function getArgumentMap(manuscriptId: string) {
-  return request<ArgumentMap>(`/argument-map/${manuscriptId}`)
+interface ArgumentMapResponse {
+  manuscript_id: string
+  version: number
+  argument_map: ArgumentMapData
+  warnings: string[]
+  updated_at: string
+}
+
+export async function getArgumentMap(manuscriptId: string): Promise<ArgumentMap> {
+  const res = await request<ArgumentMapResponse>(`/argument-map/${manuscriptId}`)
+  return {
+    ...res.argument_map,
+    manuscript_id: res.manuscript_id,
+    version: res.version,
+    warnings: res.warnings,
+    updated_at: res.updated_at,
+  }
 }
 
 // --- Nonfiction Feedback ---

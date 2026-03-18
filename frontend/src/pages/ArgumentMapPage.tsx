@@ -65,7 +65,7 @@ export function ArgumentMapPage() {
   )
   if (!argMap) return <Spinner text="Loading argument map..." />
 
-  const warnings: string[] = (argMap as unknown as { warnings?: string[] }).warnings ?? []
+  const warnings: string[] = argMap.warnings ?? []
 
   return (
     <div>
@@ -105,7 +105,7 @@ export function ArgumentMapPage() {
         {tab === 'evidence' && (
           <EvidenceTab
             entries={argMap.evidence_log ?? []}
-            condensed={argMap.evidence_log_condensed}
+            condensed={argMap.evidence_log_condensed ?? false}
           />
         )}
         {tab === 'voice' && <VoiceTab profile={argMap.voice_profile} />}
