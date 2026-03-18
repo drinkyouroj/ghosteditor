@@ -6,6 +6,13 @@ Validates JSON structure, schema compliance, and content-level expectations.
 These tests make real Claude API calls and cost real money. They are marked
 with @pytest.mark.api so they can be run selectively:
     pytest tests/eval/test_story_bible_generation.py -v -m api
+
+Book-to-genre mapping (differs from test_bible_ground_truth.py):
+    Romance           -> Pride and Prejudice       (pride_and_prejudice_full.txt)
+    Fantasy / Sci-Fi  -> A Princess of Mars        (princess_of_mars_full.txt)
+    Literary Fiction  -> Moby Dick                 (moby_dick_full.txt)
+    Thriller          -> The Thirty-Nine Steps     (thirty_nine_steps_full.txt)
+    Mystery           -> The Hound of the Baskervilles (hound_of_baskervilles_full.txt)
 """
 
 import asyncio
