@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     llm_model_bible: str = "claude-haiku-4-5-20251001"
     llm_model_analysis: str = "claude-haiku-4-5-20251001"
     llm_model_splitting: str = ""  # Defaults to llm_model_analysis if empty
+    llm_retry_count: int = 3
+    llm_retry_base_delay: float = 2.0
+
+    # Worker
+    arq_job_timeout: int = 3600  # Seconds. For cloud LLMs, 600 is sufficient. For local models, keep at 3600.
 
     # AWS S3 / MinIO
     aws_access_key_id: str = ""
