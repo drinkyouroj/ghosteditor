@@ -192,6 +192,12 @@ async def process_text_extraction(ctx, job_id: str, manuscript_id: str):
 
     async with session_factory() as session:
         try:
+            # Guard: skip if job row doesn't exist (orphaned Redis job)
+            guard_result = await session.execute(select(Job).where(Job.id == job_uuid))
+            if guard_result.scalar_one_or_none() is None:
+                logger.warning(f"Job {job_id} not found in database — orphaned Redis job, skipping")
+                return
+
             await _update_job(
                 session, job_uuid,
                 status=JobStatus.running,
@@ -270,16 +276,31 @@ async def process_text_extraction(ctx, job_id: str, manuscript_id: str):
                 current_step="Queued for story bible generation",
             )
             session.add(bible_job)
-            await session.commit()
+
+            # Flush to get IDs without committing
+            await session.flush()
             await session.refresh(bible_job)
 
-            # Enqueue the bible generation job in arq
-            redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
-            await redis.enqueue_job(
-                "process_bible_generation",
-                str(bible_job.id),
-                manuscript_id,
-            )
+            # Enqueue to Redis — if this fails, log error and mark manuscript as error
+            try:
+                redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+                await redis.enqueue_job(
+                    "process_bible_generation",
+                    str(bible_job.id),
+                    manuscript_id,
+                )
+            except Exception as enqueue_err:
+                logger.error(f"Failed to enqueue bible generation for manuscript {manuscript_id}: {enqueue_err}")
+                await session.rollback()
+                async with session_factory() as err_session:
+                    ms_result = await err_session.execute(select(Manuscript).where(Manuscript.id == ms_uuid))
+                    ms = ms_result.scalar_one()
+                    ms.status = ManuscriptStatus.error
+                    await err_session.commit()
+                return
+
+            # Only commit after successful enqueue
+            await session.commit()
 
         except ExtractionError as e:
             logger.error(f"Extraction error for manuscript {manuscript_id}: {e}")
@@ -304,6 +325,12 @@ async def process_bible_generation(ctx, job_id: str, manuscript_id: str):
 
     async with session_factory() as session:
         try:
+            # Guard: skip if job row doesn't exist (orphaned Redis job)
+            guard_result = await session.execute(select(Job).where(Job.id == job_uuid))
+            if guard_result.scalar_one_or_none() is None:
+                logger.warning(f"Job {job_id} not found in database — orphaned Redis job, skipping")
+                return
+
             await _update_job(
                 session, job_uuid,
                 status=JobStatus.running,
@@ -478,6 +505,12 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
 
     async with session_factory() as session:
         try:
+            # Guard: skip if job row doesn't exist (orphaned Redis job)
+            guard_result = await session.execute(select(Job).where(Job.id == job_uuid))
+            if guard_result.scalar_one_or_none() is None:
+                logger.warning(f"Job {job_id} not found in database — orphaned Redis job, skipping")
+                return
+
             await _update_job(
                 session, job_uuid,
                 status=JobStatus.running,
@@ -618,14 +651,30 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
                     current_step=f"Queued: Chapter {next_chapter.chapter_number}",
                 )
                 session.add(next_job)
-                await session.commit()
+
+                # Flush to get IDs without committing
+                await session.flush()
                 await session.refresh(next_job)
 
-                redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
-                await redis.enqueue_job(
-                    "process_chapter_analysis",
-                    str(next_job.id), manuscript_id, str(next_chapter.id),
-                )
+                # Enqueue to Redis — if this fails, log error and mark manuscript as error
+                try:
+                    redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+                    await redis.enqueue_job(
+                        "process_chapter_analysis",
+                        str(next_job.id), manuscript_id, str(next_chapter.id),
+                    )
+                except Exception as enqueue_err:
+                    logger.error(f"Failed to enqueue next chapter analysis for manuscript {manuscript_id}: {enqueue_err}")
+                    await session.rollback()
+                    async with session_factory() as err_session:
+                        ms_result = await err_session.execute(select(Manuscript).where(Manuscript.id == ms_uuid))
+                        ms = ms_result.scalar_one()
+                        ms.status = ManuscriptStatus.error
+                        await err_session.commit()
+                    return
+
+                # Only commit after successful enqueue
+                await session.commit()
                 logger.info(
                     f"Chained to Chapter {next_chapter.chapter_number} "
                     f"for manuscript {manuscript_id}"

@@ -99,12 +99,21 @@ async def upload_manuscript(
     )
     db.add(job)
 
-    await db.commit()
+    # Flush to get IDs without committing
+    await db.flush()
     await db.refresh(job)
+    await db.refresh(manuscript)
 
-    # Enqueue extraction job in arq
-    redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
-    await redis.enqueue_job("process_text_extraction", str(job.id), str(manuscript_id))
+    # Enqueue to Redis — if this fails, rollback DB
+    try:
+        redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+        await redis.enqueue_job("process_text_extraction", str(job.id), str(manuscript_id))
+    except Exception:
+        await db.rollback()
+        raise HTTPException(status_code=503, detail="Job queue unavailable. Please try again.")
+
+    # Only commit after successful enqueue
+    await db.commit()
 
     return UploadResponse(manuscript_id=manuscript_id, status="uploading", job_id=job.id)
 
@@ -256,13 +265,23 @@ async def start_chapter_analysis(
         current_step=f"Queued: Chapter {first_chapter.chapter_number}",
     )
     db.add(job)
-    await db.commit()
+
+    # Flush to get IDs without committing
+    await db.flush()
     await db.refresh(job)
 
-    redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
-    await redis.enqueue_job(
-        "process_chapter_analysis", str(job.id), str(manuscript_id), str(first_chapter.id),
-    )
+    # Enqueue to Redis — if this fails, rollback DB
+    try:
+        redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+        await redis.enqueue_job(
+            "process_chapter_analysis", str(job.id), str(manuscript_id), str(first_chapter.id),
+        )
+    except Exception:
+        await db.rollback()
+        raise HTTPException(status_code=503, detail="Job queue unavailable. Please try again.")
+
+    # Only commit after successful enqueue
+    await db.commit()
 
     return {"message": f"Analysis started for {len(chapters)} chapters", "chapters_queued": len(chapters)}
 
