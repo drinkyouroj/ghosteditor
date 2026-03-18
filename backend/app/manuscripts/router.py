@@ -266,10 +266,13 @@ async def start_chapter_analysis(
     if manuscript.payment_status != PaymentStatus.paid:
         raise HTTPException(status_code=402, detail="Payment required before analysis")
 
+    is_nonfiction = manuscript.document_type == DocumentType.nonfiction
+    bible_or_map_label = "argument map" if is_nonfiction else "story bible"
+
     if manuscript.status not in (ManuscriptStatus.bible_complete, ManuscriptStatus.complete, ManuscriptStatus.error, ManuscriptStatus.analyzing):
         raise HTTPException(
             status_code=409,
-            detail=f"Manuscript must have a completed story bible first (current: {manuscript.status.value})",
+            detail=f"Manuscript must have a completed {bible_or_map_label} first (current: {manuscript.status.value})",
         )
 
     # Find chapters eligible for analysis (ordered)
@@ -281,20 +284,23 @@ async def start_chapter_analysis(
     )
     chapters = chapters_result.scalars().all()
 
+    section_label = "sections" if is_nonfiction else "chapters"
     if not chapters:
-        raise HTTPException(status_code=409, detail="No chapters available for analysis")
+        raise HTTPException(status_code=409, detail=f"No {section_label} available for analysis")
 
     # Update manuscript status
     manuscript.status = ManuscriptStatus.analyzing
     await db.flush()
 
-    # Only enqueue the first chapter — the worker chains to the next
+    # Only enqueue the first chapter/section — the worker chains to the next
     first_chapter = chapters[0]
+    worker_func = "process_nonfiction_section_analysis" if is_nonfiction else "process_chapter_analysis"
+    step_label = "Section" if is_nonfiction else "Chapter"
     job = Job(
         manuscript_id=manuscript_id,
         chapter_id=first_chapter.id,
         job_type=JobType.chapter_analysis,
-        current_step=f"Queued: Chapter {first_chapter.chapter_number}",
+        current_step=f"Queued: {step_label} {first_chapter.chapter_number}",
     )
     db.add(job)
 
@@ -306,7 +312,7 @@ async def start_chapter_analysis(
     try:
         redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
         await redis.enqueue_job(
-            "process_chapter_analysis", str(job.id), str(manuscript_id), str(first_chapter.id),
+            worker_func, str(job.id), str(manuscript_id), str(first_chapter.id),
         )
     except Exception:
         await db.rollback()
@@ -315,7 +321,7 @@ async def start_chapter_analysis(
     # Only commit after successful enqueue
     await db.commit()
 
-    return {"message": f"Analysis started for {len(chapters)} chapters", "chapters_queued": len(chapters)}
+    return {"message": f"Analysis started for {len(chapters)} {section_label}", f"{section_label}_queued": len(chapters)}
 
 
 @router.get("/jobs/{job_id}", response_model=JobResponse)

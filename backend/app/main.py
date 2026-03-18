@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import Response as StarletteResponse
 
+from app.analysis.nonfiction_router import router as argument_map_router
 from app.analysis.router import router as bible_router
 from app.auth.router import router as auth_router
 from app.config import settings
@@ -60,6 +61,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(manuscripts_router)
 app.include_router(bible_router)
+app.include_router(argument_map_router)
 app.include_router(stripe_router)
 
 
