@@ -165,6 +165,28 @@ TOC_THRESHOLD_WORDS = 50
 MAX_CHAPTERS = 150
 MAX_WORD_COUNT = 120_000
 
+# ---------------------------------------------------------------------------
+# Nonfiction section detection constants (DECISION_008)
+# ---------------------------------------------------------------------------
+
+NONFICTION_CHUNK_TARGET_WORDS = 1500
+NONFICTION_CHUNK_MIN_WORDS = 1200  # -20% window
+NONFICTION_CHUNK_MAX_WORDS = 1800  # +20% window
+MIN_NONFICTION_SECTION_WORDS = 200
+
+# Nonfiction header patterns
+NONFICTION_HEADER_PATTERNS = [
+    # Markdown-style headers: # Title, ## Subtitle, ### Sub-sub
+    re.compile(r"^#{1,3}\s+.+$", re.MULTILINE),
+    # ALL-CAPS lines (5+ chars, starting with a letter, no newlines in match)
+    re.compile(r"^[A-Z][A-Z \t:]{4,}$", re.MULTILINE),
+    # Numbered sections: "1. Title", "Section 2: Title", "Part 3) Title"
+    re.compile(
+        r"^(?:Section|Part|Chapter)?\s*\d+[\.\):]?\s+.+$",
+        re.IGNORECASE | re.MULTILINE,
+    ),
+]
+
 
 # ---------------------------------------------------------------------------
 # Text extraction
@@ -882,17 +904,343 @@ def _merge_short_sections(chapters: list[dict]) -> list[dict]:
     return merged
 
 
-async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
+# ---------------------------------------------------------------------------
+# Nonfiction section detection (DECISION_008)
+# ---------------------------------------------------------------------------
+
+
+def _is_valid_nonfiction_header(text: str, match_start: int, match_end: int) -> bool:
+    """Validate a nonfiction header candidate.
+
+    Per DECISION_008 JUDGE amendments:
+    - Must be preceded by a blank line (or be at the start of the text)
+    - Must be under 120 characters
+    - Must NOT be followed by a lowercase letter or continuation punctuation
+      on the next non-blank line (catches mid-paragraph false positives from
+      PDF line wrapping)
+    """
+    matched_text = text[match_start:match_end]
+
+    # Under 120 chars
+    if len(matched_text.strip()) > 120:
+        return False
+
+    # Must be preceded by blank line or be at start
+    preceding = text[:match_start]
+    if preceding:
+        # Find last non-whitespace before match
+        preceding_stripped = preceding.rstrip(" \t")
+        if preceding_stripped and not preceding_stripped.endswith("\n\n") and not preceding_stripped.endswith("\n\r\n"):
+            # Check if there's at least one blank line before
+            last_newline = preceding_stripped.rfind("\n")
+            if last_newline != -1:
+                between = preceding_stripped[last_newline:]
+                if between.strip():
+                    return False
+            elif preceding_stripped.strip():
+                # Text before, no newline at all — not a header
+                return False
+
+    # Check for mid-paragraph false positives (JUDGE amendment #2).
+    # If the IMMEDIATE next line (no blank line gap) starts with lowercase or
+    # continuation punctuation, this is likely a mid-paragraph fragment from
+    # PDF line wrapping, not a real header. But if there's a blank line between
+    # the header and the next text, it's a real header.
+    after = text[match_end:]
+    lines_after = after.split("\n", 5)
+    if lines_after:
+        first_line = lines_after[0].strip() if lines_after[0:] else ""
+        # If the very next line (index 0) is the remainder of the match line
+        # it will be empty since the regex matched to end of line. Check index 1.
+        check_line = None
+        for i, line in enumerate(lines_after[:3]):
+            stripped = line.strip()
+            if i == 0 and not stripped:
+                # End of matched line, continue to next
+                continue
+            if not stripped:
+                # Blank line found — this is a proper header with spacing
+                break
+            check_line = stripped
+            break
+
+        if check_line is not None and (
+            check_line[0].islower() or check_line[0] in (",", ";", "—", "-")
+        ):
+            return False
+
+    return True
+
+
+def _detect_nonfiction_headers(text: str) -> list[tuple[int, str]]:
+    """Detect nonfiction section headers in text.
+
+    Returns list of (position, header_text) tuples sorted by position.
+    """
+    candidates = []
+
+    for pattern in NONFICTION_HEADER_PATTERNS:
+        for match in pattern.finditer(text):
+            header_text = match.group(0).strip()
+            if _is_valid_nonfiction_header(text, match.start(), match.end()):
+                candidates.append((match.start(), header_text))
+
+    # Sort by position and deduplicate overlapping matches
+    candidates.sort(key=lambda x: x[0])
+    if not candidates:
+        return []
+
+    deduped = [candidates[0]]
+    for pos, title in candidates[1:]:
+        if pos - deduped[-1][0] > 20:
+            deduped.append((pos, title))
+        else:
+            # Keep the longer/more descriptive title
+            if len(title) > len(deduped[-1][1]):
+                deduped[-1] = (pos, title)
+
+    return deduped
+
+
+def _nonfiction_chunk_at_paragraphs(text: str) -> list[dict]:
+    """Chunk nonfiction text at ~1,500-word paragraph boundaries.
+
+    Uses a 1,200-1,800 word window per DECISION_008 JUDGE amendment #4.
+    Returns list of section dicts.
+    """
+    words = text.split()
+    total_words = len(words)
+
+    if total_words <= NONFICTION_CHUNK_MAX_WORDS:
+        return [{
+            "chapter_number": 1,
+            "title": "Section 1",
+            "text": text.strip(),
+            "word_count": total_words,
+            "split_method": "nonfiction_chunked",
+            "section_detection_method": "chunked",
+        }]
+
+    # Find all paragraph break positions (double newline)
+    para_breaks = []
+    for match in re.finditer(r"\n\s*\n", text):
+        para_breaks.append(match.start())
+
+    sections = []
+    current_start = 0
+    section_num = 1
+
+    while current_start < len(text):
+        remaining_text = text[current_start:]
+        remaining_words = len(remaining_text.split())
+
+        # If remaining fits in one chunk, take it all
+        if remaining_words <= NONFICTION_CHUNK_MAX_WORDS:
+            sections.append({
+                "chapter_number": section_num,
+                "title": f"Section {section_num}",
+                "text": remaining_text.strip(),
+                "word_count": remaining_words,
+                "split_method": "nonfiction_chunked",
+                "section_detection_method": "chunked",
+            })
+            break
+
+        # Find character position of target word count
+        word_count = 0
+        target_pos = len(text)
+        for i in range(current_start, len(text)):
+            if text[i] in (" ", "\n"):
+                word_count += 1
+                if word_count >= NONFICTION_CHUNK_TARGET_WORDS:
+                    target_pos = i
+                    break
+
+        # Find the best paragraph break within the 1200-1800 word window
+        # Convert word window to approximate character positions
+        min_pos = current_start
+        word_count = 0
+        for i in range(current_start, len(text)):
+            if text[i] in (" ", "\n"):
+                word_count += 1
+                if word_count >= NONFICTION_CHUNK_MIN_WORDS:
+                    min_pos = i
+                    break
+
+        max_pos = len(text)
+        word_count = 0
+        for i in range(current_start, len(text)):
+            if text[i] in (" ", "\n"):
+                word_count += 1
+                if word_count >= NONFICTION_CHUNK_MAX_WORDS:
+                    max_pos = i
+                    break
+
+        # Find nearest paragraph break to target within window
+        best_break = None
+        for pb_pos in para_breaks:
+            if min_pos <= pb_pos <= max_pos:
+                if best_break is None or abs(pb_pos - target_pos) < abs(best_break - target_pos):
+                    best_break = pb_pos
+
+        # If no paragraph break in window, use target position
+        if best_break is None:
+            best_break = target_pos
+
+        chunk_text = text[current_start:best_break].strip()
+        if chunk_text:
+            sections.append({
+                "chapter_number": section_num,
+                "title": f"Section {section_num}",
+                "text": chunk_text,
+                "word_count": len(chunk_text.split()),
+                "split_method": "nonfiction_chunked",
+                "section_detection_method": "chunked",
+            })
+            section_num += 1
+
+        current_start = best_break
+
+    logger.info(
+        f"Nonfiction chunked fallback produced {len(sections)} sections "
+        f"at ~{NONFICTION_CHUNK_TARGET_WORDS} words each"
+    )
+    return sections
+
+
+def _detect_nonfiction_sections(text: str) -> tuple[list[dict], list[str]]:
+    """Detect nonfiction sections using header detection with chunked fallback.
+
+    Per DECISION_008:
+    - Detect structural headers (markdown, ALL-CAPS, numbered)
+    - If >= 2 headers: split at headers
+    - If 1 header: treat as content-start marker, strip front matter, then chunk
+    - If 0 headers: fall back to 1,500-word chunking
+
+    Returns (sections_list, warnings_list).
+    """
+    warnings = []
+    headers = _detect_nonfiction_headers(text)
+
+    logger.info(f"Nonfiction header detection found {len(headers)} headers")
+
+    # --- JUDGE amendment #3: Collapsed whitespace warning ---
+    if len(headers) == 0 and "\n\n" not in text and "\n \n" not in text:
+        warnings.append(
+            "Document appears to have lost formatting during extraction. "
+            "Section boundaries may be inaccurate."
+        )
+        logger.warning(
+            "Zero headers detected AND no blank lines in text — "
+            "possible whitespace collapse from PDF extraction"
+        )
+
+    # --- 0 headers: chunked fallback ---
+    if len(headers) == 0:
+        sections = _nonfiction_chunk_at_paragraphs(text)
+        return sections, warnings
+
+    # --- 1 header: content-start marker (JUDGE amendment #1) ---
+    if len(headers) == 1:
+        pos, header_text = headers[0]
+        logger.info(
+            f"Single header detected — treated as content start marker: "
+            f"{header_text!r} at position {pos}"
+        )
+        # Strip everything before the header as front matter
+        content_text = text[pos:].strip()
+        sections = _nonfiction_chunk_at_paragraphs(content_text)
+        warnings.append(
+            "Single header detected — treated as content start marker. "
+            "Document has been divided into sections for analysis."
+        )
+        return sections, warnings
+
+    # --- 2+ headers: split at header positions ---
+    raw_sections = []
+    for i, (pos, title) in enumerate(headers):
+        end = headers[i + 1][0] if i + 1 < len(headers) else len(text)
+        section_text = text[pos:end].strip()
+        word_count = len(section_text.split())
+
+        raw_sections.append({
+            "chapter_number": i + 1,
+            "title": title,
+            "text": section_text,
+            "word_count": word_count,
+            "split_method": "nonfiction_header",
+            "section_detection_method": "header",
+        })
+
+    # --- JUDGE amendment #2: Merge short sections (< 200 words) ---
+    merged = []
+    carry = None
+    for sec in raw_sections:
+        if carry is not None:
+            sec["text"] = carry["text"] + "\n\n" + sec["text"]
+            sec["word_count"] = len(sec["text"].split())
+            if carry["title"] is not None:
+                sec["title"] = carry["title"]
+            carry = None
+
+        if sec["word_count"] < MIN_NONFICTION_SECTION_WORDS and sec is not raw_sections[-1]:
+            logger.info(
+                f"Merging short nonfiction section {sec['title']!r} "
+                f"({sec['word_count']} words) into next"
+            )
+            carry = sec
+        else:
+            merged.append(sec)
+
+    if carry is not None:
+        if merged:
+            merged[-1]["text"] += "\n\n" + carry["text"]
+            merged[-1]["word_count"] = len(merged[-1]["text"].split())
+        else:
+            merged.append(carry)
+
+    # Renumber
+    for i, sec in enumerate(merged):
+        sec["chapter_number"] = i + 1
+
+    # Cap at MAX_CHAPTERS
+    if len(merged) > MAX_CHAPTERS:
+        logger.warning(
+            f"Nonfiction header detection yielded {len(merged)} sections "
+            f"(max {MAX_CHAPTERS}). Falling back to chunked."
+        )
+        full_text = "\n\n".join(sec["text"] for sec in merged)
+        return _nonfiction_chunk_at_paragraphs(full_text), warnings
+
+    logger.info(f"Nonfiction header detection produced {len(merged)} sections")
+    return merged, warnings
+
+
+async def detect_chapters(text: str, document_type: str = "fiction") -> tuple[list[dict], list[str]]:
     """Detect chapter/section boundaries using LLM-assisted structure detection.
+
+    Args:
+        text: The full manuscript text.
+        document_type: "fiction" (default) or "nonfiction". Controls which
+            detection pipeline is used per DECISION_008.
 
     Returns (chapters_list, warnings_list).
     Each chapter dict has: chapter_number, title, text, word_count, split_method.
+    Nonfiction sections also include section_detection_method ("header" or "chunked").
 
-    Fallback chain per DECISION_007:
+    Fiction fallback chain per DECISION_007:
     1. LLM-assisted splitting (sends sample to LLM for structure detection)
     2. Auto-split at ~4K words at natural break points
     3. Regex-based chapter detection (legacy)
+
+    Nonfiction chain per DECISION_008:
+    1. Header detection (markdown, ALL-CAPS, numbered sections)
+    2. 1,500-word chunked fallback at paragraph boundaries
     """
+    # --- Nonfiction path (DECISION_008) ---
+    if document_type == "nonfiction":
+        return _detect_nonfiction_sections(text)
+
     from app.analysis.llm_client import LLMError, call_llm
     from app.analysis.json_repair import parse_json_response
     from app.config import settings
