@@ -9,9 +9,20 @@ const STATUS_LABELS: Record<string, string> = {
   extracting: 'Extracting text...',
   bible_generating: 'Building story bible...',
   bible_complete: 'Story bible ready',
+  argmap_generating: 'Building argument map...',
+  argmap_complete: 'Argument map ready',
   analyzing: 'Analyzing chapters...',
+  analyzing_sections: 'Analyzing sections...',
   complete: 'Complete',
   error: 'Error',
+}
+
+const FORMAT_LABELS: Record<string, string> = {
+  academic: 'Academic',
+  essay: 'Essay',
+  journalism: 'Journalism',
+  self_help: 'Self-Help',
+  business: 'Business',
 }
 
 const ERROR_HELP: Record<string, string> = {
@@ -70,46 +81,66 @@ export function DashboardPage() {
         </div>
       ) : (
         <div className="manuscript-list">
-          {manuscripts.map((m) => (
-            <div key={m.id} className="manuscript-card">
-              <div className="manuscript-info">
-                <Link to={`/manuscripts/${m.id}`} className="manuscript-title">
-                  {m.title}
-                </Link>
-                <div className="manuscript-meta">
-                  {m.genre && <span>{m.genre}</span>}
-                  {m.word_count_est && <span>{m.word_count_est.toLocaleString()} words</span>}
-                  {m.chapter_count && <span>{m.chapter_count} chapters</span>}
-                  <span className={`status status-${m.status}`}>
-                    {STATUS_LABELS[m.status] ?? m.status}
-                  </span>
+          {manuscripts.map((m) => {
+            const isNonfiction = m.document_type === 'nonfiction'
+            const bibleReady = m.status === 'complete' || m.status === 'bible_complete' || m.status === 'analyzing'
+              || m.status === 'argmap_complete' || m.status === 'analyzing_sections'
+
+            return (
+              <div key={m.id} className="manuscript-card">
+                <div className="manuscript-info">
+                  <div className="manuscript-title-row">
+                    <Link to={`/manuscripts/${m.id}`} className="manuscript-title">
+                      {m.title}
+                    </Link>
+                    <span className={`mode-badge mode-${isNonfiction ? 'nonfiction' : 'fiction'}`}>
+                      {isNonfiction ? 'Nonfiction' : 'Fiction'}
+                      {isNonfiction && m.nonfiction_format && (
+                        <span className="mode-format"> &middot; {FORMAT_LABELS[m.nonfiction_format] ?? m.nonfiction_format}</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="manuscript-meta">
+                    {m.genre && <span>{m.genre}</span>}
+                    {m.word_count_est && <span>{m.word_count_est.toLocaleString()} words</span>}
+                    {m.chapter_count && <span>{m.chapter_count} {isNonfiction ? 'sections' : 'chapters'}</span>}
+                    <span className={`status status-${m.status}`}>
+                      {STATUS_LABELS[m.status] ?? m.status}
+                    </span>
+                  </div>
+                </div>
+                <div className="manuscript-actions">
+                  {m.status === 'complete' && (
+                    <Link to={`/manuscripts/${m.id}/feedback`} className="btn-small btn-feedback">
+                      View Feedback
+                    </Link>
+                  )}
+                  {bibleReady && (
+                    isNonfiction ? (
+                      <Link to={`/manuscripts/${m.id}/argument-map`} className="btn-small">
+                        Argument Map
+                      </Link>
+                    ) : (
+                      <Link to={`/manuscripts/${m.id}/bible`} className="btn-small">
+                        Story Bible
+                      </Link>
+                    )
+                  )}
+                  {m.status === 'error' && (
+                    <span className="error-hint" title={ERROR_HELP.error}>
+                      {ERROR_HELP.error}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => handleDelete(m.id, m.title)}
+                    className="btn-small btn-danger"
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-              <div className="manuscript-actions">
-                {m.status === 'complete' && (
-                  <Link to={`/manuscripts/${m.id}/feedback`} className="btn-small btn-feedback">
-                    View Feedback
-                  </Link>
-                )}
-                {(m.status === 'complete' || m.status === 'bible_complete' || m.status === 'analyzing') && (
-                  <Link to={`/manuscripts/${m.id}/bible`} className="btn-small">
-                    Story Bible
-                  </Link>
-                )}
-                {m.status === 'error' && (
-                  <span className="error-hint" title={ERROR_HELP.error}>
-                    {ERROR_HELP.error}
-                  </span>
-                )}
-                <button
-                  onClick={() => handleDelete(m.id, m.title)}
-                  className="btn-small btn-danger"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
