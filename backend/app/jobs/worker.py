@@ -673,4 +673,4 @@ class WorkerSettings:
     on_startup = _recover_stalled_jobs
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_jobs = 5
-    job_timeout = 3600  # 60 minutes per job — local models can be very slow on bible generation
+    job_timeout = settings.arq_job_timeout  # Configurable via ARQ_JOB_TIMEOUT env var (default 3600s)
