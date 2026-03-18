@@ -9,6 +9,7 @@ as scheduled tasks in PostgreSQL (EmailEvent table).
 
 from __future__ import annotations
 
+import html
 import logging
 
 import resend
@@ -43,6 +44,7 @@ def _send(to: str, subject: str, html: str) -> str | None:
 
 def send_verification_email(to: str, verification_url: str) -> str | None:
     """Send email verification link after registration."""
+    safe_url = html.escape(verification_url, quote=True)
     return _send(
         to=to,
         subject="Verify your GhostEditor account",
@@ -50,7 +52,7 @@ def send_verification_email(to: str, verification_url: str) -> str | None:
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto;">
             <h2 style="font-size: 1.25rem;">Welcome to GhostEditor</h2>
             <p>Click below to verify your email address and get started:</p>
-            <a href="{verification_url}"
+            <a href="{safe_url}"
                style="display: inline-block; padding: 12px 24px; background: #2563eb; color: white;
                       text-decoration: none; border-radius: 6px; font-weight: 500;">
                 Verify Email
@@ -65,6 +67,7 @@ def send_verification_email(to: str, verification_url: str) -> str | None:
 
 def send_password_reset_email(to: str, reset_url: str) -> str | None:
     """Send password reset link."""
+    safe_url = html.escape(reset_url, quote=True)
     return _send(
         to=to,
         subject="Reset your GhostEditor password",
@@ -72,7 +75,7 @@ def send_password_reset_email(to: str, reset_url: str) -> str | None:
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto;">
             <h2 style="font-size: 1.25rem;">Password Reset</h2>
             <p>Click below to reset your password:</p>
-            <a href="{reset_url}"
+            <a href="{safe_url}"
                style="display: inline-block; padding: 12px 24px; background: #2563eb; color: white;
                       text-decoration: none; border-radius: 6px; font-weight: 500;">
                 Reset Password
@@ -90,16 +93,18 @@ def send_bible_ready_email(to: str, manuscript_title: str, bible_url: str) -> st
 
     Per blueprint: 'Email delivered: Your GhostEditor story bible is ready'
     """
+    safe_title = html.escape(manuscript_title)
+    safe_url = html.escape(bible_url, quote=True)
     return _send(
         to=to,
-        subject=f"Your story bible for \"{manuscript_title}\" is ready",
+        subject=f"Your story bible for \"{safe_title}\" is ready",
         html=f"""
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto;">
             <h2 style="font-size: 1.25rem;">Your Story Bible is Ready</h2>
-            <p>GhostEditor has analyzed the first chapter of <strong>{manuscript_title}</strong>
+            <p>GhostEditor has analyzed the first chapter of <strong>{safe_title}</strong>
                and built your story bible — a structured breakdown of characters, timeline,
                settings, and voice profile.</p>
-            <a href="{bible_url}"
+            <a href="{safe_url}"
                style="display: inline-block; padding: 12px 24px; background: #2563eb; color: white;
                       text-decoration: none; border-radius: 6px; font-weight: 500;">
                 View Story Bible
@@ -117,13 +122,15 @@ def send_drip_email_1(to: str, manuscript_title: str, bible_url: str) -> str | N
 
     Per blueprint: 'Here's what GhostEditor found in your first chapter'
     """
+    safe_title = html.escape(manuscript_title)
+    safe_url = html.escape(bible_url, quote=True)
     return _send(
         to=to,
-        subject=f"Here's what GhostEditor found in \"{manuscript_title}\"",
+        subject=f"Here's what GhostEditor found in \"{safe_title}\"",
         html=f"""
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto;">
             <h2 style="font-size: 1.25rem;">Your First Chapter Analysis</h2>
-            <p>GhostEditor built a story bible from Chapter 1 of <strong>{manuscript_title}</strong>.
+            <p>GhostEditor built a story bible from Chapter 1 of <strong>{safe_title}</strong>.
                Here's what we found:</p>
             <ul>
                 <li>Characters tracked with roles, traits, and relationships</li>
@@ -132,7 +139,7 @@ def send_drip_email_1(to: str, manuscript_title: str, bible_url: str) -> str | N
             </ul>
             <p>This is just the beginning — unlock full analysis to get chapter-by-chapter
                developmental editing feedback on consistency, pacing, and genre conventions.</p>
-            <a href="{bible_url}"
+            <a href="{safe_url}"
                style="display: inline-block; padding: 12px 24px; background: #2563eb; color: white;
                       text-decoration: none; border-radius: 6px; font-weight: 500;">
                 View Your Story Bible
@@ -147,6 +154,8 @@ def send_drip_email_2(to: str, manuscript_title: str, pricing_url: str) -> str |
 
     Per blueprint: '3 things developmental editors check that GhostEditor catches'
     """
+    safe_title = html.escape(manuscript_title)
+    safe_url = html.escape(pricing_url, quote=True)
     return _send(
         to=to,
         subject="3 things developmental editors check that GhostEditor catches automatically",
@@ -163,9 +172,9 @@ def send_drip_email_2(to: str, manuscript_title: str, pricing_url: str) -> str |
                 <li><strong>Genre conventions</strong> — Is your romance hitting the expected beats?
                     GhostEditor scores each chapter against genre expectations.</li>
             </ol>
-            <p>Your story bible for <strong>{manuscript_title}</strong> is waiting.
+            <p>Your story bible for <strong>{safe_title}</strong> is waiting.
                Unlock full analysis for $49 — or $29 with beta code BETA.</p>
-            <a href="{pricing_url}"
+            <a href="{safe_url}"
                style="display: inline-block; padding: 12px 24px; background: #2563eb; color: white;
                       text-decoration: none; border-radius: 6px; font-weight: 500;">
                 Unlock Full Analysis — $49
@@ -180,17 +189,19 @@ def send_drip_email_3(to: str, manuscript_title: str, pricing_url: str) -> str |
 
     Per blueprint: 'Your beta discount expires soon'
     """
+    safe_title = html.escape(manuscript_title)
+    safe_url = html.escape(pricing_url, quote=True)
     return _send(
         to=to,
-        subject=f"Your beta discount for \"{manuscript_title}\" expires soon",
+        subject=f"Your beta discount for \"{safe_title}\" expires soon",
         html=f"""
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto;">
             <h2 style="font-size: 1.25rem;">Last Chance: $29 Beta Pricing</h2>
-            <p>Your story bible for <strong>{manuscript_title}</strong> has been waiting.
+            <p>Your story bible for <strong>{safe_title}</strong> has been waiting.
                As a beta user, you can unlock full chapter-by-chapter analysis for just $29
                — that's $20 off the regular $49 price.</p>
             <p>Use code <strong>BETA</strong> at checkout.</p>
-            <a href="{pricing_url}"
+            <a href="{safe_url}"
                style="display: inline-block; padding: 12px 24px; background: #2563eb; color: white;
                       text-decoration: none; border-radius: 6px; font-weight: 500;">
                 Unlock for $29 (code: BETA)
