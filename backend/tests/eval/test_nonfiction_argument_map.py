@@ -315,7 +315,7 @@ def test_evidence_linked_to_threads(arg_maps):
         arg_map = result["map"]
         if not arg_map.evidence_log:
             continue
-        linked = [e for e in arg_map.evidence_log if e.supports_thread is not None]
+        linked = [e for e in arg_map.evidence_log if e.supports_claim_id is not None]
         assert len(linked) >= 1, (
             f"{key}: no evidence items linked to argument threads"
         )

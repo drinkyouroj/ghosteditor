@@ -32,7 +32,9 @@ class NonfictionIssue(BaseModel):
     @field_validator("suggestion", mode="before")
     @classmethod
     def coerce_suggestion_null(cls, v):
-        return v if v is not None else None
+        if v is not None and isinstance(v, str) and not v.strip():
+            return None
+        return v
 
 
 class ArgumentMapUpdate(BaseModel):

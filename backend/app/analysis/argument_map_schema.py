@@ -31,13 +31,13 @@ class EvidenceItem(BaseModel):
     type: str = Field(description="Type: statistic, anecdote, citation, example, analogy, expert_quote")
     summary: str = Field(description="Brief summary of the evidence")
     section: int = Field(description="Section number where found")
-    supports_thread: str | None = Field(default=None, description="ID of argument thread this supports")
+    supports_claim_id: str | None = Field(default=None, description="ID of argument thread this supports")
 
 
-class StructuralMarker(BaseModel):
-    type: str = Field(description="Type: introduction, conclusion, transition, digression, definition")
-    section: int = Field(description="Section number")
-    description: str = Field(description="Brief description of the structural element")
+class StructuralMarkers(BaseModel):
+    has_explicit_thesis: bool = Field(default=False, description="Whether the document states its thesis directly")
+    has_conclusion: bool | None = Field(default=None, description="Whether the document has a concluding section; null if incomplete")
+    section_count: int = Field(default=0, description="Total number of sections provided")
 
 
 class ArgumentMapSchema(BaseModel):
@@ -47,4 +47,4 @@ class ArgumentMapSchema(BaseModel):
     voice_profile: VoiceProfile | None = Field(default=None)
     argument_threads: list[ArgumentThread] = Field(default_factory=list)
     evidence_log: list[EvidenceItem] = Field(default_factory=list)
-    structural_markers: list[StructuralMarker] = Field(default_factory=list)
+    structural_markers: StructuralMarkers = Field(default_factory=StructuralMarkers)

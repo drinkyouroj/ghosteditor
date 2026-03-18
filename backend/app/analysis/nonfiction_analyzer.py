@@ -126,6 +126,7 @@ async def analyze_nonfiction_section(
         argument_map_evidence=_format_argument_map_section(argument_map_json, "evidence_log"),
         argument_map_voice=_format_argument_map_section(argument_map_json, "voice_profile"),
         format_conventions=conventions,
+        section_one_instruction=_build_section_one_instruction(section_number),
         chapter_text=sanitized_text,
     )
 

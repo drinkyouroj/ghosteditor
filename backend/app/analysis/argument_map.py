@@ -2,16 +2,11 @@
 
 Generates a structured argument map (thesis, argument threads, evidence patterns)
 from a nonfiction manuscript, serving the same role as a Story Bible for fiction.
-
-This module will be fully implemented by Agent 1. The interface contract is
-defined here so Agent 3's worker integration can import it.
 """
 from __future__ import annotations
 
-import json
 import logging
 from pathlib import Path
-from typing import Any
 
 from app.analysis.argument_map_schema import ArgumentMapSchema
 from app.analysis.llm_client import call_llm
@@ -26,6 +21,11 @@ PROMPT_PATH = Path(__file__).parent / "prompts" / "argument_map_v1.txt"
 class ArgumentMapError(Exception):
     """Raised when argument map generation fails."""
     pass
+
+
+def _sanitize_manuscript_text(text: str) -> str:
+    """Escape closing manuscript_text tags to prevent prompt injection."""
+    return text.replace("</manuscript_text>", "&lt;/manuscript_text&gt;")
 
 
 async def generate_argument_map(
@@ -55,7 +55,6 @@ async def generate_argument_map(
         )
 
     format_label = nonfiction_format or "general nonfiction"
-    prompt = prompt_template.replace("{nonfiction_format}", format_label)
 
     # Truncate very long texts to avoid context window overflow
     max_chars = 100_000
@@ -65,7 +64,12 @@ async def generate_argument_map(
             f"Manuscript text truncated to {max_chars} characters for argument map generation"
         )
 
-    full_prompt = f"{prompt}\n\n<manuscript_text>\n{manuscript_text}\n</manuscript_text>"
+    sanitized_text = _sanitize_manuscript_text(manuscript_text)
+
+    # Prompt template contains {nonfiction_format} and {chapter_text} placeholders
+    # plus <manuscript_text> wrapping — substitute both via .replace()
+    full_prompt = prompt_template.replace("{nonfiction_format}", format_label)
+    full_prompt = full_prompt.replace("{chapter_text}", sanitized_text)
 
     try:
         raw_response = await call_llm(
