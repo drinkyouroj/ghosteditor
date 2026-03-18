@@ -65,9 +65,29 @@ app.include_router(argument_map_router)
 app.include_router(stripe_router)
 
 
+def _is_dev_mode() -> bool:
+    """Check if the app is running in local development mode.
+
+    Returns True if either s3_endpoint_url or base_url references localhost.
+    """
+    s3_local = settings.s3_endpoint_url and "localhost" in settings.s3_endpoint_url
+    base_local = "localhost" in settings.base_url
+    return bool(s3_local or base_local)
+
+
 @app.on_event("startup")
 async def startup():
-    """Create S3 bucket on startup (for MinIO local dev)."""
+    """Startup checks and initialization."""
+    # SEC-001: Prevent deployment with default JWT secret
+    if settings.jwt_secret_key == "change-me-in-production" and not _is_dev_mode():
+        raise RuntimeError(
+            "FATAL: JWT_SECRET_KEY is set to the default value 'change-me-in-production' "
+            "and the app is not in dev mode (neither s3_endpoint_url nor base_url contain "
+            "'localhost'). Set JWT_SECRET_KEY to a secure random value before deploying. "
+            "Dev mode is auto-detected when base_url or s3_endpoint_url references localhost."
+        )
+
+    # Create S3 bucket on startup (for MinIO local dev)
     if settings.s3_endpoint_url:
         from app.manuscripts.s3 import ensure_bucket_exists
         try:
