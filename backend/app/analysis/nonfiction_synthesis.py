@@ -78,21 +78,20 @@ async def generate_document_synthesis(
     detected_format = argument_map_json.get("detected_format", format_str)
     detected_format_confidence = argument_map_json.get("detected_format_confidence", "unknown")
 
-    # Build prompt
+    # Build prompt — use .replace() instead of .format() to avoid
+    # IndexError from curly braces in JSON data
     prompt_template = _load_prompt(PROMPT_VERSION)
-    prompt = prompt_template.format(
-        nonfiction_format=format_str,
-        total_sections=len(section_summaries),
-        central_thesis=_format_field(thesis_text),
-        has_explicit_thesis=str(has_explicit).lower(),
-        has_conclusion=str(has_conclusion).lower(),
-        argument_threads=_format_field(argument_map_json.get("argument_threads")),
-        evidence_log=_format_field(argument_map_json.get("evidence_log")),
-        voice_profile=_format_field(argument_map_json.get("voice_profile")),
-        detected_format=_format_field(detected_format),
-        detected_format_confidence=str(detected_format_confidence),
-        section_issue_summary=json.dumps(section_summaries, indent=2),
-    )
+    prompt = prompt_template.replace("{nonfiction_format}", format_str)
+    prompt = prompt.replace("{total_sections}", str(len(section_summaries)))
+    prompt = prompt.replace("{central_thesis}", _format_field(thesis_text))
+    prompt = prompt.replace("{has_explicit_thesis}", str(has_explicit).lower())
+    prompt = prompt.replace("{has_conclusion}", str(has_conclusion).lower())
+    prompt = prompt.replace("{argument_threads}", _format_field(argument_map_json.get("argument_threads")))
+    prompt = prompt.replace("{evidence_log}", _format_field(argument_map_json.get("evidence_log")))
+    prompt = prompt.replace("{voice_profile}", _format_field(argument_map_json.get("voice_profile")))
+    prompt = prompt.replace("{detected_format}", _format_field(detected_format))
+    prompt = prompt.replace("{detected_format_confidence}", str(detected_format_confidence))
+    prompt = prompt.replace("{section_issue_summary}", json.dumps(section_summaries, indent=2))
 
     # Call LLM API
     try:

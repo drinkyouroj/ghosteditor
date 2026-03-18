@@ -89,6 +89,20 @@ async def analyze_nonfiction_section(
         NonfictionAnalysisError on unrecoverable failure.
     """
     warnings: list[str] = []
+
+    # Infer format from argument map if not specified by user
+    if not nonfiction_format and argument_map_json:
+        detected = argument_map_json.get("detected_format_confidence")
+        if detected and isinstance(detected, dict):
+            inferred = detected.get("format")
+            confidence = detected.get("confidence", "low")
+            if inferred and inferred != "other" and confidence in ("high", "medium"):
+                nonfiction_format = inferred
+                logger.info(
+                    f"Inferred nonfiction format '{inferred}' from argument map "
+                    f"(confidence: {confidence})"
+                )
+
     format_str = nonfiction_format or "Not specified"
 
     # Check minimum section length
@@ -110,21 +124,20 @@ async def analyze_nonfiction_section(
             "Evaluate based on general nonfiction writing principles."
         )
 
-    # Build prompt
+    # Build prompt — use .replace() instead of .format() to avoid
+    # IndexError from curly braces in manuscript text or JSON data
     prompt_template = _load_prompt(PROMPT_VERSION)
-    prompt = prompt_template.format(
-        nonfiction_format=format_str,
-        section_number=section_number,
-        section_detection_method=section_detection_method,
-        total_sections=total_sections,
-        argument_map_thesis=_format_argument_map_section(argument_map_json, "central_thesis"),
-        argument_map_threads=_format_argument_map_section(argument_map_json, "argument_threads"),
-        argument_map_evidence=_format_argument_map_section(argument_map_json, "evidence_log"),
-        argument_map_voice=_format_argument_map_section(argument_map_json, "voice_profile"),
-        format_conventions=conventions,
-        section_one_instruction=_build_section_one_instruction(section_number),
-        chapter_text=sanitized_text,
-    )
+    prompt = prompt_template.replace("{nonfiction_format}", format_str)
+    prompt = prompt.replace("{section_number}", str(section_number))
+    prompt = prompt.replace("{section_detection_method}", section_detection_method)
+    prompt = prompt.replace("{total_sections}", str(total_sections))
+    prompt = prompt.replace("{argument_map_thesis}", _format_argument_map_section(argument_map_json, "central_thesis"))
+    prompt = prompt.replace("{argument_map_threads}", _format_argument_map_section(argument_map_json, "argument_threads"))
+    prompt = prompt.replace("{argument_map_evidence}", _format_argument_map_section(argument_map_json, "evidence_log"))
+    prompt = prompt.replace("{argument_map_voice}", _format_argument_map_section(argument_map_json, "voice_profile"))
+    prompt = prompt.replace("{format_conventions}", conventions)
+    prompt = prompt.replace("{section_one_instruction}", _build_section_one_instruction(section_number))
+    prompt = prompt.replace("{chapter_text}", sanitized_text)
 
     # Call LLM API
     try:
