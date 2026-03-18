@@ -12,6 +12,8 @@ class ManuscriptResponse(BaseModel):
     genre: str | None
     status: str
     payment_status: str
+    document_type: str = "fiction"
+    nonfiction_format: str | None = None
     chapter_count: int | None
     word_count_est: int | None
     created_at: datetime

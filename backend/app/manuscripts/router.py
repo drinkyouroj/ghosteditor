@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_current_user_allow_provisional
 from app.config import settings
-from app.db.models import Chapter, ChapterStatus, Job, JobType, JobStatus, Manuscript, ManuscriptStatus, PaymentStatus, SubscriptionStatus, User
+from app.db.models import Chapter, ChapterStatus, DocumentType, Job, JobType, JobStatus, Manuscript, ManuscriptStatus, NonfictionFormat, PaymentStatus, SubscriptionStatus, User
 from app.db.session import get_db
 
 FREE_TIER_MANUSCRIPT_LIMIT = 3  # Per DECISION_006 Amendment 4
@@ -34,6 +34,8 @@ async def upload_manuscript(
     file: UploadFile = File(...),
     title: str = Form(...),
     genre: str | None = Form(default=None),
+    document_type: str = Form(default="fiction"),
+    nonfiction_format: str | None = Form(default=None),
     user: User = Depends(get_current_user_allow_provisional),
     db: AsyncSession = Depends(get_db),
 ):
@@ -46,6 +48,32 @@ async def upload_manuscript(
     """
     # Per-user rate limit: 5 uploads per hour
     await check_rate_limit(str(user.id), action="upload", user_email=user.email)
+
+    # Validate document_type
+    try:
+        doc_type = DocumentType(document_type)
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid document_type: {document_type}. Must be 'fiction' or 'nonfiction'.",
+        )
+
+    # Validate nonfiction_format
+    nf_format = None
+    if nonfiction_format is not None:
+        if doc_type != DocumentType.nonfiction:
+            raise HTTPException(
+                status_code=422,
+                detail="nonfiction_format can only be set when document_type is 'nonfiction'.",
+            )
+        try:
+            nf_format = NonfictionFormat(nonfiction_format)
+        except ValueError:
+            valid = ", ".join(f.value for f in NonfictionFormat)
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid nonfiction_format: {nonfiction_format}. Must be one of: {valid}.",
+            )
 
     # Free-tier upload limit
     if user.subscription_status == SubscriptionStatus.free:
@@ -85,6 +113,8 @@ async def upload_manuscript(
         user_id=user.id,
         title=title,
         genre=genre,
+        document_type=doc_type,
+        nonfiction_format=nf_format,
         s3_key=s3_key,
         status=ManuscriptStatus.uploading,
         payment_status=payment,
@@ -164,6 +194,8 @@ async def get_manuscript(
         genre=manuscript.genre,
         status=manuscript.status.value,
         payment_status=manuscript.payment_status.value,
+        document_type=manuscript.document_type.value,
+        nonfiction_format=manuscript.nonfiction_format.value if manuscript.nonfiction_format else None,
         chapter_count=manuscript.chapter_count,
         word_count_est=manuscript.word_count_est,
         created_at=manuscript.created_at,
@@ -234,10 +266,13 @@ async def start_chapter_analysis(
     if manuscript.payment_status != PaymentStatus.paid:
         raise HTTPException(status_code=402, detail="Payment required before analysis")
 
+    is_nonfiction = manuscript.document_type == DocumentType.nonfiction
+    bible_or_map_label = "argument map" if is_nonfiction else "story bible"
+
     if manuscript.status not in (ManuscriptStatus.bible_complete, ManuscriptStatus.complete, ManuscriptStatus.error, ManuscriptStatus.analyzing):
         raise HTTPException(
             status_code=409,
-            detail=f"Manuscript must have a completed story bible first (current: {manuscript.status.value})",
+            detail=f"Manuscript must have a completed {bible_or_map_label} first (current: {manuscript.status.value})",
         )
 
     # Find chapters eligible for analysis (ordered)
@@ -249,20 +284,23 @@ async def start_chapter_analysis(
     )
     chapters = chapters_result.scalars().all()
 
+    section_label = "sections" if is_nonfiction else "chapters"
     if not chapters:
-        raise HTTPException(status_code=409, detail="No chapters available for analysis")
+        raise HTTPException(status_code=409, detail=f"No {section_label} available for analysis")
 
     # Update manuscript status
     manuscript.status = ManuscriptStatus.analyzing
     await db.flush()
 
-    # Only enqueue the first chapter — the worker chains to the next
+    # Only enqueue the first chapter/section — the worker chains to the next
     first_chapter = chapters[0]
+    worker_func = "process_nonfiction_section_analysis" if is_nonfiction else "process_chapter_analysis"
+    step_label = "Section" if is_nonfiction else "Chapter"
     job = Job(
         manuscript_id=manuscript_id,
         chapter_id=first_chapter.id,
         job_type=JobType.chapter_analysis,
-        current_step=f"Queued: Chapter {first_chapter.chapter_number}",
+        current_step=f"Queued: {step_label} {first_chapter.chapter_number}",
     )
     db.add(job)
 
@@ -274,7 +312,7 @@ async def start_chapter_analysis(
     try:
         redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
         await redis.enqueue_job(
-            "process_chapter_analysis", str(job.id), str(manuscript_id), str(first_chapter.id),
+            worker_func, str(job.id), str(manuscript_id), str(first_chapter.id),
         )
     except Exception:
         await db.rollback()
@@ -283,7 +321,7 @@ async def start_chapter_analysis(
     # Only commit after successful enqueue
     await db.commit()
 
-    return {"message": f"Analysis started for {len(chapters)} chapters", "chapters_queued": len(chapters)}
+    return {"message": f"Analysis started for {len(chapters)} {section_label}", f"{section_label}_queued": len(chapters)}
 
 
 @router.get("/jobs/{job_id}", response_model=JobResponse)
