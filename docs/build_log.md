@@ -367,3 +367,63 @@
 - LLM splitting depends on model quality — small/fast models may miss unusual section markers
 - E2E test runs worker functions inline (not via arq) — does not test Redis job dispatch
 - "Paid but not analyzing" cron recovery not yet implemented (manual `/analyze` is the escape hatch)
+
+---
+
+## 2026-03-18 — Nonfiction Backend Pipeline
+
+### Nonfiction Analysis Schema (Agent 2)
+- `nonfiction_analysis_schema.py` — Pydantic models for section analysis (`SectionAnalysisResult`, `NonfictionIssue`, `ArgumentMapUpdate`) and document synthesis (`DocumentSynthesis`)
+- Severity/dimension validation, issue capping (15 per section), null coercion
+- Post-validation filtering: empty descriptions dropped, invalid dimensions normalized
+
+### Nonfiction Section Analyzer (Agent 2)
+- `nonfiction_analyzer.py` — section-level developmental editing, mirrors `chapter_analyzer.py`
+- Receives argument map context for cross-section consistency checks
+- JSON repair + retry pipeline, truncation detection, schema validation with retry
+- Minimum section word count check (300 words)
+- Prompt injection guard: `</manuscript_text>` tag escaping
+
+### Nonfiction Convention Templates (Agent 2)
+- `nonfiction_conventions.py` — format-specific convention loader for 5 formats
+- Templates: academic, personal_essay, journalism, self_help, business
+- Graceful fallback for unknown formats
+
+### Nonfiction Document Synthesis (Agent 2)
+- `nonfiction_synthesis.py` — document-level assessment from structured data (no raw text)
+- Synthesizes argument map + per-section summaries into overall assessment
+- Thesis clarity, argument coherence, evidence density, tone consistency scores
+- Same JSON repair + retry pipeline as analyzer
+
+### Argument Map Generator (Agent 1/3)
+- `argument_map.py` — generates structured argument maps from nonfiction manuscripts
+- `argument_map_schema.py` — Pydantic models: `ArgumentMapSchema`, `ArgumentThread`, `EvidenceItem`, `FormatConfidence`, `VoiceProfile`, `StructuralMarker`
+- Mirrors `story_bible.py` pattern with `generate_argument_map()` async function
+
+### Nonfiction Worker Pipeline (Agent 3)
+- `process_argument_map_generation` — generates argument map after text extraction
+- `process_nonfiction_section_analysis` — analyzes sections sequentially with argument map context
+- `process_nonfiction_synthesis` — synthesizes document-level feedback after all sections analyzed
+- Error handling: status updates on failure, descriptive error messages
+
+### Nonfiction API Endpoints (Agent 3)
+- Upload endpoint updated: `document_type` (fiction/nonfiction) and `nonfiction_format` params
+- `GET /argument-map/{manuscript_id}` — retrieve argument map (user-scoped)
+- `GET /argument-map/{manuscript_id}/feedback` — retrieve nonfiction feedback with section analyses
+- Router registered in `main.py`
+
+### Nonfiction Eval Harness (Agent 3)
+- `test_nonfiction_argument_map.py` — 17 tests across 5 nonfiction formats
+- 5 synthetic nonfiction samples: academic, personal essay, journalism, self-help, business
+- Validates: schema compliance, thesis detection, evidence extraction, voice profiling, format detection, thread quality, JSON round-trip
+- Follows existing eval patterns (module-level caching, `@pytest.mark.api`, backend-scoped results)
+
+### Merge Strategy
+- Agent 1 (foundation) — already on develop from prior sprint
+- Agent 2 (analyzer + synthesis) — merged cleanly, 4 new files + prompts (already on develop)
+- Agent 3 (worker + API) — merged with conflict resolution (Agent 2's analyzer/synthesis kept as authoritative over Agent 3's stubs)
+
+### Known limitations
+- Nonfiction section detection (`detect_chapters` with `document_type=nonfiction`) not yet on develop — referenced in task but not found on Agent 1's branch
+- Eval harness requires LLM API key to run (`@pytest.mark.api`)
+- No ground truth eval for nonfiction yet (only structural validation)
