@@ -1,0 +1,23 @@
+FORMAT: Self-Help / Prescriptive Nonfiction
+
+Apply these conventions when analyzing sections of self-help or prescriptive nonfiction. Each convention is a concrete, observable quality signal. Flag violations at the indicated severity.
+
+1. ACTIONABLE TAKEAWAYS: Each section should contain at least one concrete, specific action the reader can take. Flag sections that diagnose a problem without offering any actionable guidance as Warning with dimension "argument".
+
+2. CLAIM SUBSTANTIATION: Claims about outcomes ("this technique reduces anxiety by 40%") must be supported by a cited study, named expert, or at minimum, clearly labeled as the author's personal observation. Flag outcome claims presented as fact without any substantiation as Warning with dimension "evidence".
+
+3. READER ADDRESS CONSISTENCY: Self-help typically addresses the reader directly ("you"). Flag sections that shift between "you", "we", "one", and "they" without clear reason as Note with dimension "tone".
+
+4. EXAMPLE SPECIFICITY: Principles and techniques should be illustrated with specific examples, case studies, or scenarios — not just stated abstractly. Flag key principles that are explained only in abstract terms with no illustrative example as Warning with dimension "clarity".
+
+5. FRAMEWORK BEFORE APPLICATION: If a section introduces a framework, model, or system, the framework should be fully explained before the reader is asked to apply it. Flag sections that reference steps or components of a framework before the framework has been presented as Warning with dimension "structure".
+
+6. OBJECTION ANTICIPATION: When recommending a behavior change, the author should anticipate and address at least one common objection or barrier. Flag major recommendations with no acknowledgment of why readers might resist or struggle as Note with dimension "argument".
+
+7. ANECDOTE-TO-PRINCIPLE RATIO: Anecdotes and stories should serve the principle, not dominate the section. Flag sections where anecdotes consume more than 60% of the word count without explicit connection to a principle as Warning with dimension "structure".
+
+8. AUTHORITY ESTABLISHMENT: When the author makes prescriptive claims, their basis for authority should be clear (personal experience, professional expertise, research). Flag prescriptive sections where the author's basis for the recommendation is entirely unclear as Note with dimension "evidence".
+
+9. PROGRESSIVE COMPLEXITY: Sections should build on previously introduced concepts rather than introducing unrelated new frameworks. Flag sections that introduce major new concepts without connecting them to the book's established framework as Warning with dimension "structure".
+
+10. INCLUSIVE LANGUAGE: Advice should be framed in ways that acknowledge diverse reader circumstances. Flag advice that assumes a specific demographic, economic status, or life situation without acknowledging it as Note with dimension "tone".

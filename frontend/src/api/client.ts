@@ -115,6 +115,8 @@ export interface Manuscript {
   id: string
   title: string
   genre: string | null
+  document_type: 'fiction' | 'nonfiction'
+  nonfiction_format: string | null
   status: string
   payment_status: string
   chapter_count: number | null
@@ -161,11 +163,19 @@ export function deleteManuscript(id: string) {
   return request<void>(`/manuscripts/${id}`, { method: 'DELETE' })
 }
 
-export async function uploadManuscript(file: File, title: string, genre?: string, _retried = false): Promise<UploadResult> {
+export interface UploadOptions {
+  document_type?: 'fiction' | 'nonfiction'
+  genre?: string
+  nonfiction_format?: string
+}
+
+export async function uploadManuscript(file: File, title: string, options?: UploadOptions, _retried = false): Promise<UploadResult> {
   const form = new FormData()
   form.append('file', file)
   form.append('title', title)
-  if (genre) form.append('genre', genre)
+  if (options?.document_type) form.append('document_type', options.document_type)
+  if (options?.genre) form.append('genre', options.genre)
+  if (options?.nonfiction_format) form.append('nonfiction_format', options.nonfiction_format)
 
   const res = await fetchWithTimeout('/manuscripts/upload', {
     method: 'POST',
@@ -180,7 +190,7 @@ export async function uploadManuscript(file: File, title: string, genre?: string
       }
       const refreshed = await refreshPromise
       if (refreshed) {
-        return uploadManuscript(file, title, genre, true)
+        return uploadManuscript(file, title, options, true)
       }
       window.location.href = '/login'
       throw new ApiError(401, 'Session expired')
@@ -305,4 +315,66 @@ export function getSubscription() {
 
 export function cancelSubscription() {
   return request<{ message: string }>('/stripe/cancel-subscription', { method: 'POST' })
+}
+
+// --- Argument Map (Nonfiction) ---
+
+export interface ArgumentThread {
+  id: string
+  claim: string
+  status: 'open' | 'supported' | 'unresolved' | 'abandoned'
+  first_seen_section: number
+}
+
+export interface EvidenceEntry {
+  type: string
+  section: number
+  summary: string
+  supports_claim_id: string | null
+}
+
+export interface NonfictionVoiceProfile {
+  register: 'academic' | 'conversational' | 'journalistic' | 'authoritative' | 'intimate'
+  pov: 'first' | 'second' | 'third' | 'mixed'
+  notable_patterns: string[]
+}
+
+export interface StructuralMarkers {
+  has_explicit_thesis: boolean
+  has_conclusion: boolean | null
+  section_count: number
+}
+
+export interface ArgumentMap {
+  manuscript_id: string
+  version: number
+  central_thesis: string | null
+  claimed_audience: string | null
+  argument_threads: ArgumentThread[]
+  evidence_log: EvidenceEntry[]
+  voice_profile: NonfictionVoiceProfile
+  structural_markers: StructuralMarkers
+  evidence_log_condensed: boolean
+  updated_at: string
+}
+
+export function getArgumentMap(manuscriptId: string) {
+  return request<ArgumentMap>(`/bible/${manuscriptId}/argument-map`)
+}
+
+// --- Nonfiction Feedback ---
+
+export interface NonfictionDocumentSummary {
+  overall_assessment: string
+  thesis_clarity_score: 'weak' | 'developing' | 'clear' | 'strong'
+  argument_coherence: 'fragmented' | 'inconsistent' | 'mostly_coherent' | 'coherent'
+  evidence_density: 'sparse' | 'uneven' | 'adequate' | 'strong'
+  tone_consistency: 'inconsistent' | 'mostly_consistent' | 'consistent'
+  top_strengths: string[]
+  top_priorities: string[]
+  format_specific_notes: string | null
+}
+
+export interface NonfictionFeedback extends ManuscriptFeedback {
+  document_summary: NonfictionDocumentSummary | null
 }

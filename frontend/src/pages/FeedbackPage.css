@@ -493,6 +493,284 @@
   border-left: 3px solid var(--color-success);
 }
 
+/* Section detection badge */
+.detection-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+
+.detection-headers {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.detection-auto {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Nonfiction dimension filter tabs */
+.nf-dimension-tabs {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.nf-dim-tab {
+  padding: 0.3rem 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.nf-dim-tab:hover {
+  border-color: #c8c8c8;
+  color: var(--color-text);
+}
+
+.nf-dim-tab.active {
+  background: #eef2ff;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Nonfiction progress indicator */
+.nf-progress {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.nf-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  position: relative;
+}
+
+.nf-progress-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+  border: 2px solid var(--color-border);
+}
+
+.nf-progress-step.active .nf-progress-dot {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #065f46;
+}
+
+.nf-progress-step.current .nf-progress-dot {
+  background: #eef2ff;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.nf-progress-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.nf-progress-step.active .nf-progress-label {
+  color: var(--color-text);
+}
+
+.nf-progress-step.current .nf-progress-label {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.nf-progress-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+  margin: 0 0.5rem;
+}
+
+.nf-progress-step.active .nf-progress-connector {
+  background: var(--color-primary);
+}
+
+/* Nonfiction document summary panel */
+.nf-summary-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.nf-summary-panel h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.nf-assessment {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  margin-bottom: 1.25rem;
+}
+
+.nf-scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.nf-score-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nf-score-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.nf-score-steps {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.nf-score-step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-border);
+  transition: background 0.15s;
+}
+
+.nf-score-step-dot.score-high {
+  background: var(--color-success);
+}
+
+.nf-score-step-dot.score-mid {
+  background: var(--color-warning);
+}
+
+.nf-score-step-dot.score-low {
+  background: var(--color-danger);
+}
+
+.nf-score-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.nf-score-badge.score-high {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.nf-score-badge.score-mid {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.nf-score-badge.score-low {
+  background: #fef2f2;
+  color: var(--color-danger);
+}
+
+.nf-tags-group {
+  margin-bottom: 0.75rem;
+}
+
+.nf-tags-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: 0.375rem;
+}
+
+.nf-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.nf-tag {
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.nf-tag-strength {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.nf-tag-priority {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.nf-format-notes {
+  background: #f8f7ff;
+  border: 1px solid #e0ddf5;
+  border-radius: var(--radius);
+  padding: 0.875rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.nf-format-notes-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4a3d8f;
+  display: block;
+  margin-bottom: 0.375rem;
+}
+
+.nf-format-notes p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .feedback-layout {
@@ -520,6 +798,19 @@
   }
 
   .summary-bar {
+    flex-wrap: wrap;
+  }
+
+  .nf-scores {
+    grid-template-columns: 1fr;
+  }
+
+  .nf-progress {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .nf-dimension-tabs {
     flex-wrap: wrap;
   }
 }

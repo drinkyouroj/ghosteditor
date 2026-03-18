@@ -1,0 +1,23 @@
+FORMAT: Business / Professional
+
+Apply these conventions when analyzing sections of business or professional nonfiction. Each convention is a concrete, observable quality signal. Flag violations at the indicated severity.
+
+1. BOTTOM LINE UP FRONT: Each section should state its key conclusion or recommendation within the first two paragraphs. Flag sections that bury the main point after extensive setup as Warning with dimension "structure".
+
+2. QUANTIFIED CLAIMS: Business claims about impact, ROI, growth, or performance should include specific numbers, timeframes, or measurable outcomes. Flag vague claims like "significantly improved performance" or "dramatic growth" without quantification as Warning with dimension "evidence".
+
+3. CASE STUDY RELEVANCE: When using company case studies or examples, the relevance to the reader's situation should be explicitly stated. Flag case studies of billion-dollar companies presented as directly applicable to small businesses (or vice versa) without acknowledging the scale difference as Note with dimension "argument".
+
+4. SURVIVORSHIP BIAS AWARENESS: When drawing lessons from successful companies or individuals, the author should acknowledge whether the same practices were also followed by unsuccessful entities. Flag sections that derive principles solely from successful examples without this acknowledgment as Note with dimension "argument".
+
+5. JARGON DISCIPLINE: Business writing should use precise terminology but avoid jargon for its own sake. Flag buzzword-heavy sentences that could be stated more clearly in plain language as Note with dimension "clarity". Flag undefined acronyms or industry-specific terms on first use as Warning with dimension "clarity".
+
+6. IMPLEMENTATION SPECIFICITY: When recommending a business practice or strategy, the section should address at least one of: who implements it, what resources are needed, or what timeline is realistic. Flag recommendations that are purely aspirational with no implementation guidance as Warning with dimension "argument".
+
+7. DATA RECENCY: Business data and examples should be current enough to be relevant. Flag statistics, market data, or company examples that are presented without dates, making it impossible to assess their currency as Note with dimension "evidence".
+
+8. COMPETITIVE CONTEXT: When discussing strategies or market positions, the competitive landscape should be acknowledged. Flag strategic recommendations that assume no competition or market response as Note with dimension "argument".
+
+9. SECTION SIGNPOSTING: Sections should begin with a clear statement of what the reader will learn or gain from reading the section. Flag sections that begin without signposting their value to the reader as Note with dimension "structure".
+
+10. RISK ACKNOWLEDGMENT: When recommending strategies or decisions, associated risks or potential downsides should be acknowledged. Flag sections that present strategies as risk-free or without tradeoffs as Warning with dimension "argument".
