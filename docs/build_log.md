@@ -307,5 +307,63 @@
 - [ ] Warn users when chapters under 500 words return empty analysis
 
 ### TODO — Chapter Detection Improvements
-- [ ] Strip Project Gutenberg preamble/license text before chapter detection (caused blank bible on Alice in Wonderland test — license text was treated as Chapter 1)
-- [ ] Add heuristic: if Chapter 1 text has no character names, dialogue, or narrative markers, flag it as likely preamble and skip or warn
+- [x] Strip Project Gutenberg preamble/license text before chapter detection (caused blank bible on Alice in Wonderland test — license text was treated as Chapter 1) — resolved by LLM-assisted splitting (DECISION-007)
+- [x] Add heuristic: if Chapter 1 text has no character names, dialogue, or narrative markers, flag it as likely preamble and skip or warn — resolved by LLM front matter detection
+
+---
+
+## 2026-03-17 — Groq Backend, LLM Splitting, Python 3.9, Critical Fixes
+
+### Groq LLM Backend Support
+- Added multi-backend LLM support (Anthropic, OpenAI, Groq) via unified `backend/app/analysis/llm_client.py`
+- Configurable via environment variables: `LLM_BACKEND`, `LLM_MODEL_BIBLE`, `LLM_MODEL_ANALYSIS`, `LLM_MODEL_SPLITTING`
+- Groq `max_tokens` capped at 32768 (API limit)
+- `.env.example` updated with Groq configuration and model defaults (`llama-3.3-70b-versatile` for bible/analysis, `llama-3.1-8b-instant` for splitting)
+
+### LLM-Assisted Manuscript Splitting (DECISION-007)
+- Replaced regex-only chapter detection with LLM-assisted structure detection
+- Supports novels, plays, poetry, essays, screenplays — any manuscript format
+- Fallback chain: LLM detection → auto-split at ~4K words → regex
+- Word-boundary matching prevents "ACT I" from matching inside "ACT II"
+- Front matter detection via LLM (replaces hardcoded 5% table-of-contents heuristic)
+- Gap inference for missing sequential markers (Roman/Arabic numerals)
+- Short sections from LLM splitting preserved (not merged, unlike regex path)
+- Resolves the Chapter Detection Improvements TODOs from Week 4
+
+### Python 3.9 Compatibility
+- Added `from __future__ import annotations` to all files using `str | None` union syntax
+- Added `eval_type_backport` dependency for Pydantic runtime type evaluation on Python 3.9
+- Used `Optional[X]` in SQLAlchemy model column definitions (runtime-evaluated)
+- Pinned `bcrypt==4.0.1` for passlib compatibility
+- Bumped `SQLAlchemy` to 2.0.40
+
+### Critical Fixes — Phase 1: Foundation
+- **LLM retry with exponential backoff**: `call_llm()` retries transient errors (429, timeouts, connection errors) with configurable retry count and base delay (`llm_retry_count`, `llm_retry_base_delay`). Auth errors and client errors are not retried.
+- **Truncated JSON detection**: `is_truncated()` check added before JSON parse in `story_bible.py` and `chapter_analyzer.py`. Truncated responses raise immediately instead of attempting a futile retry prompt. Anthropic `stop_reason=max_tokens` logged as warning.
+- **Configurable job timeout**: `arq_job_timeout` added to Settings, replacing hardcoded 3600s in WorkerSettings. Configurable via `ARQ_JOB_TIMEOUT` env var.
+- **Frontend fetch timeout**: `AbortController`-based timeout on all `fetch()` calls — 30s default, 120s for file uploads. Hung requests now surface a user-visible error.
+
+### Critical Fixes — Phase 2: Auth
+- **Token refresh on 401**: Frontend `request()` intercepts 401 responses and calls `/auth/refresh` before retrying. Concurrent 401s deduplicated via shared `refreshPromise`. Failed refresh redirects to `/login`.
+- **Auth state refresh on tab focus**: `visibilitychange` listener re-checks auth when user returns to tab, catching cross-tab logout and session invalidation.
+
+### Critical Fixes — Phase 3: Atomicity
+- **Flush-enqueue-commit pattern**: All job enqueue sites (upload, start_analysis, bible chaining, chapter chaining) now use `db.flush()` to get job IDs, enqueue to Redis, then `db.commit()`. If Redis enqueue fails, DB rolls back and returns 503. Worker functions guard against orphaned Redis jobs (missing DB row = early return).
+- **Stripe webhook atomicity**: Webhook handler separates payment status commit from analysis job creation. If job enqueue fails after payment, manuscript stays in `bible_complete` + `paid` state (recoverable via `/analyze` endpoint). Critical errors logged.
+
+### Critical Fixes — Phase 4: Verification
+- **Payment guard unit tests**: Tests verifying 402 on unpaid `/analyze`, 404 on wrong-user access, 409 on not-ready manuscript, and 202 on valid paid request.
+- **E2E integration test**: Full upload-to-feedback flow test with mocked LLM and S3, covering extraction, bible generation, payment simulation, chapter analysis, and feedback retrieval.
+
+### Dev Tooling
+- `setup_dev.py` script for automated database migration and dev user creation
+- `RATE_LIMIT_EXEMPT_EMAILS` env var to bypass rate limiting for specified email addresses during development
+- `AUTO_PAID_EMAILS` env var to auto-mark manuscripts as paid for specified users (skips Stripe in dev)
+- nginx reverse proxy configuration for dev server
+- Vite `allowedHosts` and `--host 0.0.0.0` for network-accessible dev server
+
+### Known limitations
+- Groq max_tokens (32768) may truncate very long bible responses for manuscripts with many characters/settings
+- LLM splitting depends on model quality — small/fast models may miss unusual section markers
+- E2E test runs worker functions inline (not via arq) — does not test Redis job dispatch
+- "Paid but not analyzing" cron recovery not yet implemented (manual `/analyze` is the escape hatch)
