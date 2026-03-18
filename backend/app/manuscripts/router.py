@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_current_user_allow_provisional
 from app.config import settings
-from app.db.models import Chapter, ChapterStatus, Job, JobType, JobStatus, Manuscript, ManuscriptStatus, PaymentStatus, SubscriptionStatus, User
+from app.db.models import Chapter, ChapterStatus, DocumentType, Job, JobType, JobStatus, Manuscript, ManuscriptStatus, NonfictionFormat, PaymentStatus, SubscriptionStatus, User
 from app.db.session import get_db
 
 FREE_TIER_MANUSCRIPT_LIMIT = 3  # Per DECISION_006 Amendment 4
@@ -34,6 +34,8 @@ async def upload_manuscript(
     file: UploadFile = File(...),
     title: str = Form(...),
     genre: str | None = Form(default=None),
+    document_type: str = Form(default="fiction"),
+    nonfiction_format: str | None = Form(default=None),
     user: User = Depends(get_current_user_allow_provisional),
     db: AsyncSession = Depends(get_db),
 ):
@@ -46,6 +48,32 @@ async def upload_manuscript(
     """
     # Per-user rate limit: 5 uploads per hour
     await check_rate_limit(str(user.id), action="upload", user_email=user.email)
+
+    # Validate document_type
+    try:
+        doc_type = DocumentType(document_type)
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid document_type: {document_type}. Must be 'fiction' or 'nonfiction'.",
+        )
+
+    # Validate nonfiction_format
+    nf_format = None
+    if nonfiction_format is not None:
+        if doc_type != DocumentType.nonfiction:
+            raise HTTPException(
+                status_code=422,
+                detail="nonfiction_format can only be set when document_type is 'nonfiction'.",
+            )
+        try:
+            nf_format = NonfictionFormat(nonfiction_format)
+        except ValueError:
+            valid = ", ".join(f.value for f in NonfictionFormat)
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid nonfiction_format: {nonfiction_format}. Must be one of: {valid}.",
+            )
 
     # Free-tier upload limit
     if user.subscription_status == SubscriptionStatus.free:
@@ -85,6 +113,8 @@ async def upload_manuscript(
         user_id=user.id,
         title=title,
         genre=genre,
+        document_type=doc_type,
+        nonfiction_format=nf_format,
         s3_key=s3_key,
         status=ManuscriptStatus.uploading,
         payment_status=payment,
@@ -164,6 +194,8 @@ async def get_manuscript(
         genre=manuscript.genre,
         status=manuscript.status.value,
         payment_status=manuscript.payment_status.value,
+        document_type=manuscript.document_type.value,
+        nonfiction_format=manuscript.nonfiction_format.value if manuscript.nonfiction_format else None,
         chapter_count=manuscript.chapter_count,
         word_count_est=manuscript.word_count_est,
         created_at=manuscript.created_at,
