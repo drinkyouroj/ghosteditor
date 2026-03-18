@@ -24,8 +24,15 @@ from app.analysis.story_bible import generate_story_bible
 from app.analysis.bible_schema import StoryBibleSchema
 from app.manuscripts.extraction import detect_chapters_sync as detect_chapters
 
+from tests.eval.conftest import get_backend_name
+
 SAMPLES_DIR = Path(__file__).parent / "samples"
-RESULTS_DIR = Path(__file__).parent / "bible_results"
+RESULTS_DIR_BASE = Path(__file__).parent / "bible_results"
+
+
+def _results_dir() -> Path:
+    """Return the backend-scoped results directory."""
+    return RESULTS_DIR_BASE / get_backend_name()
 
 START_MARKER = "*** START OF THE PROJECT GUTENBERG EBOOK"
 END_MARKER = "*** END OF THE PROJECT GUTENBERG EBOOK"
@@ -96,9 +103,10 @@ def _load_first_chapter(filename: str) -> str:
 
 
 def _save_result(genre_key: str, bible: StoryBibleSchema):
-    """Save bible result for manual review."""
-    RESULTS_DIR.mkdir(exist_ok=True)
-    path = RESULTS_DIR / f"{genre_key}_bible.json"
+    """Save bible result for manual review (scoped by LLM backend)."""
+    results_dir = _results_dir()
+    results_dir.mkdir(parents=True, exist_ok=True)
+    path = results_dir / f"{genre_key}_bible.json"
     path.write_text(json.dumps(bible.model_dump(), indent=2))
 
 
