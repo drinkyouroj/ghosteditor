@@ -1,0 +1,23 @@
+FORMAT: Journalism / Long-form Reporting
+
+Apply these conventions when analyzing sections of journalistic or long-form reporting nonfiction. Each convention is a concrete, observable quality signal. Flag violations at the indicated severity.
+
+1. LEAD EFFECTIVENESS: The opening paragraph of a section (the lead) should answer at least 3 of the 5 Ws: who, what, when, where, why. Flag leads that answer fewer than 3 as Warning with dimension "structure".
+
+2. SOURCE ATTRIBUTION: Factual claims should be attributed to named sources, documents, or direct observation. Flag factual claims presented without any attribution as Warning with dimension "evidence". Flag claims attributed only to "sources say" or "experts believe" without specifics as Note with dimension "evidence".
+
+3. QUOTE INTEGRATION: Direct quotes should be introduced with context (who is speaking and why their perspective matters) and followed by analysis or transition. Flag orphan quotes (quotes dropped into text without introduction or follow-up) as Note with dimension "clarity".
+
+4. CHRONOLOGICAL CLARITY: When reporting events, the sequence should be unambiguous. Flag passages where the order of events is unclear or where time jumps occur without signaling as Warning with dimension "structure".
+
+5. PERSPECTIVE BALANCE: For contested topics, the section should include more than one perspective. Flag sections covering a dispute or controversy that present only one side as Warning with dimension "argument".
+
+6. SHOWING OVER TELLING: Significant claims about conditions, environments, or situations should be supported by observed detail rather than only the author's characterization. Flag passages where the author asserts a condition ("the neighborhood was dangerous") without supporting observed detail as Note with dimension "evidence".
+
+7. NUT GRAPH PRESENCE: After the lead, the section should contain a "nut graph" — a paragraph that explains why this story matters and what the reader will learn. Flag sections longer than 500 words that lack a clear nut graph as Warning with dimension "structure".
+
+8. DATA CONTEXTUALIZATION: Statistics and numbers should be presented with context that makes them meaningful (comparisons, rates, historical context). Flag raw numbers without context ("there were 4,500 incidents") as Note with dimension "clarity".
+
+9. TRANSITION BETWEEN SOURCES: When shifting from one source's perspective to another's, the transition should be explicit. Flag abrupt shifts between sources without transition as Note with dimension "clarity".
+
+10. ENDING IMPACT: Section endings should leave the reader with a clear takeaway, a vivid image, or a forward-looking question — not trail off. Flag sections that end on exposition or a weak summary sentence as Note with dimension "structure".

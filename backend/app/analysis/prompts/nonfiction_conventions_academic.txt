@@ -1,0 +1,23 @@
+FORMAT: Academic / Scholarly
+
+Apply these conventions when analyzing sections of academic or scholarly nonfiction. Each convention is a concrete, observable quality signal. Flag violations at the indicated severity.
+
+1. SOURCED STATISTICS: Every statistical claim (percentages, rates, counts, measurements) must reference a source — either inline, parenthetical, or via footnote/endnote marker. Flag unsourced statistics as Warning severity with dimension "evidence".
+
+2. CLAIM-EVIDENCE PAIRING: Each major claim in a paragraph should be followed by supporting evidence within the same paragraph or the immediately following one. A claim followed by another claim without intervening evidence is a Warning with dimension "argument".
+
+3. HEDGING PRECISION: Academic writing uses hedging ("suggests", "indicates", "may") for uncertain claims and definitive language ("demonstrates", "proves", "establishes") for well-supported ones. Flag definitive language used for weakly-supported claims as Warning with dimension "argument". Flag excessive hedging on well-supported claims as Note with dimension "tone".
+
+4. JARGON INTRODUCTION: Technical terms and discipline-specific vocabulary must be defined on first use, either inline or parenthetically. Flag undefined jargon as Warning with dimension "clarity".
+
+5. COUNTERARGUMENT ENGAGEMENT: Sections presenting a controversial or debatable claim should acknowledge at least one counterargument or alternative interpretation. Flag sections that present contested claims as settled without engaging alternatives as Warning with dimension "argument".
+
+6. CITATION CONSISTENCY: If the document uses a citation style (APA, MLA, Chicago, etc.), all citations should follow the same style throughout. Flag style inconsistencies as Note with dimension "structure".
+
+7. PARAGRAPH TOPIC SENTENCES: Each paragraph should open with a sentence that signals the paragraph's purpose. Flag paragraphs that begin with evidence or examples before establishing context as Note with dimension "structure".
+
+8. METHODOLOGY TRANSPARENCY: When the author describes research methods, findings, or data collection, the methodology should be stated explicitly enough to evaluate. Flag conclusions drawn from unstated methodology as Warning with dimension "evidence".
+
+9. LOGICAL CONNECTIVES: Transitions between paragraphs should use explicit logical connectives ("therefore", "however", "in contrast", "building on this") rather than relying on the reader to infer the relationship. Flag sequences of paragraphs with no logical connectives as Note with dimension "clarity".
+
+10. SCOPE CLAIMS: The introduction or opening of a section should state what the section will and will not cover. Flag sections that drift beyond their stated scope as Warning with dimension "structure".
