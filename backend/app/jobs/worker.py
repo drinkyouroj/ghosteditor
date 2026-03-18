@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 
 from arq import create_pool, cron
 from arq.connections import RedisSettings
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.analysis.argument_map import ArgumentMapError, generate_argument_map
@@ -37,6 +37,7 @@ from app.db.models import (
     ChapterAnalysis,
     ChapterStatus,
     DocumentType,
+    EmailEvent,
     Job,
     JobStatus,
     JobType,
@@ -1212,6 +1213,123 @@ async def process_nonfiction_synthesis(ctx, job_id: str, manuscript_id: str):
             )
 
 
+async def _purge_deleted_data(ctx):
+    """Hard-delete data for users soft-deleted more than 30 days ago (SEC-008).
+
+    GDPR compliance: after the 30-day grace period, permanently remove all
+    user data including manuscripts, analyses, jobs, and email events.
+    Deletion order respects foreign key constraints.
+    """
+    session_factory = _get_session_factory()
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+
+    async with session_factory() as session:
+        # Find users eligible for hard deletion
+        result = await session.execute(
+            select(User).where(
+                User.deleted_at.isnot(None),
+                User.deleted_at < cutoff,
+            )
+        )
+        users = result.scalars().all()
+
+        if not users:
+            return
+
+        for user in users:
+            user_id = user.id
+            logger.info(f"Hard-purging data for user {user_id} (deleted_at={user.deleted_at})")
+
+            # Get all manuscript IDs for this user
+            ms_result = await session.execute(
+                select(Manuscript.id).where(Manuscript.user_id == user_id)
+            )
+            manuscript_ids = [row[0] for row in ms_result.all()]
+
+            if manuscript_ids:
+                # Get all chapter IDs for these manuscripts
+                ch_result = await session.execute(
+                    select(Chapter.id).where(Chapter.manuscript_id.in_(manuscript_ids))
+                )
+                chapter_ids = [row[0] for row in ch_result.all()]
+
+                if chapter_ids:
+                    # Delete nonfiction section results (FK -> chapters)
+                    await session.execute(
+                        delete(NonfictionSectionResult).where(
+                            NonfictionSectionResult.chapter_id.in_(chapter_ids)
+                        )
+                    )
+                    # Delete chapter analyses (FK -> chapters)
+                    await session.execute(
+                        delete(ChapterAnalysis).where(
+                            ChapterAnalysis.chapter_id.in_(chapter_ids)
+                        )
+                    )
+
+                # Get story bible IDs for version cleanup
+                sb_result = await session.execute(
+                    select(StoryBible.id).where(StoryBible.manuscript_id.in_(manuscript_ids))
+                )
+                story_bible_ids = [row[0] for row in sb_result.all()]
+
+                if story_bible_ids:
+                    # Delete story bible versions (FK -> story_bibles)
+                    await session.execute(
+                        delete(StoryBibleVersion).where(
+                            StoryBibleVersion.story_bible_id.in_(story_bible_ids)
+                        )
+                    )
+
+                # Delete story bibles (FK -> manuscripts)
+                await session.execute(
+                    delete(StoryBible).where(StoryBible.manuscript_id.in_(manuscript_ids))
+                )
+
+                # Delete argument maps (FK -> manuscripts)
+                await session.execute(
+                    delete(ArgumentMap).where(ArgumentMap.manuscript_id.in_(manuscript_ids))
+                )
+
+                # Delete nonfiction document summaries (FK -> manuscripts)
+                await session.execute(
+                    delete(NonfictionDocumentSummary).where(
+                        NonfictionDocumentSummary.manuscript_id.in_(manuscript_ids)
+                    )
+                )
+
+                # Delete chapters (FK -> manuscripts)
+                await session.execute(
+                    delete(Chapter).where(Chapter.manuscript_id.in_(manuscript_ids))
+                )
+
+                # Delete jobs (FK -> manuscripts)
+                await session.execute(
+                    delete(Job).where(Job.manuscript_id.in_(manuscript_ids))
+                )
+
+                # Delete manuscripts
+                await session.execute(
+                    delete(Manuscript).where(Manuscript.user_id == user_id)
+                )
+
+            # Delete email events (FK -> users)
+            await session.execute(
+                delete(EmailEvent).where(EmailEvent.user_id == user_id)
+            )
+
+            # Delete the user
+            await session.delete(user)
+
+            logger.info(
+                f"Hard-purged user {user_id}: "
+                f"{len(manuscript_ids)} manuscripts removed"
+            )
+
+        await session.commit()
+        logger.info(f"Hard-purge complete: {len(users)} users permanently deleted")
+
+
 async def process_drip_emails(ctx):
     """Process pending drip emails. Run periodically via arq cron."""
     session_factory = _get_session_factory()
@@ -1235,6 +1353,8 @@ class WorkerSettings:
     cron_jobs = [
         # Run drip email dispatch every hour at :00
         cron(process_drip_emails, minute=0),
+        # Run GDPR hard purge daily at 03:00 UTC (SEC-008)
+        cron(_purge_deleted_data, hour=3, minute=0),
     ]
     on_startup = _recover_stalled_jobs
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
