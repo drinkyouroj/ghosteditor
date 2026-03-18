@@ -359,7 +359,7 @@ export interface ArgumentMap {
 }
 
 export function getArgumentMap(manuscriptId: string) {
-  return request<ArgumentMap>(`/bible/${manuscriptId}/argument-map`)
+  return request<ArgumentMap>(`/argument-map/${manuscriptId}`)
 }
 
 // --- Nonfiction Feedback ---
