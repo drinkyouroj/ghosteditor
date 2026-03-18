@@ -18,6 +18,17 @@ logger = logging.getLogger(__name__)
 UPLOAD_RATE_LIMIT = 5  # max uploads per window
 UPLOAD_RATE_WINDOW = timedelta(hours=1)
 
+# Module-level Redis connection pool — created once, reused across requests
+_redis_pool = None
+
+
+def _get_redis():
+    """Return a lazily-initialized, cached Redis connection."""
+    global _redis_pool
+    if _redis_pool is None:
+        _redis_pool = aioredis.from_url(settings.redis_url)
+    return _redis_pool
+
 
 async def check_rate_limit(
     user_id: str,
@@ -40,22 +51,19 @@ async def check_rate_limit(
     window_seconds = int(window.total_seconds())
 
     try:
-        r = aioredis.from_url(settings.redis_url)
-        try:
-            count = await r.incr(key)
-            if count == 1:
-                await r.expire(key, window_seconds)
+        r = _get_redis()
+        count = await r.incr(key)
+        if count == 1:
+            await r.expire(key, window_seconds)
 
-            if count > max_requests:
-                ttl = await r.ttl(key)
-                minutes_remaining = max(1, ttl // 60)
-                raise HTTPException(
-                    status_code=429,
-                    detail=f"Rate limit exceeded. Maximum {max_requests} uploads per hour. "
-                    f"Try again in ~{minutes_remaining} minutes.",
-                )
-        finally:
-            await r.aclose()
+        if count > max_requests:
+            ttl = await r.ttl(key)
+            minutes_remaining = max(1, ttl // 60)
+            raise HTTPException(
+                status_code=429,
+                detail=f"Rate limit exceeded. Maximum {max_requests} uploads per hour. "
+                f"Try again in ~{minutes_remaining} minutes.",
+            )
     except HTTPException:
         raise
     except Exception as e:
