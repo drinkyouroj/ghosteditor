@@ -28,6 +28,17 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.nav a {
+  color: var(--color-text-secondary);
+  transition: color 0.12s;
+}
+
+.nav a:hover {
+  color: var(--color-primary);
+  text-decoration: none;
 }
 
 .nav-email {
