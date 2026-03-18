@@ -8,6 +8,19 @@ recall, and protagonist correctness.
 These tests make real Claude API calls and cost real money. They are marked
 with @pytest.mark.api so they can be run selectively:
     pytest tests/eval/test_bible_ground_truth.py -v -m api
+
+Book-to-genre mapping (differs from test_story_bible_generation.py):
+    Romance           -> Pride and Prejudice       (pride_and_prejudice_full.txt)
+    Fantasy           -> The Time Machine          (time_machine_full.txt)
+    Thriller          -> The Riddle of the Sands   (riddle_of_sands_full.txt)
+    Literary Fiction  -> The Great Gatsby          (great_gatsby_full.txt)
+    Mystery           -> The Moonstone             (moonstone_full.txt)
+
+NOTE: The two test files use different books for the same genre keys because
+this file tests against ground truth JSON curated for these specific books,
+while test_story_bible_generation.py uses a separate set of books for
+structure/schema validation. Do NOT change these mappings without also
+updating the corresponding ground truth files and cached bible results.
 """
 
 import asyncio
