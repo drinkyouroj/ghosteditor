@@ -106,11 +106,13 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     """Verify email with token from verification email."""
     token_hash = hash_token(token)
 
+    # SEC-003: Only match unverified users and use FOR UPDATE to prevent race conditions
     result = await db.execute(
         select(User).where(
             User.verification_token == token_hash,
+            User.email_verified.is_(False),
             User.deleted_at.is_(None),
-        )
+        ).with_for_update()
     )
     user = result.scalar_one_or_none()
 
