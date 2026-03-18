@@ -52,7 +52,7 @@ export function PricingPage() {
           <button
             className="btn btn-primary pricing-btn"
             onClick={() => handleCheckout('payment')}
-            disabled={loading !== null}
+            disabled={loading === 'payment'}
           >
             {loading === 'payment' ? 'Redirecting...' : 'Pay $49'}
           </button>
@@ -79,7 +79,7 @@ export function PricingPage() {
           <button
             className="btn btn-primary pricing-btn"
             onClick={() => handleCheckout('subscription')}
-            disabled={loading !== null}
+            disabled={loading === 'subscription'}
           >
             {loading === 'subscription' ? 'Redirecting...' : 'Subscribe $79/mo'}
           </button>

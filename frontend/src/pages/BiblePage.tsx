@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getStoryBible, type StoryBible, ApiError } from '../api/client'
+import Spinner from '../components/Spinner'
 import './BiblePage.css'
 
 interface Character {
@@ -51,18 +52,29 @@ interface BibleData {
 export function BiblePage() {
   const { id } = useParams<{ id: string }>()
   const [bible, setBible] = useState<StoryBible | null>(null)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'characters' | 'timeline' | 'settings' | 'voice' | 'plot'>('characters')
 
-  useEffect(() => {
+  const fetchBible = useCallback(() => {
     if (!id) return
     getStoryBible(id)
       .then(setBible)
       .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to load'))
   }, [id])
 
-  if (error) return <p className="error-text">{error}</p>
-  if (!bible) return <p>Loading story bible...</p>
+  useEffect(() => {
+    fetchBible()
+  }, [fetchBible])
+
+  if (error) return (
+    <div className="error-card">
+      <p className="error-text">{error}</p>
+      <button onClick={() => { setError(null); fetchBible(); }} className="btn-retry">
+        Try Again
+      </button>
+    </div>
+  )
+  if (!bible) return <Spinner text="Loading story bible..." />
 
   const data = bible.bible as unknown as BibleData
 

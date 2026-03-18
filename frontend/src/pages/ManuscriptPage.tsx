@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { getManuscript, startAnalysis, type ManuscriptDetail, ApiError } from '../api/client'
+import Spinner from '../components/Spinner'
 import './ManuscriptPage.css'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -70,8 +71,15 @@ export function ManuscriptPage() {
     }
   }, [manuscript?.status])
 
-  if (error) return <p className="error-text">{error}</p>
-  if (!manuscript) return <p>Loading...</p>
+  if (error) return (
+    <div className="error-card">
+      <p className="error-text">{error}</p>
+      <button onClick={() => { setError(''); fetchManuscript(); }} className="btn-retry">
+        Try Again
+      </button>
+    </div>
+  )
+  if (!manuscript) return <Spinner text="Loading manuscript..." />
 
   const isProcessing = PROCESSING_STATUSES.includes(manuscript.status)
   const analyzedCount = manuscript.chapters.filter((ch) => ch.status === 'analyzed').length
@@ -172,6 +180,12 @@ export function ManuscriptPage() {
             You can delete this manuscript and try uploading again. If the problem persists,
             check that your file is a valid .docx, .txt, or .pdf document.
           </p>
+        </div>
+      )}
+
+      {isAnalysisStalled && (
+        <div className="stall-warning">
+          Analysis is taking longer than expected. You can retry to restart the process.
         </div>
       )}
 
