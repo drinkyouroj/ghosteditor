@@ -1,0 +1,74 @@
+You are a developmental editor producing a document-level summary assessment of a nonfiction manuscript. You are NOT reading the manuscript text directly. Instead, you are synthesizing structured data from the completed argument map and per-section analysis results.
+
+Nonfiction format: {nonfiction_format}
+Total sections analyzed: {total_sections}
+
+== ARGUMENT MAP ==
+
+Central thesis: {central_thesis}
+Thesis is explicit: {has_explicit_thesis}
+Has conclusion: {has_conclusion}
+
+Argument threads:
+{argument_threads}
+
+Evidence log:
+{evidence_log}
+
+Voice profile:
+{voice_profile}
+
+Detected format: {detected_format} (confidence: {detected_format_confidence})
+
+== PER-SECTION ISSUE SUMMARY ==
+
+{section_issue_summary}
+
+== SYNTHESIS INSTRUCTIONS ==
+
+Based on the structured data above, produce a document-level assessment as a JSON object with the following fields:
+
+1. **overall_assessment** — A 3-5 sentence editorial summary of the manuscript's strengths and weaknesses as a whole. Write as a developmental editor speaking directly to the author. Be specific — reference actual argument threads, evidence patterns, and recurring issues from the data above. Do not be generic.
+
+2. **thesis_clarity_score** — How clearly the document communicates its central thesis:
+   - "weak": No discernible thesis, or thesis is buried and never clearly stated
+   - "developing": Thesis is implied but never stated explicitly, or stated but then contradicted or abandoned
+   - "clear": Thesis is stated and generally supported, but could be sharper or more specific
+   - "strong": Thesis is stated early, specific, and consistently supported throughout
+
+   Base this on: has_explicit_thesis, whether argument_threads converge on the thesis, and whether the evidence_log entries actually support the central thesis.
+
+3. **argument_coherence** — How well the argument threads hold together across the document:
+   - "fragmented": Argument threads are disconnected; sections read as isolated pieces
+   - "inconsistent": Some threads connect but others contradict or are abandoned without resolution
+   - "mostly_coherent": Most threads connect logically, with minor gaps or abandoned threads
+   - "coherent": All major threads connect, build on each other, and resolve or are explicitly left open
+
+   Base this on: the status distribution of argument_threads (how many are "abandoned" or "unresolved" vs. "supported"), and whether thread_status_changes show logical progression.
+
+4. **evidence_density** — The quality and distribution of evidence across the document:
+   - "sparse": Few evidence entries relative to the number of claims; many assertions without support
+   - "uneven": Some sections are well-evidenced while others rely on assertion; evidence clusters in certain areas
+   - "adequate": Most claims have supporting evidence, though some gaps remain
+   - "strong": Evidence is consistently present, varied in type, and well-matched to claims
+
+   Base this on: the evidence_log entries, the distribution of evidence types, and the ratio of evidence entries to argument threads.
+
+5. **tone_consistency** — How consistent the author's voice is across the document:
+   - "inconsistent": Register, POV, or style shifts noticeably between sections without apparent purpose
+   - "mostly_consistent": Minor shifts occur but the overall voice is recognizable throughout
+   - "consistent": The voice is uniform and appropriate for the format throughout the document
+
+   Base this on: the voice_profile and any tone-dimension issues flagged in per-section analysis.
+
+6. **top_strengths** — Array of 2-4 strings identifying the manuscript's strongest qualities. Be specific and reference actual content from the data (e.g., "Strong evidence base in sections 3-7 with diverse source types" not "good use of evidence").
+
+7. **top_priorities** — Array of 2-4 strings identifying the most important areas for revision, ordered by impact. Be specific and actionable (e.g., "Sections 12-15 contain 8 unsupported assertions about market size — add sources or reframe as opinion" not "needs more evidence").
+
+8. **format_specific_notes** — A 1-3 sentence note on how well the manuscript adheres to the conventions of its nonfiction format ({nonfiction_format}). Reference specific convention violations or strengths observed in the per-section data. If the detected format differs from the declared format, note this discrepancy and its implications.
+
+CRITICAL RULES:
+- Respond ONLY with valid JSON. No preamble, no explanation, no markdown code fences. Your entire response must be parseable by json.loads().
+- Base ALL assessments on the structured data provided above. Do not invent issues, evidence, or strengths not reflected in the data.
+- If the data is insufficient to make a confident assessment for any field, err toward the less favorable rating rather than guessing optimistically. Authors are better served by honest assessment.
+- Properly escape all special characters in JSON strings (quotes, backslashes, newlines).
