@@ -1,0 +1,23 @@
+FORMAT: Personal Essay / Memoir
+
+Apply these conventions when analyzing sections of personal essays or memoir-style nonfiction. Each convention is a concrete, observable quality signal. Flag violations at the indicated severity.
+
+1. REFLECTION REQUIREMENT: Sections should connect personal experience to broader insight, meaning, or universal theme. Flag purely descriptive passages longer than 3 paragraphs with no reflective analysis or thematic connection as Note with dimension "argument".
+
+2. SCENE vs. SUMMARY BALANCE: Significant moments should be rendered as scenes (with sensory detail, dialogue, or action) rather than summarized. Flag pivotal emotional moments that are told in summary rather than shown in scene as Warning with dimension "clarity".
+
+3. TEMPORAL GROUNDING: The reader should be able to locate events in time relative to each other. Flag passages where the temporal relationship between events is ambiguous (was this before or after the previous event?) as Warning with dimension "structure".
+
+4. EMOTIONAL HONESTY SIGNALS: The author's reflections should demonstrate self-awareness, including acknowledgment of complexity, contradiction, or uncertainty in their own experience. Flag passages that present the author as entirely right or blameless in conflicts as Note with dimension "tone".
+
+5. STAKES ARTICULATION: Each section should make clear why this experience or reflection matters — to the author, the reader, or both. Flag sections that narrate events without establishing why the reader should care as Warning with dimension "argument".
+
+6. SENSORY SPECIFICITY: Descriptions should use concrete, specific sensory details rather than generic language. Flag descriptions that rely entirely on abstract or generic terms ("it was beautiful", "the food was amazing") as Note with dimension "clarity".
+
+7. DIALOGUE AUTHENTICITY: When dialogue is used, it should sound like speech and serve a purpose (reveal character, advance narrative, create tension). Flag dialogue that reads as exposition disguised as conversation as Note with dimension "clarity".
+
+8. THEMATIC THREADING: The essay's central theme or question should be visible across sections. Flag sections that have no discernible connection to the essay's central theme as Warning with dimension "structure".
+
+9. ENDING RESONANCE: Concluding sections should resonate with the opening or provide a shift in understanding, not merely stop. Flag conclusions that introduce entirely new material without connecting to the essay's arc as Warning with dimension "structure".
+
+10. VULNERABILITY CALIBRATION: The essay should share enough personal detail to create connection without oversharing in ways that distract from the point. Flag passages where personal disclosure seems to serve no thematic purpose as Note with dimension "tone".
