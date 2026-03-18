@@ -9,6 +9,7 @@ import { UploadPage } from './pages/UploadPage'
 import { ManuscriptPage } from './pages/ManuscriptPage'
 import { BiblePage } from './pages/BiblePage'
 import { FeedbackPage } from './pages/FeedbackPage'
+import { ArgumentMapPage } from './pages/ArgumentMapPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -60,6 +61,7 @@ export function App() {
         <Route path="/manuscripts/:id" element={user ? <ManuscriptPage /> : <Navigate to="/login" />} />
         <Route path="/manuscripts/:id/bible" element={user ? <BiblePage /> : <Navigate to="/login" />} />
         <Route path="/manuscripts/:id/feedback" element={user ? <FeedbackPage /> : <Navigate to="/login" />} />
+        <Route path="/manuscripts/:id/argument-map" element={user ? <ArgumentMapPage /> : <Navigate to="/login" />} />
         <Route path="/manuscripts/:id/pricing" element={user ? <PricingPage /> : <Navigate to="/login" />} />
         <Route path="/settings" element={user ? <SettingsPage onLogout={() => setUser(null)} /> : <Navigate to="/login" />} />
         <Route path="*" element={<NotFoundPage />} />
