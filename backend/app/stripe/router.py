@@ -249,10 +249,10 @@ async def _handle_checkout_completed(session):
         await db.commit()
 
         # Enqueue chapter analysis jobs if manuscript is ready
+        # Uses flush-enqueue-commit pattern: create job rows, flush to get IDs,
+        # enqueue to Redis, then commit. If enqueue fails, rollback so manuscript
+        # stays at bible_complete + paid (recoverable via /analyze endpoint).
         if manuscript.status in (ManuscriptStatus.bible_complete, ManuscriptStatus.complete):
-            manuscript.status = ManuscriptStatus.analyzing
-            await db.commit()
-
             # Get chapters that need analysis
             chapters_result = await db.execute(
                 select(Chapter)
@@ -265,7 +265,8 @@ async def _handle_checkout_completed(session):
             chapters = chapters_result.scalars().all()
 
             if chapters:
-                redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+                # Create all job rows without committing
+                jobs = []
                 for chapter in chapters:
                     job = Job(
                         manuscript_id=ms_uuid,
@@ -274,15 +275,32 @@ async def _handle_checkout_completed(session):
                         current_step="Queued for chapter analysis",
                     )
                     db.add(job)
-                    await db.commit()
-                    await db.refresh(job)
+                    jobs.append(job)
 
-                    await redis.enqueue_job(
-                        "process_chapter_analysis",
-                        str(job.id),
-                        str(ms_uuid),
-                        str(chapter.id),
+                # Flush to get job IDs assigned without committing
+                await db.flush()
+
+                try:
+                    redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+                    for job, chapter in zip(jobs, chapters):
+                        await redis.enqueue_job(
+                            "process_chapter_analysis",
+                            str(job.id),
+                            str(ms_uuid),
+                            str(chapter.id),
+                        )
+                    # All enqueues succeeded — now commit jobs + status change together
+                    manuscript.status = ManuscriptStatus.analyzing
+                    await db.commit()
+                except Exception as e:
+                    logger.critical(
+                        f"Failed to enqueue analysis jobs for paid manuscript "
+                        f"{manuscript_id}: {e}"
                     )
+                    await db.rollback()
+                    # Manuscript stays at bible_complete + paid
+                    # User can trigger /analyze manually to recover
+                    return
 
             logger.info(f"Payment confirmed for manuscript {manuscript_id}, {len(chapters)} analysis jobs enqueued")
 
