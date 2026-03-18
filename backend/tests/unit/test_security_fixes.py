@@ -87,6 +87,75 @@ class TestJWTSecretGuard:
 
 
 # ---------------------------------------------------------------------------
+# SEC-002: Stripe webhook user_id scoping
+# ---------------------------------------------------------------------------
+
+
+class TestStripeWebhookUserScoping:
+    @pytest.mark.asyncio
+    async def test_webhook_mismatched_user_does_not_mark_paid(
+        self, db_session: AsyncSession
+    ):
+        """A webhook with wrong user_id should not mark the manuscript as paid."""
+        from app.stripe.router import _handle_checkout_completed
+
+        # Create two users
+        user_a = User(
+            email="user-a@example.com",
+            password_hash=hash_password("password"),
+            is_provisional=False,
+            email_verified=True,
+        )
+        user_b = User(
+            email="user-b@example.com",
+            password_hash=hash_password("password"),
+            is_provisional=False,
+            email_verified=True,
+        )
+        db_session.add_all([user_a, user_b])
+        await db_session.commit()
+        await db_session.refresh(user_a)
+        await db_session.refresh(user_b)
+
+        # Create manuscript owned by user_a
+        ms = Manuscript(
+            user_id=user_a.id,
+            title="User A's Book",
+            status=ManuscriptStatus.bible_complete,
+            payment_status=PaymentStatus.unpaid,
+        )
+        db_session.add(ms)
+        await db_session.commit()
+        await db_session.refresh(ms)
+
+        # Simulate webhook with user_b's ID but user_a's manuscript
+        session_obj = MagicMock()
+        session_obj.id = "cs_test_mismatch"
+        session_obj.metadata = {
+            "manuscript_id": str(ms.id),
+            "user_id": str(user_b.id),  # Wrong user!
+        }
+        session_obj.mode = "payment"
+        session_obj.customer = "cus_test"
+
+        with patch("app.stripe.router.settings") as mock_settings:
+            mock_settings.database_url = db_session.get_bind().url.render_as_string(
+                hide_password=False
+            )
+            mock_settings.redis_url = "redis://localhost:6379/0"
+
+            await _handle_checkout_completed(session_obj)
+
+        # Refresh and verify manuscript is still unpaid
+        await db_session.expire_all()
+        result = await db_session.execute(
+            select(Manuscript).where(Manuscript.id == ms.id)
+        )
+        refreshed_ms = result.scalar_one()
+        assert refreshed_ms.payment_status == PaymentStatus.unpaid
+
+
+# ---------------------------------------------------------------------------
 # SEC-003: Verification token reuse
 # ---------------------------------------------------------------------------
 
