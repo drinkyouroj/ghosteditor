@@ -78,6 +78,24 @@ class IssueSeverity(str, enum.Enum):
     note = "note"
 
 
+class DocumentType(str, enum.Enum):
+    fiction = "fiction"
+    nonfiction = "nonfiction"
+
+
+class NonfictionFormat(str, enum.Enum):
+    academic = "academic"
+    personal_essay = "personal_essay"
+    journalism = "journalism"
+    self_help = "self_help"
+    business = "business"
+
+
+class SectionDetectionMethod(str, enum.Enum):
+    header = "header"
+    chunked = "chunked"
+
+
 # --- MODELS ---
 
 
@@ -111,6 +129,13 @@ class User(Base):
 
 class Manuscript(Base):
     __tablename__ = "manuscripts"
+    __table_args__ = (
+        CheckConstraint(
+            "(document_type = 'fiction' AND nonfiction_format IS NULL) "
+            "OR (document_type = 'nonfiction')",
+            name="ck_manuscripts_nonfiction_format_consistency",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
@@ -118,6 +143,16 @@ class Manuscript(Base):
     genre: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     word_count_est: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     chapter_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    document_type: Mapped[DocumentType] = mapped_column(
+        Enum(DocumentType, name="document_type", create_constraint=False, create_type=False),
+        nullable=False,
+        default=DocumentType.fiction,
+        server_default="fiction",
+    )
+    nonfiction_format: Mapped[Optional[NonfictionFormat]] = mapped_column(
+        Enum(NonfictionFormat, name="nonfiction_format", create_constraint=False, create_type=False),
+        nullable=True,
+    )
     status: Mapped[ManuscriptStatus] = mapped_column(
         Enum(ManuscriptStatus, name="manuscript_status", create_constraint=False, create_type=False),
         nullable=False,
@@ -137,6 +172,10 @@ class Manuscript(Base):
     user: Mapped["User"] = relationship(back_populates="manuscripts")
     chapters: Mapped[list["Chapter"]] = relationship(back_populates="manuscript")
     story_bible: Mapped[Optional["StoryBible"]] = relationship(back_populates="manuscript", uselist=False)
+    argument_map: Mapped[Optional["ArgumentMap"]] = relationship(back_populates="manuscript", uselist=False)
+    document_summary: Mapped[Optional["NonfictionDocumentSummary"]] = relationship(
+        back_populates="manuscript", uselist=False
+    )
     jobs: Mapped[list["Job"]] = relationship(back_populates="manuscript")
 
 
@@ -161,6 +200,7 @@ class Chapter(Base):
 
     manuscript: Mapped["Manuscript"] = relationship(back_populates="chapters")
     analyses: Mapped[list["ChapterAnalysis"]] = relationship(back_populates="chapter")
+    nonfiction_results: Mapped[list["NonfictionSectionResult"]] = relationship(back_populates="chapter")
 
 
 class StoryBible(Base):
@@ -251,3 +291,56 @@ class EmailEvent(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
 
     user: Mapped["User"] = relationship(back_populates="email_events")
+
+
+class ArgumentMap(Base):
+    __tablename__ = "argument_maps"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    manuscript_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("manuscripts.id", ondelete="CASCADE"), unique=True, nullable=False
+    )
+    argument_map_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
+
+    manuscript: Mapped["Manuscript"] = relationship(back_populates="argument_map")
+
+
+class NonfictionSectionResult(Base):
+    __tablename__ = "nonfiction_section_results"
+    __table_args__ = (
+        UniqueConstraint("chapter_id", "dimension", "prompt_version"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    chapter_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("chapters.id", ondelete="CASCADE"), nullable=False
+    )
+    section_results_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    dimension: Mapped[str] = mapped_column(Text, nullable=False)
+    section_detection_method: Mapped[SectionDetectionMethod] = mapped_column(
+        Enum(SectionDetectionMethod, name="section_detection_method", create_constraint=False, create_type=False),
+        nullable=False,
+    )
+    prompt_version: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
+
+    chapter: Mapped["Chapter"] = relationship(back_populates="nonfiction_results")
+
+
+class NonfictionDocumentSummary(Base):
+    __tablename__ = "nonfiction_document_summaries"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    manuscript_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("manuscripts.id", ondelete="CASCADE"), unique=True, nullable=False
+    )
+    summary_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()"
+
+    )
+
+    manuscript: Mapped["Manuscript"] = relationship(back_populates="document_summary")
