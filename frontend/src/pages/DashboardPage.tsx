@@ -19,7 +19,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 const FORMAT_LABELS: Record<string, string> = {
   academic: 'Academic',
-  essay: 'Essay',
+  personal_essay: 'Essay',
   journalism: 'Journalism',
   self_help: 'Self-Help',
   business: 'Business',

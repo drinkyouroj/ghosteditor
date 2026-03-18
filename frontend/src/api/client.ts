@@ -320,42 +320,40 @@ export function cancelSubscription() {
 // --- Argument Map (Nonfiction) ---
 
 export interface ArgumentThread {
+  id: string
   claim: string
   status: 'open' | 'supported' | 'unresolved' | 'abandoned'
-  introduced_section: number
-  evidence_ids: string[]
+  first_seen_section: number
 }
 
 export interface EvidenceEntry {
-  id: string
   type: string
   section: number
   summary: string
-  linked_claim: string
+  supports_claim_id: string | null
 }
 
 export interface NonfictionVoiceProfile {
-  pov: string
-  tense: string
-  tone: string
-  register: string
-  style_notes: string | null
+  register: 'academic' | 'conversational' | 'journalistic' | 'authoritative' | 'intimate'
+  pov: 'first' | 'second' | 'third' | 'mixed'
+  notable_patterns: string[]
 }
 
-export interface StructuralMarker {
-  type: string
-  section: number
-  description: string
+export interface StructuralMarkers {
+  has_explicit_thesis: boolean
+  has_conclusion: boolean | null
+  section_count: number
 }
 
 export interface ArgumentMap {
   manuscript_id: string
   version: number
-  central_thesis: string
+  central_thesis: string | null
+  claimed_audience: string | null
   argument_threads: ArgumentThread[]
   evidence_log: EvidenceEntry[]
   voice_profile: NonfictionVoiceProfile
-  structural_markers: StructuralMarker[]
+  structural_markers: StructuralMarkers
   evidence_log_condensed: boolean
   updated_at: string
 }
@@ -368,10 +366,10 @@ export function getArgumentMap(manuscriptId: string) {
 
 export interface NonfictionDocumentSummary {
   overall_assessment: string
-  thesis_clarity: number
-  argument_coherence: number
-  evidence_density: number
-  tone_consistency: number
+  thesis_clarity_score: 'weak' | 'developing' | 'clear' | 'strong'
+  argument_coherence: 'fragmented' | 'inconsistent' | 'mostly_coherent' | 'coherent'
+  evidence_density: 'sparse' | 'uneven' | 'adequate' | 'strong'
+  tone_consistency: 'inconsistent' | 'mostly_consistent' | 'consistent'
   top_strengths: string[]
   top_priorities: string[]
   format_specific_notes: string | null

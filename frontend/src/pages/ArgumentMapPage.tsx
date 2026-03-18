@@ -73,7 +73,7 @@ export function ArgumentMapPage() {
           Voice
         </button>
         <button className={tab === 'structure' ? 'active' : ''} onClick={() => setTab('structure')}>
-          Structure ({argMap.structural_markers?.length ?? 0})
+          Structure
         </button>
       </div>
 
@@ -87,18 +87,18 @@ export function ArgumentMapPage() {
           />
         )}
         {tab === 'voice' && <VoiceTab profile={argMap.voice_profile} />}
-        {tab === 'structure' && <StructureTab markers={argMap.structural_markers ?? []} />}
+        {tab === 'structure' && <StructureTab markers={argMap.structural_markers} />}
       </div>
     </div>
   )
 }
 
-function ThesisTab({ thesis }: { thesis: string }) {
+function ThesisTab({ thesis }: { thesis: string | null }) {
   return (
     <div className="thesis-display">
       <div className="thesis-card">
         <h3>Central Thesis</h3>
-        <p className="thesis-text">{thesis}</p>
+        <p className="thesis-text">{thesis ?? 'No central thesis identified yet.'}</p>
       </div>
     </div>
   )
@@ -111,18 +111,13 @@ function ArgumentsTab({ threads }: { threads: ArgumentThread[] }) {
 
   return (
     <div className="arguments-list">
-      {threads.map((thread, i) => (
-        <div key={i} className="argument-card">
+      {threads.map((thread) => (
+        <div key={thread.id} className="argument-card">
           <div className="argument-header">
             <span className={`thread-status ${THREAD_STATUS_COLORS[thread.status] ?? ''}`}>
               {THREAD_STATUS_LABELS[thread.status] ?? thread.status}
             </span>
-            <span className="argument-section">Section {thread.introduced_section}</span>
-            {thread.evidence_ids.length > 0 && (
-              <span className="argument-evidence-count">
-                {thread.evidence_ids.length} evidence
-              </span>
-            )}
+            <span className="argument-section">Section {thread.first_seen_section}</span>
           </div>
           <p className="argument-claim">{thread.claim}</p>
         </div>
@@ -149,18 +144,18 @@ function EvidenceTab({ entries, condensed }: { entries: EvidenceEntry[]; condens
                 <th>Type</th>
                 <th>Section</th>
                 <th>Summary</th>
-                <th>Linked Claim</th>
+                <th>Supports Claim</th>
               </tr>
             </thead>
             <tbody>
-              {entries.map((entry) => (
-                <tr key={entry.id}>
+              {entries.map((entry, idx) => (
+                <tr key={idx}>
                   <td>
                     <span className="evidence-type-badge">{entry.type}</span>
                   </td>
                   <td>{entry.section}</td>
                   <td>{entry.summary}</td>
-                  <td className="evidence-claim">{entry.linked_claim}</td>
+                  <td className="evidence-claim">{entry.supports_claim_id ?? '--'}</td>
                 </tr>
               ))}
             </tbody>
@@ -175,35 +170,50 @@ function VoiceTab({ profile }: { profile: ArgumentMap['voice_profile'] }) {
   if (!profile) return <p className="empty-tab">No voice profile available.</p>
 
   return (
-    <div className="voice-card">
-      <h3>Voice Profile</h3>
-      <dl className="voice-dl">
-        <dt>POV</dt><dd>{profile.pov}</dd>
-        <dt>Tense</dt><dd>{profile.tense}</dd>
-        <dt>Tone</dt><dd>{profile.tone}</dd>
-        <dt>Register</dt><dd>{profile.register}</dd>
-        {profile.style_notes && <><dt>Style Notes</dt><dd>{profile.style_notes}</dd></>}
-      </dl>
+    <div>
+      <div className="voice-card">
+        <h3>Voice Profile</h3>
+        <dl className="voice-dl">
+          <dt>Register</dt><dd>{profile.register}</dd>
+          <dt>POV</dt><dd>{profile.pov}</dd>
+        </dl>
+      </div>
+      {profile.notable_patterns.length > 0 && (
+        <div className="voice-card">
+          <h3>Notable Patterns</h3>
+          <ul className="rules-list">
+            {profile.notable_patterns.map((p, i) => <li key={i}>{p}</li>)}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }
 
 function StructureTab({ markers }: { markers: ArgumentMap['structural_markers'] }) {
-  if (!markers || markers.length === 0) {
-    return <p className="empty-tab">No structural markers found.</p>
-  }
+  if (!markers) return <p className="empty-tab">No structural markers available.</p>
 
   return (
-    <div className="structure-list">
-      {markers.map((marker, i) => (
-        <div key={i} className="structure-card">
-          <div className="structure-header">
-            <span className="structure-type-badge">{marker.type}</span>
-            <span className="structure-section">Section {marker.section}</span>
-          </div>
-          <p>{marker.description}</p>
-        </div>
-      ))}
+    <div className="structure-summary-card">
+      <div className="structure-card">
+        <h3>Document Structure</h3>
+        <dl className="voice-dl">
+          <dt>Explicit Thesis</dt>
+          <dd>
+            <span className={`structure-indicator ${markers.has_explicit_thesis ? 'indicator-yes' : 'indicator-no'}`}>
+              {markers.has_explicit_thesis ? 'Yes' : 'No'}
+            </span>
+          </dd>
+          <dt>Conclusion</dt>
+          <dd>
+            <span className={`structure-indicator ${markers.has_conclusion === true ? 'indicator-yes' : markers.has_conclusion === false ? 'indicator-no' : 'indicator-unknown'}`}>
+              {markers.has_conclusion === true ? 'Yes' : markers.has_conclusion === false ? 'No' : 'Unknown'}
+            </span>
+          </dd>
+          <dt>Section Count</dt>
+          <dd>{markers.section_count}</dd>
+        </dl>
+      </div>
     </div>
   )
 }

@@ -216,53 +216,42 @@
 }
 
 /* Structure */
-.structure-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+.structure-summary-card {
+  max-width: 500px;
 }
 
 .structure-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 1.125rem 1.25rem;
-  transition: border-color 0.12s;
+  padding: 1.25rem 1.5rem;
 }
 
-.structure-card:hover {
-  border-color: #c8c8c8;
+.structure-card h3 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
 }
 
-.structure-header {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.structure-type-badge {
-  background: #f0fdf4;
-  color: #15803d;
-  padding: 0.15rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.7rem;
+.structure-indicator {
+  font-size: 0.8rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.structure-section {
-  font-size: 0.7rem;
-  color: var(--color-text-secondary);
-  background: var(--color-bg);
-  padding: 0.1rem 0.5rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 4px;
 }
 
-.structure-card p {
-  font-size: 0.95rem;
-  line-height: 1.5;
+.indicator-yes {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.indicator-no {
+  background: #fef2f2;
+  color: var(--color-danger);
+}
+
+.indicator-unknown {
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 /* Responsive */

@@ -499,19 +499,69 @@ function NonfictionProgressIndicator({ step }: { step: NonfictionProgressStep })
   )
 }
 
+const SCORE_LEVEL_CLASS: Record<string, string> = {
+  // thesis_clarity_score levels
+  strong: 'score-high',
+  clear: 'score-high',
+  developing: 'score-mid',
+  weak: 'score-low',
+  // argument_coherence levels
+  coherent: 'score-high',
+  mostly_coherent: 'score-high',
+  inconsistent: 'score-mid',
+  fragmented: 'score-low',
+  // evidence_density levels
+  adequate: 'score-high',
+  uneven: 'score-mid',
+  sparse: 'score-low',
+  // tone_consistency levels
+  consistent: 'score-high',
+  mostly_consistent: 'score-mid',
+  // 'inconsistent' already covered above
+}
+
+const SCORE_DISPLAY_LABELS: Record<string, string> = {
+  weak: 'Weak',
+  developing: 'Developing',
+  clear: 'Clear',
+  strong: 'Strong',
+  fragmented: 'Fragmented',
+  inconsistent: 'Inconsistent',
+  mostly_coherent: 'Mostly Coherent',
+  coherent: 'Coherent',
+  sparse: 'Sparse',
+  uneven: 'Uneven',
+  adequate: 'Adequate',
+  mostly_consistent: 'Mostly Consistent',
+  consistent: 'Consistent',
+}
+
+// Maps categorical values to a 4-step (or 3-step) position for the progress indicator
+const SCORE_STEP_MAP: Record<string, { step: number; total: number }> = {
+  weak: { step: 1, total: 4 },
+  developing: { step: 2, total: 4 },
+  clear: { step: 3, total: 4 },
+  strong: { step: 4, total: 4 },
+  fragmented: { step: 1, total: 4 },
+  inconsistent: { step: 2, total: 4 },
+  mostly_coherent: { step: 3, total: 4 },
+  coherent: { step: 4, total: 4 },
+  sparse: { step: 1, total: 4 },
+  uneven: { step: 2, total: 4 },
+  adequate: { step: 3, total: 4 },
+  // 'strong' already mapped above, shared for evidence_density
+  mostly_consistent: { step: 2, total: 3 },
+  consistent: { step: 3, total: 3 },
+  // 'inconsistent' already mapped above, shared for tone_consistency
+}
+
 function NonfictionSummaryPanel({ summary }: { summary: NonfictionDocumentSummary }) {
-  const scores: { key: keyof Pick<NonfictionDocumentSummary, 'thesis_clarity' | 'argument_coherence' | 'evidence_density' | 'tone_consistency'>; label: string }[] = [
-    { key: 'thesis_clarity', label: 'Thesis Clarity' },
+  const scores: { key: keyof Pick<NonfictionDocumentSummary, 'thesis_clarity_score' | 'argument_coherence' | 'evidence_density' | 'tone_consistency'>; label: string }[] = [
+    { key: 'thesis_clarity_score', label: 'Thesis Clarity' },
     { key: 'argument_coherence', label: 'Argument Coherence' },
     { key: 'evidence_density', label: 'Evidence Density' },
     { key: 'tone_consistency', label: 'Tone Consistency' },
   ]
-
-  const getScoreClass = (score: number): string => {
-    if (score >= 8) return 'score-high'
-    if (score >= 5) return 'score-mid'
-    return 'score-low'
-  }
 
   return (
     <div className="nf-summary-panel">
@@ -521,16 +571,22 @@ function NonfictionSummaryPanel({ summary }: { summary: NonfictionDocumentSummar
       <div className="nf-scores">
         {scores.map((s) => {
           const value = summary[s.key]
+          const levelClass = SCORE_LEVEL_CLASS[value] ?? 'score-mid'
+          const displayLabel = SCORE_DISPLAY_LABELS[value] ?? value
+          const stepInfo = SCORE_STEP_MAP[value] ?? { step: 1, total: 4 }
+
           return (
             <div key={s.key} className="nf-score-item">
               <span className="nf-score-label">{s.label}</span>
-              <div className="nf-score-bar-track">
-                <div
-                  className={`nf-score-bar-fill ${getScoreClass(value)}`}
-                  style={{ width: `${value * 10}%` }}
-                />
+              <div className="nf-score-steps">
+                {Array.from({ length: stepInfo.total }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`nf-score-step-dot ${i < stepInfo.step ? levelClass : ''}`}
+                  />
+                ))}
               </div>
-              <span className={`nf-score-value ${getScoreClass(value)}`}>{value}/10</span>
+              <span className={`nf-score-badge ${levelClass}`}>{displayLabel}</span>
             </div>
           )
         })}

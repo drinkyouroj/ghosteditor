@@ -19,7 +19,7 @@ type DocumentType = 'fiction' | 'nonfiction'
 
 const NONFICTION_FORMATS = [
   { value: 'academic', label: 'Academic Paper', description: 'Thesis-driven research with citations and formal structure' },
-  { value: 'essay', label: 'Personal Essay / Memoir', description: 'First-person narrative exploring personal experience' },
+  { value: 'personal_essay', label: 'Personal Essay / Memoir', description: 'First-person narrative exploring personal experience' },
   { value: 'journalism', label: 'Journalism / Reporting', description: 'Investigative or explanatory reporting on real events' },
   { value: 'self_help', label: 'Self-Help / How-To', description: 'Practical guidance with actionable advice for the reader' },
   { value: 'business', label: 'Business / Professional', description: 'Strategy, leadership, or industry analysis for professionals' },
