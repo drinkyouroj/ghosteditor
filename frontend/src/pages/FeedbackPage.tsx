@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import {
   getManuscriptFeedback,
   type ManuscriptFeedback,
+  type NonfictionFeedback,
+  type NonfictionDocumentSummary,
   type ChapterFeedback,
   type Issue,
   ApiError,
@@ -24,6 +26,37 @@ const TYPE_LABELS: Record<string, string> = {
   voice: 'Voice',
   worldbuilding: 'Worldbuilding',
   genre_convention: 'Genre',
+}
+
+const NONFICTION_TYPE_LABELS: Record<string, string> = {
+  argument: 'Argument',
+  evidence: 'Evidence',
+  clarity: 'Clarity',
+  structure: 'Structure',
+  tone: 'Tone',
+}
+
+const NONFICTION_DIMENSION_FILTERS = [
+  { value: '', label: 'All dimensions' },
+  { value: 'argument', label: 'Argument' },
+  { value: 'evidence', label: 'Evidence' },
+  { value: 'clarity', label: 'Clarity' },
+  { value: 'structure', label: 'Structure' },
+  { value: 'tone', label: 'Tone' },
+]
+
+const SECTION_DETECTION_LABELS: Record<string, string> = {
+  headers: 'Detected by headers',
+  auto: 'Auto-chunked',
+}
+
+type NonfictionProgressStep = 'analyzing_sections' | 'generating_summary' | 'complete'
+
+function getNonfictionProgressStep(feedback: ManuscriptFeedback): NonfictionProgressStep {
+  if (feedback.status === 'complete') return 'complete'
+  const allAnalyzed = feedback.chapters.every((ch) => ch.status === 'analyzed')
+  if (allAnalyzed) return 'generating_summary'
+  return 'analyzing_sections'
 }
 
 export function FeedbackPage() {
@@ -61,6 +94,10 @@ export function FeedbackPage() {
   )
   if (!feedback) return <Spinner text="Loading analysis results..." />
 
+  // Detect nonfiction mode from response shape
+  const nfFeedback = feedback as NonfictionFeedback
+  const isNonfiction = nfFeedback.document_summary != null
+
   const chapter = feedback.chapters[activeChapter]
   const filteredIssues = chapter
     ? chapter.issues.filter((i) => {
@@ -69,6 +106,10 @@ export function FeedbackPage() {
         return true
       })
     : []
+
+  const typeLabels = isNonfiction ? { ...TYPE_LABELS, ...NONFICTION_TYPE_LABELS } : TYPE_LABELS
+  const sidebarLabel = isNonfiction ? 'Sections' : 'Chapters'
+  const itemPrefix = isNonfiction ? 'Sec.' : 'Ch.'
 
   return (
     <div className="feedback-page">
@@ -80,11 +121,21 @@ export function FeedbackPage() {
         </div>
       </div>
 
+      {/* Nonfiction progress indicator */}
+      {isNonfiction && feedback.status !== 'complete' && (
+        <NonfictionProgressIndicator step={getNonfictionProgressStep(feedback)} />
+      )}
+
+      {/* Nonfiction document summary */}
+      {isNonfiction && nfFeedback.document_summary && (
+        <NonfictionSummaryPanel summary={nfFeedback.document_summary} />
+      )}
+
       <SummaryBar summary={feedback.summary} />
 
       <div className="feedback-layout">
         <div className="chapter-tabs-sidebar">
-          <h3>Chapters</h3>
+          <h3>{sidebarLabel}</h3>
           {feedback.chapters.map((ch, idx) => (
             <button
               key={ch.chapter_id}
@@ -94,7 +145,7 @@ export function FeedbackPage() {
                 setExpandedIssue(null)
               }}
             >
-              <span className="ch-num">Ch. {ch.chapter_number}</span>
+              <span className="ch-num">{itemPrefix} {ch.chapter_number}</span>
               <span className="ch-title">{ch.title ?? 'Untitled'}</span>
               {ch.status === 'analyzed' && (
                 <span className="ch-counts">
@@ -126,9 +177,11 @@ export function FeedbackPage() {
               onTypeChange={setTypeFilter}
               expandedIssue={expandedIssue}
               onToggleIssue={setExpandedIssue}
+              isNonfiction={isNonfiction}
+              typeLabels={typeLabels}
             />
           ) : (
-            <p>Select a chapter to view feedback.</p>
+            <p>Select a {isNonfiction ? 'section' : 'chapter'} to view feedback.</p>
           )}
         </div>
       </div>
@@ -172,6 +225,8 @@ function ChapterDetail({
   onTypeChange,
   expandedIssue,
   onToggleIssue,
+  isNonfiction = false,
+  typeLabels = TYPE_LABELS,
 }: {
   chapter: ChapterFeedback
   issues: Issue[]
@@ -181,38 +236,54 @@ function ChapterDetail({
   onTypeChange: (v: string) => void
   expandedIssue: number | null
   onToggleIssue: (v: number | null) => void
+  isNonfiction?: boolean
+  typeLabels?: Record<string, string>
 }) {
+  const unitLabel = isNonfiction ? 'Section' : 'Chapter'
+
   if (chapter.status !== 'analyzed') {
     return (
       <div className="chapter-pending">
         <p>
           {chapter.status === 'analyzing'
-            ? 'This chapter is currently being analyzed...'
+            ? `This ${unitLabel.toLowerCase()} is currently being analyzed...`
             : chapter.status === 'error'
-              ? 'Analysis failed for this chapter.'
-              : 'This chapter has not been analyzed yet.'}
+              ? `Analysis failed for this ${unitLabel.toLowerCase()}.`
+              : `This ${unitLabel.toLowerCase()} has not been analyzed yet.`}
         </p>
       </div>
     )
   }
 
+  // Section detection method for nonfiction
+  const sectionDetection = isNonfiction
+    ? ((chapter as ChapterFeedback & { detection_method?: string }).detection_method ?? 'auto')
+    : null
+
   return (
     <div>
       <div className="chapter-detail-header">
-        <h2>
-          Chapter {chapter.chapter_number}
-          {chapter.title && <span className="ch-detail-title"> — {chapter.title}</span>}
-        </h2>
+        <div>
+          <h2>
+            {unitLabel} {chapter.chapter_number}
+            {chapter.title && <span className="ch-detail-title"> -- {chapter.title}</span>}
+          </h2>
+          {isNonfiction && sectionDetection && (
+            <span className={`detection-badge detection-${sectionDetection}`}>
+              {SECTION_DETECTION_LABELS[sectionDetection] ?? sectionDetection}
+            </span>
+          )}
+        </div>
         {chapter.word_count && (
           <span className="ch-detail-words">{chapter.word_count.toLocaleString()} words</span>
         )}
       </div>
 
-      {/* Pacing summary */}
-      {chapter.pacing && <PacingSection pacing={chapter.pacing} />}
+      {/* Pacing summary (fiction only) */}
+      {!isNonfiction && chapter.pacing && <PacingSection pacing={chapter.pacing} />}
 
-      {/* Genre notes */}
-      {chapter.genre_notes && <GenreSection notes={chapter.genre_notes} />}
+      {/* Genre notes (fiction only) */}
+      {!isNonfiction && chapter.genre_notes && <GenreSection notes={chapter.genre_notes} />}
 
       {/* Issues */}
       <div className="issues-section">
@@ -228,19 +299,33 @@ function ChapterDetail({
               <option value="warning">Warning</option>
               <option value="note">Note</option>
             </select>
-            <select
-              value={typeFilter}
-              onChange={(e) => onTypeChange(e.target.value)}
-            >
-              <option value="">All types</option>
-              <option value="consistency">Consistency</option>
-              <option value="pacing">Pacing</option>
-              <option value="character">Character</option>
-              <option value="plot">Plot</option>
-              <option value="voice">Voice</option>
-              <option value="worldbuilding">Worldbuilding</option>
-              <option value="genre_convention">Genre</option>
-            </select>
+            {isNonfiction ? (
+              <div className="nf-dimension-tabs">
+                {NONFICTION_DIMENSION_FILTERS.map((d) => (
+                  <button
+                    key={d.value}
+                    className={`nf-dim-tab ${typeFilter === d.value ? 'active' : ''}`}
+                    onClick={() => onTypeChange(d.value)}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <select
+                value={typeFilter}
+                onChange={(e) => onTypeChange(e.target.value)}
+              >
+                <option value="">All types</option>
+                <option value="consistency">Consistency</option>
+                <option value="pacing">Pacing</option>
+                <option value="character">Character</option>
+                <option value="plot">Plot</option>
+                <option value="voice">Voice</option>
+                <option value="worldbuilding">Worldbuilding</option>
+                <option value="genre_convention">Genre</option>
+              </select>
+            )}
           </div>
         </div>
 
@@ -248,7 +333,7 @@ function ChapterDetail({
           <p className="no-issues">
             {severityFilter || typeFilter
               ? 'No issues match the current filters.'
-              : 'No issues found in this chapter.'}
+              : `No issues found in this ${unitLabel.toLowerCase()}.`}
           </p>
         ) : (
           <div className="issues-list">
@@ -258,6 +343,7 @@ function ChapterDetail({
                 issue={issue}
                 expanded={expandedIssue === idx}
                 onToggle={() => onToggleIssue(expandedIssue === idx ? null : idx)}
+                typeLabels={typeLabels}
               />
             ))}
           </div>
@@ -271,10 +357,12 @@ function IssueCard({
   issue,
   expanded,
   onToggle,
+  typeLabels = TYPE_LABELS,
 }: {
   issue: Issue
   expanded: boolean
   onToggle: () => void
+  typeLabels?: Record<string, string>
 }) {
   return (
     <div
@@ -285,7 +373,7 @@ function IssueCard({
         <span className={`issue-severity ${SEVERITY_COLORS[issue.severity] ?? ''}`}>
           {issue.severity}
         </span>
-        <span className="issue-type">{TYPE_LABELS[issue.type] ?? issue.type}</span>
+        <span className="issue-type">{typeLabels[issue.type] ?? issue.type}</span>
         <span className="issue-location">{issue.chapter_location}</span>
         <p className="issue-desc">{issue.description}</p>
       </div>
@@ -380,6 +468,102 @@ function GenreSection({ notes }: { notes: ChapterFeedback['genre_notes'] }) {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+/* --- Nonfiction-specific components --- */
+
+function NonfictionProgressIndicator({ step }: { step: NonfictionProgressStep }) {
+  const steps: { key: NonfictionProgressStep; label: string }[] = [
+    { key: 'analyzing_sections', label: 'Analyzing sections' },
+    { key: 'generating_summary', label: 'Generating summary' },
+    { key: 'complete', label: 'Complete' },
+  ]
+
+  const currentIdx = steps.findIndex((s) => s.key === step)
+
+  return (
+    <div className="nf-progress">
+      {steps.map((s, idx) => (
+        <div
+          key={s.key}
+          className={`nf-progress-step ${idx <= currentIdx ? 'active' : ''} ${idx === currentIdx ? 'current' : ''}`}
+        >
+          <span className="nf-progress-dot">{idx < currentIdx ? '\u2713' : idx + 1}</span>
+          <span className="nf-progress-label">{s.label}</span>
+          {idx < steps.length - 1 && <span className="nf-progress-connector" />}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function NonfictionSummaryPanel({ summary }: { summary: NonfictionDocumentSummary }) {
+  const scores: { key: keyof Pick<NonfictionDocumentSummary, 'thesis_clarity' | 'argument_coherence' | 'evidence_density' | 'tone_consistency'>; label: string }[] = [
+    { key: 'thesis_clarity', label: 'Thesis Clarity' },
+    { key: 'argument_coherence', label: 'Argument Coherence' },
+    { key: 'evidence_density', label: 'Evidence Density' },
+    { key: 'tone_consistency', label: 'Tone Consistency' },
+  ]
+
+  const getScoreClass = (score: number): string => {
+    if (score >= 8) return 'score-high'
+    if (score >= 5) return 'score-mid'
+    return 'score-low'
+  }
+
+  return (
+    <div className="nf-summary-panel">
+      <h3>Document Summary</h3>
+      <p className="nf-assessment">{summary.overall_assessment}</p>
+
+      <div className="nf-scores">
+        {scores.map((s) => {
+          const value = summary[s.key]
+          return (
+            <div key={s.key} className="nf-score-item">
+              <span className="nf-score-label">{s.label}</span>
+              <div className="nf-score-bar-track">
+                <div
+                  className={`nf-score-bar-fill ${getScoreClass(value)}`}
+                  style={{ width: `${value * 10}%` }}
+                />
+              </div>
+              <span className={`nf-score-value ${getScoreClass(value)}`}>{value}/10</span>
+            </div>
+          )
+        })}
+      </div>
+
+      {summary.top_strengths.length > 0 && (
+        <div className="nf-tags-group">
+          <span className="nf-tags-label">Strengths</span>
+          <div className="nf-tags">
+            {summary.top_strengths.map((s, i) => (
+              <span key={i} className="nf-tag nf-tag-strength">{s}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {summary.top_priorities.length > 0 && (
+        <div className="nf-tags-group">
+          <span className="nf-tags-label">Priorities</span>
+          <div className="nf-tags">
+            {summary.top_priorities.map((p, i) => (
+              <span key={i} className="nf-tag nf-tag-priority">{p}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {summary.format_specific_notes && (
+        <div className="nf-format-notes">
+          <span className="nf-format-notes-label">Format Notes</span>
+          <p>{summary.format_specific_notes}</p>
+        </div>
+      )}
     </div>
   )
 }
