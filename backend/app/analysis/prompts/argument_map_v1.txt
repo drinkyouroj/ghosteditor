@@ -8,7 +8,13 @@ Analyze the manuscript text and return a single JSON object with the following f
 
 2. **claimed_audience** — The intended reader as stated or strongly implied by the text (e.g., "startup founders", "graduate students in psychology", "general readers interested in history"). Use null if not determinable.
 
-3. **detected_format_confidence** — Your assessment of what nonfiction format this document is:
+3. **detected_format_confidence** — Your assessment of what nonfiction format this document is. Return as a JSON object with this exact structure:
+   ```
+   "detected_format_confidence": {
+       "format": "string — one of: academic, personal_essay, journalism, self_help, business, other",
+       "confidence": "string — one of: high, medium, low"
+   }
+   ```
    - "format": One of "academic", "personal_essay", "journalism", "self_help", "business", or "other"
    - "confidence": One of "high", "medium", "low"
    Compare your detection against the provided nonfiction_format above. If they differ, still report what YOU detect — the discrepancy is useful information.

@@ -22,6 +22,13 @@ Detected format: {detected_format} (confidence: {detected_format_confidence})
 
 == PER-SECTION ISSUE SUMMARY ==
 
+The following placeholder is a JSON array of objects, one per analyzed section. Each object has:
+- "section_number": integer — the section's position in the document
+- "issue_count_by_dimension": object with integer counts for each dimension:
+  {"argument": int, "evidence": int, "clarity": int, "structure": int, "tone": int}
+- "key_issues": array of strings — the most significant issues flagged in that section,
+  summarized as short descriptions
+
 {section_issue_summary}
 
 == SYNTHESIS INSTRUCTIONS ==

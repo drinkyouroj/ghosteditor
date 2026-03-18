@@ -64,6 +64,8 @@ Analyze the section text below and return a JSON object with the following field
    - "new_evidence": Array of new evidence entries found in this section (same schema as evidence_log: section, type, summary, supports_claim_id). Cap at 10 new evidence entries per section. If more exist, select the 10 most significant.
    If no updates are warranted, use an empty object: {}
 
+7. **evidence_capped** — A boolean flag indicating whether the evidence log cap was reached during this section's analysis. Set to true if the argument map's existing evidence_log entries plus this section's new_evidence entries would exceed 50 total, and you had to truncate new_evidence to fit within the cap. Set to false if all evidence entries fit within the 50-entry limit without truncation. When evidence_capped is true, ensure that argument_map_updates.new_evidence contains only the entries that fit within the remaining cap space, prioritized by significance to the central thesis.
+
 CRITICAL RULES:
 - Respond ONLY with valid JSON. No preamble, no explanation, no markdown code fences. Your entire response must be parseable by json.loads().
 - If you cannot determine a value with confidence, use null rather than guessing.
