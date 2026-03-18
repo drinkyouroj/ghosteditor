@@ -164,6 +164,7 @@ MIN_CHAPTER_WORDS = 200
 TOC_THRESHOLD_WORDS = 50
 MAX_CHAPTERS = 150
 MAX_WORD_COUNT = 120_000
+NONFICTION_CHUNK_TARGET_WORDS = 1500
 
 
 # ---------------------------------------------------------------------------
@@ -882,16 +883,170 @@ def _merge_short_sections(chapters: list[dict]) -> list[dict]:
     return merged
 
 
-async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
+# ---------------------------------------------------------------------------
+# Nonfiction section detection (per Gap #33 / DECISION_008)
+# ---------------------------------------------------------------------------
+
+# Header patterns for nonfiction: markdown #, ALL-CAPS lines, numbered sections
+NONFICTION_HEADER_PATTERNS = [
+    # Markdown headers: # Title, ## Subtitle
+    re.compile(r"^(#{1,4}\s+.+)$", re.MULTILINE),
+    # ALL-CAPS lines (at least 3 words, to avoid false positives)
+    re.compile(r"^([A-Z][A-Z\s,:''\-]{10,})$", re.MULTILINE),
+    # Numbered sections: "1.", "1.1", "Section 1:", "Section 1."
+    re.compile(r"^((?:Section\s+)?\d+(?:\.\d+)?\s*[.:]\s*.+)$", re.IGNORECASE | re.MULTILINE),
+    # "Part I", "Part 1", "Part One"
+    re.compile(
+        rf"^(Part\s+(?:\d+|{ROMAN_NUMERAL}|{CHAPTER_WORD_NUMBERS})\b[^\n]*)",
+        re.IGNORECASE | re.MULTILINE,
+    ),
+]
+
+
+def _detect_nonfiction_sections(text: str) -> tuple[list[dict], str]:
+    """Detect sections in nonfiction manuscripts using header patterns.
+
+    Returns (chapters_list, split_method) where split_method is 'header' or 'chunked'.
+    Uses header detection first, falls back to chunking at ~1500 words at paragraph boundaries.
+    Does NOT use the LLM splitting path (unnecessary for structured nonfiction).
+    """
+    # Try header-based detection
+    split_positions = []
+    for pattern in NONFICTION_HEADER_PATTERNS:
+        for match in pattern.finditer(text):
+            header = match.group(1).strip()
+            pos = match.start(1)
+            # Skip very short matches that are likely false positives
+            if len(header) < 3:
+                continue
+            # Skip ALL-CAPS matches that look like single words or acronyms
+            if header.isupper() and len(header.split()) < 3:
+                continue
+            split_positions.append((pos, header))
+
+    # Deduplicate by position (different patterns may match the same header)
+    if split_positions:
+        split_positions.sort(key=lambda x: x[0])
+        deduped = [split_positions[0]]
+        for pos, title in split_positions[1:]:
+            if pos - deduped[-1][0] > 30:
+                deduped.append((pos, title))
+            else:
+                # Keep the longer title for overlapping matches
+                if len(title) > len(deduped[-1][1]):
+                    deduped[-1] = (deduped[-1][0], title)
+        split_positions = deduped
+
+    # Filter out TOC-like short segments
+    if split_positions:
+        filtered = []
+        for i, (pos, title) in enumerate(split_positions):
+            end = split_positions[i + 1][0] if i + 1 < len(split_positions) else len(text)
+            segment_words = len(text[pos:end].split())
+            if segment_words >= TOC_THRESHOLD_WORDS:
+                filtered.append((pos, title))
+        split_positions = filtered
+
+    # If we found enough headers (at least 2), use header-based splitting
+    if len(split_positions) >= 2:
+        chapters = []
+        for i, (pos, title) in enumerate(split_positions):
+            end = split_positions[i + 1][0] if i + 1 < len(split_positions) else len(text)
+            chapter_text = text[pos:end].strip()
+            word_count = len(chapter_text.split())
+            chapters.append({
+                "chapter_number": i + 1,
+                "title": title.lstrip("#").strip(),
+                "text": chapter_text,
+                "word_count": word_count,
+                "split_method": "header",
+            })
+
+        # Capture pre-header text if substantial
+        pre_header_text = text[:split_positions[0][0]].strip()
+        pre_header_words = len(pre_header_text.split()) if pre_header_text else 0
+        if pre_header_words >= MIN_CHAPTER_WORDS:
+            chapters.insert(0, {
+                "chapter_number": 0,
+                "title": "Introduction",
+                "text": pre_header_text,
+                "word_count": pre_header_words,
+                "split_method": "header",
+            })
+            # Renumber
+            for i, ch in enumerate(chapters):
+                ch["chapter_number"] = i + 1
+
+        logger.info(f"Nonfiction header detection found {len(chapters)} sections")
+        return chapters, "header"
+
+    # Fallback: chunk at ~1500 words at paragraph boundaries
+    logger.info("No nonfiction headers detected, falling back to paragraph-boundary chunking")
+    return _chunk_at_paragraphs(text, NONFICTION_CHUNK_TARGET_WORDS), "chunked"
+
+
+def _chunk_at_paragraphs(text: str, target_words: int) -> list[dict]:
+    """Split text into chunks of approximately target_words at paragraph boundaries."""
+    paragraphs = re.split(r"\n\s*\n", text)
+    chunks = []
+    current_chunk = []
+    current_word_count = 0
+
+    for para in paragraphs:
+        para = para.strip()
+        if not para:
+            continue
+        para_words = len(para.split())
+
+        if current_word_count + para_words > target_words and current_chunk:
+            chunk_text = "\n\n".join(current_chunk)
+            chunks.append({
+                "chapter_number": len(chunks) + 1,
+                "title": f"Section {len(chunks) + 1}",
+                "text": chunk_text,
+                "word_count": len(chunk_text.split()),
+                "split_method": "chunked",
+            })
+            current_chunk = [para]
+            current_word_count = para_words
+        else:
+            current_chunk.append(para)
+            current_word_count += para_words
+
+    # Don't forget the last chunk
+    if current_chunk:
+        chunk_text = "\n\n".join(current_chunk)
+        chunks.append({
+            "chapter_number": len(chunks) + 1,
+            "title": f"Section {len(chunks) + 1}",
+            "text": chunk_text,
+            "word_count": len(chunk_text.split()),
+            "split_method": "chunked",
+        })
+
+    logger.info(f"Paragraph chunking produced {len(chunks)} sections at ~{target_words} words each")
+    return chunks
+
+
+async def detect_chapters(text: str, document_type: str | None = None) -> tuple[list[dict], list[str]]:
     """Detect chapter/section boundaries using LLM-assisted structure detection.
+
+    Args:
+        text: The full manuscript text.
+        document_type: Optional. When 'nonfiction', uses header detection + paragraph
+            chunking instead of the LLM splitting path (per DECISION_008).
 
     Returns (chapters_list, warnings_list).
     Each chapter dict has: chapter_number, title, text, word_count, split_method.
 
-    Fallback chain per DECISION_007:
+    Fallback chain per DECISION_007 (fiction / default):
     1. LLM-assisted splitting (sends sample to LLM for structure detection)
     2. Auto-split at ~4K words at natural break points
     3. Regex-based chapter detection (legacy)
+
+    Nonfiction path (per DECISION_008):
+    1. Header detection (markdown #, ALL-CAPS, numbered sections)
+    2. Paragraph-boundary chunking at ~1500 words
     """
     from app.analysis.llm_client import LLMError, call_llm
     from app.analysis.json_repair import parse_json_response
@@ -899,6 +1054,39 @@ async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
 
     warnings = []
     chapters = []
+
+    # --- Nonfiction path: header detection + chunking (no LLM) ---
+    if document_type == "nonfiction":
+        logger.info("Using nonfiction section detection path")
+        nf_chapters, split_method = _detect_nonfiction_sections(text)
+
+        if split_method == "chunked":
+            warnings.append(
+                "No clear section headers were detected in your manuscript. "
+                "It has been automatically divided into sections for analysis."
+            )
+
+        # Merge short sections
+        nf_chapters = _merge_short_sections(nf_chapters)
+
+        # Cap at MAX_CHAPTERS
+        if len(nf_chapters) > MAX_CHAPTERS:
+            logger.warning(
+                f"Nonfiction splitting yielded {len(nf_chapters)} sections "
+                f"(max {MAX_CHAPTERS}). Falling back to chunking."
+            )
+            nf_chapters = _chunk_at_paragraphs(text, NONFICTION_CHUNK_TARGET_WORDS)
+            nf_chapters = _merge_short_sections(nf_chapters)
+
+        # Ensure split_method is set
+        for ch in nf_chapters:
+            ch.setdefault("split_method", split_method)
+
+        logger.info(
+            f"Nonfiction final split: {len(nf_chapters)} sections "
+            f"(method={split_method})"
+        )
+        return nf_chapters, warnings
 
     # --- Tier 1: LLM-assisted splitting ---
     try:
