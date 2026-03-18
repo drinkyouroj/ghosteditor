@@ -1157,7 +1157,7 @@ async def process_nonfiction_synthesis(ctx, job_id: str, manuscript_id: str):
             nf_format = manuscript.nonfiction_format.value if manuscript.nonfiction_format else None
             synthesis_result, warnings = await generate_document_synthesis(
                 argument_map_json=argument_map_json,
-                section_results=section_results,
+                section_summaries=section_results,
                 nonfiction_format=nf_format,
             )
 
