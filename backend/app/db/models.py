@@ -96,6 +96,14 @@ class SectionDetectionMethod(str, enum.Enum):
     chunked = "chunked"
 
 
+class NonfictionDimension(str, enum.Enum):
+    argument = "argument"
+    evidence = "evidence"
+    clarity = "clarity"
+    structure = "structure"
+    tone = "tone"
+
+
 # --- MODELS ---
 
 
@@ -319,7 +327,10 @@ class NonfictionSectionResult(Base):
         UUID(as_uuid=True), ForeignKey("chapters.id", ondelete="CASCADE"), nullable=False
     )
     section_results_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    dimension: Mapped[str] = mapped_column(Text, nullable=False)
+    dimension: Mapped[NonfictionDimension] = mapped_column(
+        Enum(NonfictionDimension, name="nonfiction_dimension", create_constraint=False, create_type=False),
+        nullable=False,
+    )
     section_detection_method: Mapped[SectionDetectionMethod] = mapped_column(
         Enum(SectionDetectionMethod, name="section_detection_method", create_constraint=False, create_type=False),
         nullable=False,
@@ -339,8 +350,6 @@ class NonfictionDocumentSummary(Base):
     )
     summary_json: Mapped[dict] = mapped_column(JSONB, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()"
-
-    )
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default="now()")
 
     manuscript: Mapped["Manuscript"] = relationship(back_populates="document_summary")

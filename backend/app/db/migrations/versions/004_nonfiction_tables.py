@@ -39,6 +39,12 @@ def upgrade() -> None:
     )
     section_detection_method_enum.create(op.get_bind(), checkfirst=True)
 
+    nonfiction_dimension_enum = sa.Enum(
+        "argument", "evidence", "clarity", "structure", "tone",
+        name="nonfiction_dimension",
+    )
+    nonfiction_dimension_enum.create(op.get_bind(), checkfirst=True)
+
     # --- Add columns to manuscripts ---
     op.add_column(
         "manuscripts",
@@ -88,7 +94,12 @@ def upgrade() -> None:
         sa.Column("chapter_id", UUID(as_uuid=True), sa.ForeignKey("chapters.id", ondelete="CASCADE"),
                   nullable=False),
         sa.Column("section_results_json", JSONB, nullable=False),
-        sa.Column("dimension", sa.Text, nullable=False),
+        sa.Column(
+            "dimension",
+            sa.Enum("argument", "evidence", "clarity", "structure", "tone",
+                    name="nonfiction_dimension", create_type=False),
+            nullable=False,
+        ),
         sa.Column(
             "section_detection_method",
             sa.Enum("header", "chunked", name="section_detection_method", create_type=False),
@@ -126,6 +137,7 @@ def downgrade() -> None:
     op.drop_column("manuscripts", "nonfiction_format")
     op.drop_column("manuscripts", "document_type")
 
+    sa.Enum(name="nonfiction_dimension").drop(op.get_bind(), checkfirst=True)
     sa.Enum(name="section_detection_method").drop(op.get_bind(), checkfirst=True)
     sa.Enum(name="nonfiction_format").drop(op.get_bind(), checkfirst=True)
     sa.Enum(name="document_type").drop(op.get_bind(), checkfirst=True)
