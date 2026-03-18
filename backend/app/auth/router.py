@@ -212,6 +212,12 @@ async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depend
     """Request password reset. Always returns 200 to prevent email enumeration."""
     email = body.email.lower().strip()
 
+    # SEC-011: Rate limit password reset requests per email (3 per hour)
+    await check_rate_limit(
+        email, action="password_reset", max_requests=3, window=timedelta(hours=1),
+        user_email=email,
+    )
+
     result = await db.execute(
         select(User).where(User.email == email, User.deleted_at.is_(None), User.is_provisional.is_(False))
     )
