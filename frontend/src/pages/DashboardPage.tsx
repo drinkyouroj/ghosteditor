@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { listManuscripts, deleteManuscript, type Manuscript, ApiError } from '../api/client'
+import Spinner from '../components/Spinner'
 import './DashboardPage.css'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -20,14 +21,19 @@ const ERROR_HELP: Record<string, string> = {
 export function DashboardPage() {
   const [manuscripts, setManuscripts] = useState<Manuscript[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetchManuscripts = useCallback(() => {
+    setLoading(true)
     listManuscripts()
       .then(setManuscripts)
       .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to load manuscripts'))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    fetchManuscripts()
+  }, [fetchManuscripts])
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Delete "${title}" and all its data?`)) return
@@ -39,8 +45,15 @@ export function DashboardPage() {
     }
   }
 
-  if (loading) return <p>Loading manuscripts...</p>
-  if (error) return <p className="error-text">{error}</p>
+  if (loading) return <Spinner text="Loading manuscripts..." />
+  if (error) return (
+    <div className="error-card">
+      <p className="error-text">{error}</p>
+      <button onClick={() => { setError(null); fetchManuscripts(); }} className="btn-retry">
+        Try Again
+      </button>
+    </div>
+  )
 
   return (
     <div>
@@ -51,8 +64,9 @@ export function DashboardPage() {
 
       {manuscripts.length === 0 ? (
         <div className="empty-state">
-          <p>No manuscripts yet.</p>
-          <Link to="/upload">Upload your first manuscript</Link>
+          <h2>No manuscripts yet</h2>
+          <p>Upload your first manuscript to get started with AI-powered developmental editing.</p>
+          <Link to="/upload" className="btn-primary">Upload Manuscript</Link>
         </div>
       ) : (
         <div className="manuscript-list">

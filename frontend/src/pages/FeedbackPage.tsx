@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   getManuscriptFeedback,
@@ -7,6 +7,7 @@ import {
   type Issue,
   ApiError,
 } from '../api/client'
+import Spinner from '../components/Spinner'
 import './FeedbackPage.css'
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -28,13 +29,13 @@ const TYPE_LABELS: Record<string, string> = {
 export function FeedbackPage() {
   const { id } = useParams<{ id: string }>()
   const [feedback, setFeedback] = useState<ManuscriptFeedback | null>(null)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [activeChapter, setActiveChapter] = useState(0)
   const [severityFilter, setSeverityFilter] = useState<string>('')
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [expandedIssue, setExpandedIssue] = useState<number | null>(null)
 
-  useEffect(() => {
+  const fetchFeedback = useCallback(() => {
     if (!id) return
     getManuscriptFeedback(id)
       .then((data) => {
@@ -46,8 +47,19 @@ export function FeedbackPage() {
       .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to load feedback'))
   }, [id])
 
-  if (error) return <p className="error-text">{error}</p>
-  if (!feedback) return <p>Loading analysis results...</p>
+  useEffect(() => {
+    fetchFeedback()
+  }, [fetchFeedback])
+
+  if (error) return (
+    <div className="error-card">
+      <p className="error-text">{error}</p>
+      <button onClick={() => { setError(null); fetchFeedback(); }} className="btn-retry">
+        Try Again
+      </button>
+    </div>
+  )
+  if (!feedback) return <Spinner text="Loading analysis results..." />
 
   const chapter = feedback.chapters[activeChapter]
   const filteredIssues = chapter

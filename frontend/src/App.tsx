@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect, useCallback } from 'react'
 import { Layout } from './components/Layout'
+import Spinner from './components/Spinner'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -13,6 +14,7 @@ import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { PricingPage } from './pages/PricingPage'
 import { LandingPage } from './pages/LandingPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 import { getMe, type User } from './api/client'
 
 export function App() {
@@ -42,7 +44,7 @@ export function App() {
   }, [checkAuth])
 
   if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading...</div>
+    return <Spinner text="Loading..." />
   }
 
   return (
@@ -60,6 +62,7 @@ export function App() {
         <Route path="/manuscripts/:id/feedback" element={user ? <FeedbackPage /> : <Navigate to="/login" />} />
         <Route path="/manuscripts/:id/pricing" element={user ? <PricingPage /> : <Navigate to="/login" />} />
         <Route path="/settings" element={user ? <SettingsPage onLogout={() => setUser(null)} /> : <Navigate to="/login" />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   )
