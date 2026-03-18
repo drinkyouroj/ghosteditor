@@ -84,6 +84,7 @@ export function ManuscriptPage() {
   const isProcessing = PROCESSING_STATUSES.includes(manuscript.status)
   const analyzedCount = manuscript.chapters.filter((ch) => ch.status === 'analyzed').length
   const totalChapters = manuscript.chapters.length
+  const isNonfiction = (manuscript as ManuscriptDetail & { document_type?: string }).document_type === 'nonfiction'
 
   // Check if a chapter has been stuck in 'analyzing' for longer than the job timeout (600s)
   const STALL_THRESHOLD_MS = 600_000
@@ -112,9 +113,15 @@ export function ManuscriptPage() {
             </Link>
           )}
           {(manuscript.status === 'complete' || manuscript.status === 'bible_complete' || manuscript.status === 'analyzing') && (
-            <Link to={`/manuscripts/${id}/bible`} className="btn-secondary">
-              Story Bible
-            </Link>
+            isNonfiction ? (
+              <Link to={`/manuscripts/${id}/argument-map`} className="btn-secondary">
+                Argument Map
+              </Link>
+            ) : (
+              <Link to={`/manuscripts/${id}/bible`} className="btn-secondary">
+                Story Bible
+              </Link>
+            )
           )}
           {(manuscript.status === 'bible_complete' || manuscript.status === 'error' || isAnalysisStalled) && manuscript.payment_status === 'paid' && (
             <button
