@@ -11,6 +11,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_current_user_allow_provisional
 from app.config import settings
+
+# Module-level arq Redis pool — lazily initialized, reused across enqueue calls
+_arq_pool = None
+
+
+async def _get_arq_pool():
+    """Return a lazily-initialized, cached arq Redis pool."""
+    global _arq_pool
+    if _arq_pool is None:
+        _arq_pool = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+    return _arq_pool
 from app.db.models import Chapter, ChapterStatus, DocumentType, Job, JobType, JobStatus, Manuscript, ManuscriptStatus, NonfictionFormat, PaymentStatus, SubscriptionStatus, User
 from app.db.session import get_db
 
@@ -136,7 +147,7 @@ async def upload_manuscript(
 
     # Enqueue to Redis — if this fails, rollback DB
     try:
-        redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+        redis = await _get_arq_pool()
         await redis.enqueue_job("process_text_extraction", str(job.id), str(manuscript_id))
     except Exception:
         await db.rollback()
@@ -310,7 +321,7 @@ async def start_chapter_analysis(
 
     # Enqueue to Redis — if this fails, rollback DB
     try:
-        redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+        redis = await _get_arq_pool()
         await redis.enqueue_job(
             worker_func, str(job.id), str(manuscript_id), str(first_chapter.id),
         )
