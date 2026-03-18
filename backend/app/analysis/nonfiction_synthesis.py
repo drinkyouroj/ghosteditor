@@ -47,7 +47,6 @@ async def generate_document_synthesis(
     argument_map_json: dict,
     section_summaries: list[dict],
     nonfiction_format: str | None = None,
-    total_word_count: int = 0,
 ) -> tuple[DocumentSynthesis, list[str]]:
     """Generate a document-level synthesis from structured analysis data.
 
@@ -56,7 +55,6 @@ async def generate_document_synthesis(
         section_summaries: List of dicts with keys: section_number,
             issue_count_by_dimension, key_issues.
         nonfiction_format: One of the nonfiction_format enum values.
-        total_word_count: Total word count of the manuscript.
 
     Returns:
         (validated_synthesis, warnings_list).
