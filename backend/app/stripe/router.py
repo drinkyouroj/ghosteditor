@@ -218,13 +218,16 @@ async def _handle_checkout_completed(session):
     user_uuid = uuid.UUID(user_id)
 
     async with SessionFactory() as db:
-        # Get manuscript
+        # Get manuscript — scoped to user_id to prevent cross-user payment injection (SEC-002)
         result = await db.execute(
-            select(Manuscript).where(Manuscript.id == ms_uuid)
+            select(Manuscript).where(
+                Manuscript.id == ms_uuid,
+                Manuscript.user_id == user_uuid,
+            )
         )
         manuscript = result.scalar_one_or_none()
         if manuscript is None:
-            logger.error(f"Manuscript {manuscript_id} not found for checkout {session.id}")
+            logger.error(f"Manuscript {manuscript_id} not found for user {user_id} in checkout {session.id}")
             return
 
         # Amendment 1: Idempotency check

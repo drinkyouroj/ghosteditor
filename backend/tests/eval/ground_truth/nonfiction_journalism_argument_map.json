@@ -1,0 +1,7 @@
+{
+    "central_thesis": "investigation reveals",
+    "expected_thread_count_min": 2,
+    "expected_evidence_types": ["interview", "document", "observation"],
+    "expected_voice_register": "accessible",
+    "expected_format_detection": "journalism"
+}
