@@ -8,15 +8,18 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from app.analysis.argument_map_schema import ArgumentMapSchema
-from app.analysis.llm_client import call_llm
-from app.analysis.json_repair import parse_json_response
+from app.analysis.json_repair import is_truncated, parse_json_response
+from app.analysis.llm_client import LLMError, call_llm
 from app.analysis.utils import sanitize_manuscript_text as _sanitize_manuscript_text
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 PROMPT_PATH = Path(__file__).parent / "prompts" / "argument_map_v1.txt"
+MAX_TOKENS = 8192
 
 
 class ArgumentMapError(Exception):
@@ -64,22 +67,79 @@ async def generate_argument_map(
 
     # Prompt template contains {nonfiction_format} and {chapter_text} placeholders
     # plus <manuscript_text> wrapping — substitute both via .replace()
-    full_prompt = prompt_template.replace("{nonfiction_format}", format_label)
-    full_prompt = full_prompt.replace("{chapter_text}", sanitized_text)
+    prompt = prompt_template.replace("{nonfiction_format}", format_label)
+    prompt = prompt.replace("{chapter_text}", sanitized_text)
 
+    # Call LLM API
     try:
-        raw_response = await call_llm(
-            prompt=full_prompt,
-            model=settings.llm_model_bible,
-            max_tokens=4096,
+        raw_response = await call_llm(prompt, settings.llm_model_bible, MAX_TOKENS)
+    except LLMError as e:
+        raise ArgumentMapError(str(e))
+
+    if is_truncated(raw_response):
+        logger.error(f"LLM response appears truncated (len={len(raw_response)})")
+        raise ArgumentMapError(
+            "AI response was cut off. This usually means the manuscript produced "
+            "too much output. Please try again."
         )
-    except Exception as e:
-        raise ArgumentMapError(f"LLM call failed: {e}")
 
-    try:
+    # JSON repair pipeline
+    parsed = parse_json_response(raw_response)
+
+    if parsed is None:
+        logger.warning(
+            f"JSON parse failed for argument map. "
+            f"Response starts with: {raw_response[:200]!r}"
+        )
+        # Retry once with explicit JSON instruction
+        retry_prompt = prompt + (
+            "\n\nIMPORTANT: Your previous response was not valid JSON. "
+            "Respond with ONLY valid JSON. No text before or after the JSON object."
+        )
+        try:
+            raw_response = await call_llm(retry_prompt, settings.llm_model_bible, MAX_TOKENS)
+        except LLMError as e:
+            raise ArgumentMapError(str(e))
+        if is_truncated(raw_response):
+            raise ArgumentMapError(
+                "AI response was cut off on retry. Please try again."
+            )
         parsed = parse_json_response(raw_response)
+
+    if parsed is None:
+        logger.error(
+            f"All JSON parse attempts failed for argument map. "
+            f"Final response starts with: {raw_response[:500]!r}"
+        )
+        raise ArgumentMapError(
+            "Failed to get valid JSON after retries. "
+            "The manuscript may contain content that causes formatting issues."
+        )
+
+    # Schema validation
+    try:
         schema = ArgumentMapSchema.model_validate(parsed)
-    except Exception as e:
-        raise ArgumentMapError(f"Failed to parse argument map response: {e}")
+    except ValidationError as e:
+        # Retry with validation error context
+        error_details = str(e)
+        retry_prompt = prompt + (
+            f"\n\nIMPORTANT: Your previous response had schema errors:\n{error_details}\n"
+            "Please fix these errors and respond with valid JSON matching the schema exactly."
+        )
+        try:
+            raw_response = await call_llm(retry_prompt, settings.llm_model_bible, MAX_TOKENS)
+        except LLMError as e:
+            raise ArgumentMapError(str(e))
+        if is_truncated(raw_response):
+            raise ArgumentMapError(
+                "AI response was cut off on retry. Please try again."
+            )
+        parsed = parse_json_response(raw_response)
+        if parsed is None:
+            raise ArgumentMapError(f"Schema validation failed after retry: {error_details}")
+        try:
+            schema = ArgumentMapSchema.model_validate(parsed)
+        except ValidationError as e2:
+            raise ArgumentMapError(f"Schema validation failed after retry: {e2}")
 
     return schema, warnings
