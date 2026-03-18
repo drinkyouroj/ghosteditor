@@ -52,9 +52,16 @@ def parse_json_response(text: str) -> dict | None:
 
 
 def is_truncated(text: str) -> bool:
-    """Check if a JSON response appears truncated (doesn't end with } or ])."""
-    stripped = text.rstrip()
-    return len(stripped) > 0 and stripped[-1] not in ("}", "]")
+    """Check if a JSON response appears truncated (doesn't end with } or ]).
+
+    Strips markdown code fences and whitespace before checking, since some
+    models wrap JSON in ```json ... ``` blocks.
+    """
+    stripped = _strip_code_fences(text.rstrip())
+    stripped = stripped.rstrip()
+    if len(stripped) == 0:
+        return True
+    return stripped[-1] not in ("}", "]")
 
 
 def _try_parse(text: str) -> dict | None:
