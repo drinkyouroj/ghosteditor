@@ -14,7 +14,7 @@ from pydantic import ValidationError
 
 from app.analysis.genre_conventions import get_genre_conventions
 from app.analysis.issue_schema import ChapterAnalysisResult, validate_and_filter
-from app.analysis.json_repair import parse_json_response
+from app.analysis.json_repair import is_truncated, parse_json_response
 from app.analysis.llm_client import LLMError, call_llm
 from app.config import settings
 
@@ -123,6 +123,13 @@ async def analyze_chapter(
     except LLMError as e:
         raise ChapterAnalysisError(str(e))
 
+    if is_truncated(raw_response):
+        logger.error(f"LLM response appears truncated (len={len(raw_response)})")
+        raise ChapterAnalysisError(
+            "AI response was cut off. This usually means the chapter produced "
+            "too much output. Please try again."
+        )
+
     # JSON repair pipeline
     parsed = parse_json_response(raw_response)
 
@@ -140,6 +147,12 @@ async def analyze_chapter(
             raw_response = await call_llm(retry_prompt, settings.llm_model_analysis, MAX_TOKENS)
         except LLMError as e:
             raise ChapterAnalysisError(str(e))
+        if is_truncated(raw_response):
+            logger.error(f"LLM response appears truncated (len={len(raw_response)})")
+            raise ChapterAnalysisError(
+                "AI response was cut off. This usually means the chapter produced "
+                "too much output. Please try again."
+            )
         parsed = parse_json_response(raw_response)
 
     if parsed is None:
@@ -166,6 +179,12 @@ async def analyze_chapter(
             raw_response = await call_llm(retry_prompt, settings.llm_model_analysis, MAX_TOKENS)
         except LLMError as e:
             raise ChapterAnalysisError(str(e))
+        if is_truncated(raw_response):
+            logger.error(f"LLM response appears truncated (len={len(raw_response)})")
+            raise ChapterAnalysisError(
+                "AI response was cut off. This usually means the chapter produced "
+                "too much output. Please try again."
+            )
         parsed = parse_json_response(raw_response)
         if parsed is None:
             raise ChapterAnalysisError(f"Schema validation failed after retry: {error_details}")

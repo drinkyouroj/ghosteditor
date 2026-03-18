@@ -20,7 +20,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from app.analysis.bible_schema import StoryBibleSchema
-from app.analysis.json_repair import parse_json_response
+from app.analysis.json_repair import is_truncated, parse_json_response
 from app.analysis.llm_client import LLMError, call_llm
 from app.config import settings
 
@@ -111,6 +111,13 @@ async def generate_story_bible(
     except LLMError as e:
         raise StoryBibleError(str(e))
 
+    if is_truncated(raw_response):
+        logger.error(f"LLM response appears truncated (len={len(raw_response)})")
+        raise StoryBibleError(
+            "AI response was cut off. This usually means the chapter produced "
+            "too much output. Please try again."
+        )
+
     # JSON repair pipeline (JUDGE amendment #2)
     parsed = parse_json_response(raw_response)
 
@@ -128,6 +135,12 @@ async def generate_story_bible(
             raw_response = await call_llm(retry_prompt, settings.llm_model_bible, MAX_TOKENS)
         except LLMError as e:
             raise StoryBibleError(str(e))
+        if is_truncated(raw_response):
+            logger.error(f"LLM response appears truncated (len={len(raw_response)})")
+            raise StoryBibleError(
+                "AI response was cut off. This usually means the chapter produced "
+                "too much output. Please try again."
+            )
         parsed = parse_json_response(raw_response)
 
     if parsed is None:
@@ -154,6 +167,12 @@ async def generate_story_bible(
             raw_response = await call_llm(retry_prompt, settings.llm_model_bible, MAX_TOKENS)
         except LLMError as e:
             raise StoryBibleError(str(e))
+        if is_truncated(raw_response):
+            logger.error(f"LLM response appears truncated (len={len(raw_response)})")
+            raise StoryBibleError(
+                "AI response was cut off. This usually means the chapter produced "
+                "too much output. Please try again."
+            )
         parsed = parse_json_response(raw_response)
         if parsed is None:
             raise StoryBibleError(f"Schema validation failed after retry: {error_details}")
