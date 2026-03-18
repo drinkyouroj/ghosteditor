@@ -40,3 +40,14 @@ in Attack 1 requires a double-misconfiguration that would already break the prod
 Required changes:
 - Error message must include: the setting name, what to do, and that dev mode is auto-detected.
 - Add to the existing `startup` event handler, not a separate one.
+
+---
+
+## SEC-005: CSRF Protection — Accepted Risk
+
+Per DECISION_002 JUDGE verdict: CSRF tokens are deferred to post-v1. The current
+mitigation is `SameSite=Lax` on all cookies plus `Secure=True` in production. This is
+sufficient for the MVP threat model where frontend and backend share the same origin.
+
+If GhostEditor moves to cross-site deployment (e.g., separate API subdomain), CSRF
+tokens must be revisited.
