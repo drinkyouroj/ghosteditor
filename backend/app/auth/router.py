@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+from starlette.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,6 +27,7 @@ from app.auth.security import (
 from app.config import settings
 from app.db.models import Manuscript, User
 from app.db.session import get_db
+from app.email.sender import send_password_reset_email, send_verification_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -78,7 +80,8 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
             existing.verification_token = hash_token(token)
             existing.verification_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
             await db.commit()
-            # TODO: send verification email with plaintext token
+            verification_url = f"{settings.base_url}/auth/verify-email?token={token}"
+            send_verification_email(existing.email, verification_url)
         # For existing verified users, do nothing (no info leak)
     else:
         token = generate_token()
@@ -90,7 +93,8 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
         )
         db.add(user)
         await db.commit()
-        # TODO: send verification email with plaintext token
+        verification_url = f"{settings.base_url}/auth/verify-email?token={token}"
+        send_verification_email(email, verification_url)
 
     # Constant-time delay to mask timing differences (JUDGE amendment)
     await asyncio.sleep(0.3)
@@ -98,7 +102,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/verify-email")
-async def verify_email(token: str, response: Response, db: AsyncSession = Depends(get_db)):
+async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     """Verify email with token from verification email."""
     token_hash = hash_token(token)
 
@@ -122,10 +126,10 @@ async def verify_email(token: str, response: Response, db: AsyncSession = Depend
     await db.commit()
     await db.refresh(user)
 
-    _set_auth_cookies(response, user)
+    redirect = RedirectResponse(url=f"{settings.base_url}/dashboard", status_code=302)
+    _set_auth_cookies(redirect, user)
 
-    # TODO: In production, return 302 redirect to frontend dashboard
-    return {"message": "Email verified", "user_id": str(user.id)}
+    return redirect
 
 
 @router.post("/complete-registration", response_model=UserResponse)
@@ -209,7 +213,8 @@ async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depend
         user.password_reset_token = hash_token(token)
         user.password_reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
         await db.commit()
-        # TODO: send password reset email with plaintext token
+        reset_url = f"{settings.base_url}/auth/reset-password?token={token}"
+        send_password_reset_email(user.email, reset_url)
 
     await asyncio.sleep(0.3)
     return MessageResponse(message="If an account exists with this email, a reset link has been sent.")

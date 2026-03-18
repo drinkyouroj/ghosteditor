@@ -42,10 +42,16 @@ async def get_story_bible(
     if bible is None:
         raise HTTPException(status_code=404, detail="Story bible not yet generated")
 
+    bible_data = bible.bible_json or {}
+    warnings = bible_data.get("_warnings", []) if isinstance(bible_data, dict) else []
+    # Return bible without the internal _warnings key
+    clean_bible = {k: v for k, v in bible_data.items() if k != "_warnings"} if isinstance(bible_data, dict) else bible_data
+
     return {
         "manuscript_id": str(manuscript_id),
         "version": bible.version,
-        "bible": bible.bible_json,
+        "bible": clean_bible,
+        "warnings": warnings,
         "updated_at": bible.updated_at.isoformat(),
     }
 
@@ -115,6 +121,15 @@ async def get_manuscript_feedback(
             pacing = analysis.pacing_json
             genre_notes = analysis.genre_notes
 
+        # Check for issues_capped flag or skip_reason in analysis data
+        issues_capped = False
+        skip_reason = None
+        if analysis:
+            # issues_capped stored in issues_json if it's a dict
+            if isinstance(analysis.issues_json, dict):
+                issues_capped = analysis.issues_json.get("issues_capped", False)
+                skip_reason = analysis.issues_json.get("skip_reason")
+
         chapter_feedback.append({
             "chapter_id": str(ch.id),
             "chapter_number": ch.chapter_number,
@@ -122,6 +137,7 @@ async def get_manuscript_feedback(
             "word_count": ch.word_count,
             "status": ch.status.value,
             "issues": issues,
+            "issues_capped": issues_capped,
             "issue_counts": {
                 "critical": sum(1 for i in issues if i.get("severity") == "critical"),
                 "warning": sum(1 for i in issues if i.get("severity") == "warning"),
@@ -129,6 +145,7 @@ async def get_manuscript_feedback(
             },
             "pacing": pacing,
             "genre_notes": genre_notes,
+            **({"skip_reason": skip_reason} if skip_reason else {}),
         })
 
     # Summary counts across all chapters

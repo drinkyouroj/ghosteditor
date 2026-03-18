@@ -385,6 +385,10 @@ async def process_bible_generation(ctx, job_id: str, manuscript_id: str):
 
             bible_dict = bible_schema.model_dump()
 
+            # Store drift warnings in bible JSON so they're surfaced via the API
+            if warnings:
+                bible_dict["_warnings"] = warnings
+
             await _update_job(session, job_uuid, current_step="Saving story bible", progress_pct=80)
 
             # Save or update bible
@@ -553,6 +557,10 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
 
                 bible_dict = bible_schema.model_dump()
 
+                # Store drift warnings in bible JSON so they're surfaced via the API
+                if bible_warnings:
+                    bible_dict["_warnings"] = bible_warnings
+
                 # Update bible row
                 new_version = bible_row.version + 1
                 bible_row.bible_json = bible_dict
@@ -610,11 +618,24 @@ async def process_chapter_analysis(ctx, job_id: str, manuscript_id: str, chapter
             await _update_job(session, job_uuid, current_step="Saving analysis", progress_pct=80)
 
             # Save analysis
+            analysis_dump = analysis_result.model_dump()
+            issues_data = analysis_dump.get("issues", [])
+            # Store issues as a dict so we can include metadata like issues_capped and skip_reason
+            issues_json_value = {
+                "issues": issues_data,
+                "issues_capped": analysis_dump.get("issues_capped", False),
+            }
+
+            # Flag chapters that were too short for meaningful analysis
+            if not issues_data and chapter.word_count is not None and chapter.word_count < 500:
+                issues_json_value["skip_reason"] = (
+                    "Chapter has fewer than 500 words — too short for meaningful analysis"
+                )
             chapter_analysis = ChapterAnalysis(
                 chapter_id=ch_uuid,
-                issues_json=analysis_result.model_dump().get("issues", []),
-                pacing_json=analysis_result.model_dump().get("pacing"),
-                genre_notes=analysis_result.model_dump().get("genre_notes"),
+                issues_json=issues_json_value,
+                pacing_json=analysis_dump.get("pacing"),
+                genre_notes=analysis_dump.get("genre_notes"),
                 prompt_version="chapter_analysis_v1",
             )
             session.add(chapter_analysis)

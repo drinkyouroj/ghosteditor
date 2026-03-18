@@ -36,6 +36,7 @@ class ChapterAnalysisResult(BaseModel):
     issues: list[Issue] = Field(default_factory=list)
     pacing: PacingAnalysis = Field(default_factory=PacingAnalysis)
     genre_notes: GenreNotes = Field(default_factory=GenreNotes)
+    issues_capped: bool = False
 
 
 # --- Severity ordering for sorting ---
@@ -81,6 +82,8 @@ def validate_and_filter(result: ChapterAnalysisResult) -> ChapterAnalysisResult:
 
     # Sort by severity (critical first) then cap
     filtered_issues.sort(key=lambda i: _SEVERITY_ORDER.get(i.severity, 2))
+    if len(filtered_issues) > MAX_ISSUES_PER_CHAPTER:
+        result.issues_capped = True
     result.issues = filtered_issues[:MAX_ISSUES_PER_CHAPTER]
 
     return result
