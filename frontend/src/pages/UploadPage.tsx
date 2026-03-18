@@ -10,14 +10,28 @@ const STEP_LABELS: Record<string, string> = {
   'Queued for text extraction': 'Uploading file...',
   'Extracting text': 'Extracting text...',
   'Detecting chapters': 'Detecting chapters...',
+  'Detecting sections': 'Detecting sections...',
   'Generating story bible': 'Building story bible...',
+  'Generating argument map': 'Building argument map...',
 }
+
+type DocumentType = 'fiction' | 'nonfiction'
+
+const NONFICTION_FORMATS = [
+  { value: 'academic', label: 'Academic Paper', description: 'Thesis-driven research with citations and formal structure' },
+  { value: 'essay', label: 'Personal Essay / Memoir', description: 'First-person narrative exploring personal experience' },
+  { value: 'journalism', label: 'Journalism / Reporting', description: 'Investigative or explanatory reporting on real events' },
+  { value: 'self_help', label: 'Self-Help / How-To', description: 'Practical guidance with actionable advice for the reader' },
+  { value: 'business', label: 'Business / Professional', description: 'Strategy, leadership, or industry analysis for professionals' },
+] as const
 
 export function UploadPage() {
   const navigate = useNavigate()
   const fileRef = useRef<HTMLInputElement>(null)
   const [title, setTitle] = useState('')
+  const [documentType, setDocumentType] = useState<DocumentType>('fiction')
   const [genre, setGenre] = useState('')
+  const [nonfictionFormat, setNonfictionFormat] = useState('')
   const [error, setError] = useState('')
   const [uploading, setUploading] = useState(false)
   const [jobStep, setJobStep] = useState('')
@@ -36,7 +50,11 @@ export function UploadPage() {
     setJobStep('Uploading file...')
 
     try {
-      const result = await uploadManuscript(file, title, genre || undefined)
+      const result = await uploadManuscript(file, title, {
+        document_type: documentType,
+        genre: documentType === 'fiction' ? genre || undefined : undefined,
+        nonfiction_format: documentType === 'nonfiction' ? nonfictionFormat || undefined : undefined,
+      })
       pollJob(result.job_id, result.manuscript_id)
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Upload failed')
@@ -67,11 +85,15 @@ export function UploadPage() {
     }, POLL_INTERVAL)
   }
 
+  const subtitleText = documentType === 'nonfiction'
+    ? 'Upload your manuscript to get an argument map and developmental analysis.'
+    : 'Upload your manuscript to get a story bible and developmental analysis.'
+
   return (
     <div>
       <h1>Upload Manuscript</h1>
       <p className="upload-subtitle">
-        Upload your manuscript to get a story bible and developmental analysis.
+        {subtitleText}{' '}
         Accepted formats: .docx, .txt, .pdf (max 10MB).
       </p>
 
@@ -93,23 +115,68 @@ export function UploadPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              placeholder="My Great Novel"
+              placeholder={documentType === 'nonfiction' ? 'My Research Paper' : 'My Great Novel'}
             />
           </label>
-          <label>
-            Genre (optional)
-            <select value={genre} onChange={(e) => setGenre(e.target.value)}>
-              <option value="">Select genre...</option>
-              <option value="romance">Romance</option>
-              <option value="fantasy">Fantasy / Science Fiction</option>
-              <option value="mystery">Mystery / Thriller</option>
-              <option value="literary">Literary Fiction</option>
-              <option value="horror">Horror</option>
-              <option value="historical">Historical Fiction</option>
-              <option value="ya">Young Adult</option>
-              <option value="other">Other</option>
-            </select>
-          </label>
+
+          <fieldset className="document-type-fieldset">
+            <legend>Document type</legend>
+            <div className="document-type-options">
+              <label className={`document-type-radio ${documentType === 'fiction' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="documentType"
+                  value="fiction"
+                  checked={documentType === 'fiction'}
+                  onChange={() => setDocumentType('fiction')}
+                />
+                <span className="radio-label">Fiction / Novel</span>
+              </label>
+              <label className={`document-type-radio ${documentType === 'nonfiction' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="documentType"
+                  value="nonfiction"
+                  checked={documentType === 'nonfiction'}
+                  onChange={() => setDocumentType('nonfiction')}
+                />
+                <span className="radio-label">Nonfiction / Essay</span>
+              </label>
+            </div>
+          </fieldset>
+
+          {documentType === 'fiction' ? (
+            <label>
+              Genre (optional)
+              <select value={genre} onChange={(e) => setGenre(e.target.value)}>
+                <option value="">Select genre...</option>
+                <option value="romance">Romance</option>
+                <option value="fantasy">Fantasy / Science Fiction</option>
+                <option value="mystery">Mystery / Thriller</option>
+                <option value="literary">Literary Fiction</option>
+                <option value="horror">Horror</option>
+                <option value="historical">Historical Fiction</option>
+                <option value="ya">Young Adult</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+          ) : (
+            <label>
+              Format (optional)
+              <select value={nonfictionFormat} onChange={(e) => setNonfictionFormat(e.target.value)}>
+                <option value="">Select format...</option>
+                {NONFICTION_FORMATS.map((f) => (
+                  <option key={f.value} value={f.value}>{f.label}</option>
+                ))}
+              </select>
+              {nonfictionFormat && (
+                <span className="format-description">
+                  {NONFICTION_FORMATS.find((f) => f.value === nonfictionFormat)?.description}
+                </span>
+              )}
+            </label>
+          )}
+
           <label>
             Manuscript file
             <input
