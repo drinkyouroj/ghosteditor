@@ -20,7 +20,7 @@ import re
 from pathlib import Path
 
 from docx import Document as DocxDocument
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 logger = logging.getLogger(__name__)
 
