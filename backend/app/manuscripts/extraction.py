@@ -1024,6 +1024,62 @@ NONFICTION_HEADER_PATTERNS = [
 ]
 
 
+def _find_toc_end(text: str) -> int:
+    """Find the end position of a Table of Contents block in the text.
+
+    Looks for common ToC markers ("Table of Contents", "CONTENTS", "TABLE OF
+    CONTENTS") and then finds where the ToC block ends.  A ToC is a dense
+    block of short lines (one per entry).  We detect the end by looking for
+    a gap of 2+ blank lines after at least a few ToC entries, which signals
+    the transition from ToC to body text.
+
+    Returns 0 if no ToC block is detected.
+    """
+    toc_pattern = re.compile(
+        r"^(?:TABLE\s+OF\s+CONTENTS|CONTENTS|Table\s+of\s+Contents)\s*$",
+        re.IGNORECASE | re.MULTILINE,
+    )
+    toc_match = toc_pattern.search(text)
+    if not toc_match:
+        return 0
+
+    toc_start = toc_match.start()
+    # Scan forward from the ToC header.  Count non-blank lines (ToC entries)
+    # and look for the first gap of 2+ consecutive blank lines after we've
+    # seen at least 2 entries.  That gap marks the end of the ToC.
+    lines = text[toc_start:].split("\n")
+    char_offset = toc_start
+    past_header = False
+    consecutive_blank = 0
+    entry_count = 0
+    for line in lines:
+        stripped = line.strip()
+        if not past_header:
+            past_header = True
+            char_offset += len(line) + 1
+            continue
+
+        if not stripped:
+            consecutive_blank += 1
+            # After seeing some entries, a double-blank-line gap ends the ToC
+            if consecutive_blank >= 2 and entry_count >= 2:
+                logger.debug(
+                    f"ToC block ends at char offset {char_offset} "
+                    f"(after {entry_count} entries)"
+                )
+                return char_offset
+        else:
+            consecutive_blank = 0
+            entry_count += 1
+
+        char_offset += len(line) + 1
+
+    # If no clear end found, assume ToC extends ~5000 chars from its start
+    fallback = min(toc_start + 5000, len(text))
+    logger.debug(f"ToC block end not clearly detected, using fallback at {fallback}")
+    return fallback
+
+
 def _detect_nonfiction_sections(text: str) -> tuple[list[dict], str]:
     """Detect sections in nonfiction manuscripts using header patterns.
 
@@ -1031,6 +1087,11 @@ def _detect_nonfiction_sections(text: str) -> tuple[list[dict], str]:
     Uses header detection first, falls back to chunking at ~1500 words at paragraph boundaries.
     Does NOT use the LLM splitting path (unnecessary for structured nonfiction).
     """
+    # Detect ToC block so we can skip standalone label matches inside it
+    toc_end = _find_toc_end(text)
+    if toc_end > 0:
+        logger.info(f"Detected ToC block ending at char position {toc_end}")
+
     # Try header-based detection
     split_positions = []
     for pattern in NONFICTION_HEADER_PATTERNS:
@@ -1043,7 +1104,21 @@ def _detect_nonfiction_sections(text: str) -> tuple[list[dict], str]:
             # Skip ALL-CAPS matches that look like single words or acronyms
             if header.isupper() and len(header.split()) < 3:
                 continue
+            # Skip ALL header matches that appear inside the ToC block.
+            # ToC entries are not body-text section headers and would
+            # produce very short (or incorrect) segments if kept.
+            if toc_end > 0 and pos < toc_end:
+                logger.debug(
+                    f"Skipping header {header!r} at pos {pos} "
+                    f"(inside ToC block ending at {toc_end})"
+                )
+                continue
             split_positions.append((pos, header))
+
+    logger.debug(
+        f"Raw nonfiction header matches: {len(split_positions)} "
+        f"[{', '.join(f'{t!r}@{p}' for p, t in split_positions[:20])}]"
+    )
 
     # Deduplicate by position (different patterns may match the same header)
     if split_positions:
@@ -1058,6 +1133,11 @@ def _detect_nonfiction_sections(text: str) -> tuple[list[dict], str]:
                     deduped[-1] = (deduped[-1][0], title)
         split_positions = deduped
 
+    logger.debug(
+        f"After dedup: {len(split_positions)} headers "
+        f"[{', '.join(f'{t!r}@{p}' for p, t in split_positions[:20])}]"
+    )
+
     # Filter out TOC-like short segments
     if split_positions:
         filtered = []
@@ -1066,7 +1146,20 @@ def _detect_nonfiction_sections(text: str) -> tuple[list[dict], str]:
             segment_words = len(text[pos:end].split())
             if segment_words >= TOC_THRESHOLD_WORDS:
                 filtered.append((pos, title))
+                logger.debug(
+                    f"  KEEP {title!r}@{pos}: {segment_words} words to next header"
+                )
+            else:
+                logger.debug(
+                    f"  DROP {title!r}@{pos}: only {segment_words} words to next header "
+                    f"(threshold={TOC_THRESHOLD_WORDS})"
+                )
         split_positions = filtered
+
+    logger.debug(
+        f"After TOC filter: {len(split_positions)} headers "
+        f"[{', '.join(f'{t!r}@{p}' for p, t in split_positions[:20])}]"
+    )
 
     # If we found enough headers (at least 2), use header-based splitting
     if len(split_positions) >= 2:
@@ -1075,9 +1168,11 @@ def _detect_nonfiction_sections(text: str) -> tuple[list[dict], str]:
             end = split_positions[i + 1][0] if i + 1 < len(split_positions) else len(text)
             chapter_text = text[pos:end].strip()
             word_count = len(chapter_text.split())
+            # Strip leading/trailing underscores from italic-marker titles
+            clean_title = title.lstrip("#").strip().strip("_").strip()
             chapters.append({
                 "chapter_number": i + 1,
-                "title": title.lstrip("#").strip(),
+                "title": clean_title,
                 "text": chapter_text,
                 "word_count": word_count,
                 "split_method": "header",

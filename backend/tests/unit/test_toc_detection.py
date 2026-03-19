@@ -4,11 +4,17 @@ Covers:
 - ToC re-search: short ToC entries followed by long body chapters
 - Number-stripped variant matching (e.g., "3. My Chapter Title" matches body text)
 - Smart quote normalization in marker matching
+- Nonfiction Introduction/Preface preservation through ToC filtering
 """
 
 import pytest
 
-from app.manuscripts.extraction import _split_by_markers, _find_marker_position
+from app.manuscripts.extraction import (
+    _split_by_markers,
+    _find_marker_position,
+    _detect_nonfiction_sections,
+    _find_toc_end,
+)
 
 
 class TestToCDetectionAndReSearch:
@@ -206,3 +212,148 @@ class TestMarkerMatchThreshold:
         result = _split_by_markers(text, sections, front_matter_end_marker=None)
         # 3 out of 4 markers match = 75%, should proceed
         assert len(result) == 3
+
+
+class TestNonfictionIntroPreface:
+    """Test that Introduction and Preface are preserved as separate sections
+    when they appear as body-text headers (not just in the ToC)."""
+
+    def test_find_toc_end_detects_toc_block(self):
+        """_find_toc_end should find the end of a Table of Contents block."""
+        toc = (
+            "Table of Contents\n\n"
+            "Introduction\n"
+            "Preface\n"
+            "_She Helped to Kill a President_\n"
+            "_The Trial of the Century_\n\n\n"
+        )
+        # Body text starts with a long prose paragraph
+        body = "This is the beginning of the body text. " * 10 + "\n\n"
+        text = toc + body
+
+        toc_end_pos = _find_toc_end(text)
+        assert toc_end_pos > 0, "Should detect a ToC block"
+        # The ToC end should be before the body text
+        assert toc_end_pos <= len(toc) + 50, (
+            f"ToC end ({toc_end_pos}) should be near the end of the ToC block ({len(toc)})"
+        )
+
+    def test_find_toc_end_returns_zero_without_toc(self):
+        """When there is no ToC header, _find_toc_end should return 0."""
+        text = "Introduction\n\n" + "Some body text. " * 100
+        assert _find_toc_end(text) == 0
+
+    def test_intro_preface_preserved_with_toc(self):
+        """Introduction and Preface in the body should survive when a ToC
+        contains the same labels as short entries."""
+        # Build a realistic nonfiction text with ToC followed by body sections
+        toc = (
+            "Table of Contents\n\n"
+            "Introduction\n"
+            "Preface\n"
+            "_She Helped to Kill a President_\n"
+            "_The Trial of the Century_\n"
+            "_Justice Denied_\n\n\n"
+        )
+
+        # Body text with Introduction, Preface, and italic chapter titles
+        body_intro = (
+            "Introduction\n\n"
+            + "This is the introduction to the book about justice. " * 30
+            + "\n\n"
+        )
+        body_preface = (
+            "Preface\n\n"
+            + "The author wrote this preface to explain the background. " * 25
+            + "\n\n"
+        )
+        body_ch1 = (
+            "_She Helped to Kill a President_\n\n"
+            + "The story of the first case begins here. " * 100
+            + "\n\n"
+        )
+        body_ch2 = (
+            "_The Trial of the Century_\n\n"
+            + "The second chapter covers the famous trial. " * 100
+            + "\n\n"
+        )
+        body_ch3 = (
+            "_Justice Denied_\n\n"
+            + "The final chapter discusses the outcome. " * 100
+            + "\n\n"
+        )
+
+        text = toc + body_intro + body_preface + body_ch1 + body_ch2 + body_ch3
+
+        chapters, method = _detect_nonfiction_sections(text)
+
+        assert method == "header", f"Expected 'header' split method, got {method!r}"
+        assert len(chapters) >= 5, (
+            f"Expected at least 5 sections (Intro + Preface + 3 chapters), "
+            f"got {len(chapters)}: {[ch['title'] for ch in chapters]}"
+        )
+
+        titles = [ch["title"] for ch in chapters]
+        assert "Introduction" in titles, (
+            f"Introduction should be a separate section, got titles: {titles}"
+        )
+        assert "Preface" in titles, (
+            f"Preface should be a separate section, got titles: {titles}"
+        )
+
+    def test_intro_preface_without_toc_still_detected(self):
+        """Introduction and Preface should work even when there is no ToC block."""
+        body_intro = (
+            "Introduction\n\n"
+            + "This is the introduction. " * 30
+            + "\n\n"
+        )
+        body_preface = (
+            "Preface\n\n"
+            + "This is the preface text. " * 25
+            + "\n\n"
+        )
+        body_ch1 = (
+            "_First Chapter Title Here_\n\n"
+            + "First chapter content. " * 100
+            + "\n\n"
+        )
+        body_ch2 = (
+            "_Second Chapter Title Here_\n\n"
+            + "Second chapter content. " * 100
+            + "\n\n"
+        )
+
+        text = body_intro + body_preface + body_ch1 + body_ch2
+
+        chapters, method = _detect_nonfiction_sections(text)
+
+        assert method == "header"
+        titles = [ch["title"] for ch in chapters]
+        assert "Introduction" in titles, f"Missing Introduction in {titles}"
+        assert "Preface" in titles, f"Missing Preface in {titles}"
+
+    def test_italic_title_underscores_stripped(self):
+        """Italic titles like _Title_ should have underscores stripped."""
+        body_ch1 = (
+            "_She Helped to Kill a President_\n\n"
+            + "First chapter body text. " * 100
+            + "\n\n"
+        )
+        body_ch2 = (
+            "_The Trial of the Century_\n\n"
+            + "Second chapter body text. " * 100
+            + "\n\n"
+        )
+
+        text = body_ch1 + body_ch2
+        chapters, method = _detect_nonfiction_sections(text)
+
+        assert method == "header"
+        for ch in chapters:
+            assert not ch["title"].startswith("_"), (
+                f"Title should not start with underscore: {ch['title']!r}"
+            )
+            assert not ch["title"].endswith("_"), (
+                f"Title should not end with underscore: {ch['title']!r}"
+            )
