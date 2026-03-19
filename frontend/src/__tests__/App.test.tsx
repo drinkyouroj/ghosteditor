@@ -49,7 +49,7 @@ describe('App', () => {
 
     // Wait for loading to complete and landing page to appear
     await waitFor(() => {
-      expect(screen.getByText(/GhostEditor/i)).toBeTruthy()
+      expect(screen.getAllByText(/GhostEditor/i).length).toBeGreaterThan(0)
     })
   })
 })
