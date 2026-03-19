@@ -1,8 +1,17 @@
 import io
 import zipfile
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient
+
+
+@pytest.fixture(autouse=True)
+def mock_rate_limit():
+    """Disable rate limiting for validation tests."""
+    with patch("app.auth.router.check_rate_limit", new_callable=AsyncMock):
+        with patch("app.manuscripts.router.check_rate_limit", new_callable=AsyncMock):
+            yield
 
 
 def make_docx_bytes() -> bytes:

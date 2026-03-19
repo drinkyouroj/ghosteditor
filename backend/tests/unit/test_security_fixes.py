@@ -60,19 +60,20 @@ class TestJWTSecretGuard:
     @pytest.mark.asyncio
     async def test_startup_raises_on_default_secret_in_production(self):
         """Startup should raise RuntimeError with default JWT secret in production."""
-        from app.main import startup
+        from app.main import lifespan, app
 
         with patch("app.main.settings") as mock_settings:
             mock_settings.jwt_secret_key = "change-me-in-production"
             mock_settings.base_url = "https://app.ghosteditor.com"
             mock_settings.s3_endpoint_url = ""
             with pytest.raises(RuntimeError, match="JWT_SECRET_KEY"):
-                await startup()
+                async with lifespan(app):
+                    pass
 
     @pytest.mark.asyncio
     async def test_startup_allows_default_secret_in_dev(self):
         """Startup should not raise with default JWT secret in dev mode."""
-        from app.main import startup
+        from app.main import lifespan, app
 
         with patch("app.main.settings") as mock_settings:
             mock_settings.jwt_secret_key = "change-me-in-production"
@@ -80,7 +81,8 @@ class TestJWTSecretGuard:
             mock_settings.s3_endpoint_url = "http://localhost:9000"
             # Should not raise — may fail on S3 bucket check, which is fine
             try:
-                await startup()
+                async with lifespan(app):
+                    pass
             except RuntimeError as e:
                 if "JWT_SECRET_KEY" in str(e):
                     pytest.fail("Should not raise JWT error in dev mode")

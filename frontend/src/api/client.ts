@@ -213,6 +213,12 @@ export function startAnalysis(manuscriptId: string) {
   })
 }
 
+export function reanalyzeManuscript(manuscriptId: string) {
+  return request<{ message: string }>(`/manuscripts/${manuscriptId}/reanalyze`, {
+    method: 'POST',
+  })
+}
+
 // --- Story Bible ---
 
 export interface StoryBible {
@@ -396,6 +402,10 @@ export interface NonfictionDocumentSummary {
 
 export interface NonfictionFeedback extends ManuscriptFeedback {
   document_summary: NonfictionDocumentSummary | null
+}
+
+export function getExportFeedbackUrl(manuscriptId: string, format: 'pdf' | 'docx'): string {
+  return `${BASE}/bible/${manuscriptId}/feedback/export?format=${format}`
 }
 
 export async function getNonfictionFeedback(manuscriptId: string, filters?: { severity?: string; issue_type?: string }): Promise<NonfictionFeedback> {

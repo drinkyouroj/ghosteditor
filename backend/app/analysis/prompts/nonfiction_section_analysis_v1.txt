@@ -55,6 +55,7 @@ Analyze the section text below and return a JSON object with the following field
    Be CONSERVATIVE with critical severity. Authors trust this tool, and false critical flags erode that trust. When checking consistency, compare ONLY against the argument map above — do not invent prior claims or evidence.
 
    {section_one_instruction}
+   When the note above says there is no prior argument map (Section 1), do NOT flag any consistency-related issues at "critical" severity — there is nothing to be inconsistent with yet. Focus critical flags only on internal contradictions within this section itself.
 
    If this section was detected via chunked splitting (section_detection_method = "chunked"), be aware that section boundaries are artificial and may cut across argument boundaries. Do NOT flag issues caused by the chunking itself (e.g., "this section lacks a conclusion" when the conclusion is likely in the next chunk). Focus on issues within the text as written.
 
@@ -63,7 +64,7 @@ Analyze the section text below and return a JSON object with the following field
 6. **argument_map_updates** — Proposed updates to the argument map based on this section. This object may contain any combination of:
    - "new_threads": Array of new argument threads discovered in this section (same schema as argument_threads in the argument map: id, claim, first_seen_section, status)
    - "thread_status_changes": Array of objects with "id" (existing thread ID) and "new_status" (one of "open", "supported", "unresolved", "abandoned") and "reason" (brief explanation)
-   - "new_evidence": Array of new evidence entries found in this section (same schema as evidence_log: section, type, summary, supports_claim_id). Cap at 10 new evidence entries per section. If more exist, select the 10 most significant.
+   - "new_evidence": Array of new evidence entries found in this section (same schema as evidence_log: section, type, summary, supports_claim_id). Use the field name "supports_claim_id" (not "supports_thread") for the thread ID reference. Cap at 10 new evidence entries per section. If more exist, select the 10 most significant.
    If no updates are warranted, use an empty object: {}
 
 7. **evidence_capped** — A boolean flag indicating whether the evidence log cap was reached during this section's analysis. Set to true if the argument map's existing evidence_log entries plus this section's new_evidence entries would exceed 50 total, and you had to truncate new_evidence to fit within the cap. Set to false if all evidence entries fit within the 50-entry limit without truncation. When evidence_capped is true, ensure that argument_map_updates.new_evidence contains only the entries that fit within the remaining cap space, prioritized by significance to the central thesis.
@@ -73,6 +74,7 @@ CRITICAL RULES:
 - If you cannot determine a value with confidence, use null rather than guessing.
 - Extract only what is explicitly stated or clearly implied in the text. Do not invent claims, evidence, or issues not present.
 - For very short sections (under 300 words): still analyze what is present, but do not penalize brevity itself. Short sections may be transitions, introductions, or conclusions. Note the brevity only if the section attempts to make a substantive argument in too few words.
+- For sections over 5,000 words: focus your analysis on the most significant issues. Do not list every minor clarity note — prioritize structural and argument issues that affect the section's effectiveness. Cap the issues array at the most impactful findings rather than exhaustively cataloguing minor style notes.
 - For sections with no discernible argument: report this as a structure note ("This section does not advance a clear argument"), not as a critical issue. Some sections legitimately serve as transitions, context-setting, or narrative interludes.
 - Properly escape all special characters in JSON strings (quotes, backslashes, newlines).
 - The combined total of evidence entries across all sections must not exceed 50 in the final argument map. If the argument map's evidence log already has many entries, be selective about what you add in argument_map_updates.new_evidence.

@@ -453,9 +453,9 @@ detect_chapters_sync = _detect_chapters_regex
 # ---------------------------------------------------------------------------
 
 SPLITTING_PROMPT_PATH = Path(__file__).parent.parent / "analysis" / "prompts" / "splitting_v1.txt"
-SAMPLE_START_WORDS = 3000
+SAMPLE_START_WORDS = 5000
 SAMPLE_END_WORDS = 1000
-SAMPLE_FULL_THRESHOLD = 5000
+SAMPLE_FULL_THRESHOLD = 7000
 AUTO_SPLIT_TARGET_WORDS = 4000
 AUTO_SPLIT_WINDOW = 500  # words to search for a good break point
 SPLITTING_MAX_TOKENS = 8192
@@ -733,8 +733,23 @@ def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: 
 
         positions.append((pos, title))
 
+    total_markers = sum(1 for s in sections if s.get("marker"))
+    matched_count = len(positions)
+    logger.info(
+        f"Marker matching: {matched_count}/{total_markers} markers found in text"
+    )
+
     if not positions:
         logger.warning("No LLM markers could be matched in the text")
+        return []
+
+    # If less than 50% of markers matched, the LLM likely hallucinated or
+    # reformatted them — force fallback rather than producing a bad split
+    if total_markers > 0 and matched_count / total_markers < 0.5:
+        logger.warning(
+            f"Only {matched_count}/{total_markers} markers matched (<50%%). "
+            f"Returning empty to force fallback splitting."
+        )
         return []
 
     logger.info(f"Matched {len(positions)} markers: {[(p, t) for p, t in positions]}")
@@ -834,6 +849,19 @@ def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: 
                         f"short chapters. Returning empty for fallback."
                     )
                     chapters = []  # Force fallback to tier 2
+
+    # Post-split word count validation: check if the split is lossy
+    if chapters:
+        original_word_count = len(text.split())
+        split_word_count = sum(ch["word_count"] for ch in chapters)
+        if original_word_count > 0:
+            coverage = split_word_count / original_word_count
+            if coverage < 0.80:
+                logger.warning(
+                    f"Lossy split detected: chapters contain {split_word_count} words "
+                    f"but original text has {original_word_count} words "
+                    f"({coverage:.0%} coverage). Content may have been dropped between markers."
+                )
 
     logger.info(f"LLM splitting produced {len(chapters)} sections")
     return chapters
@@ -980,10 +1008,12 @@ NONFICTION_HEADER_PATTERNS = [
     re.compile(r"^(#{1,4}\s+.+)$", re.MULTILINE),
     # ALL-CAPS lines (at least 3 words, to avoid false positives)
     re.compile(r"^([A-Z][A-Z\s,:''\-]{10,})$", re.MULTILINE),
-    # Numbered sections: "1.", "1.1", "Section 1:", "Section 1." — with optional _underscores_
-    re.compile(r"^_?((?:Section\s+)?\d+(?:\.\d+)?\s*[.:]\s*.+?)_?\s*$", re.IGNORECASE | re.MULTILINE),
+    # Numbered sections: "1.", "1.1", "Section 1:", "Section 1." — with optional _underscores_ and leading whitespace
+    re.compile(r"^\s*_?((?:Section\s+)?\d+(?:\.\d+)?\s*[.:]\s*.+?)_?\s*$", re.IGNORECASE | re.MULTILINE),
     # Standalone section labels on their own line: Introduction, Preface, Conclusion, Epilogue, etc.
     re.compile(r"^\s*((?:Introduction|Preface|Foreword|Prologue|Epilogue|Conclusion|Afterword|Appendix))\s*$", re.IGNORECASE | re.MULTILINE),
+    # Gutenberg italic titles: _Title Text Here_ on their own line (at least 3 words to avoid false positives)
+    re.compile(r"^(_[A-Z][^_\n]{8,}_)\s*$", re.MULTILINE),
     # "Part I", "Part 1", "Part One"
     re.compile(
         rf"^(Part\s+(?:\d+|{ROMAN_NUMERAL}|{CHAPTER_WORD_NUMBERS})\b[^\n]*)",
@@ -1192,6 +1222,20 @@ async def detect_chapters(text: str, document_type: str | None = None) -> tuple[
             "Structure detection encountered an error. Your manuscript "
             "has been split using basic pattern matching. You may want to retry."
         )
+
+    # --- Quality check on LLM split ---
+    # If one chapter has >70% of total words, the split is lopsided (probably
+    # matched a few ToC/heading entries but missed the actual body structure).
+    # Discard and let fallback splitting try.
+    if chapters and len(chapters) >= 2:
+        total_words = sum(ch["word_count"] for ch in chapters)
+        max_words = max(ch["word_count"] for ch in chapters)
+        if total_words > 0 and max_words / total_words > 0.7:
+            logger.warning(
+                f"LLM split is lopsided: largest chapter has {max_words}/{total_words} words "
+                f"({max_words/total_words:.0%}). Discarding for fallback."
+            )
+            chapters = []
 
     # --- Tier 2: Fallback splitting ---
     if not chapters:

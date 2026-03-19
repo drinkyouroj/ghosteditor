@@ -21,3 +21,7 @@ Apply these conventions when analyzing sections of personal essays or memoir-sty
 9. ENDING RESONANCE: Concluding sections should resonate with the opening or provide a shift in understanding, not merely stop. Flag conclusions that introduce entirely new material without connecting to the essay's arc as Warning with dimension "structure".
 
 10. VULNERABILITY CALIBRATION: The essay should share enough personal detail to create connection without oversharing in ways that distract from the point. Flag passages where personal disclosure seems to serve no thematic purpose as Note with dimension "tone".
+
+11. NARRATIVE ARC: The essay as a whole should have a discernible shape — a movement from one state of understanding to another, a question pursued to resolution (or deliberate irresolution), or a tension that builds and releases. Flag sections that feel like disconnected vignettes with no cumulative effect as Warning with dimension "structure".
+
+12. RESEARCH INTEGRATION: When the personal essay incorporates factual claims, historical context, or scientific information, this material should be woven into the personal narrative rather than inserted as expository blocks. Flag sections where research material reads as a separate report dropped into the essay as Note with dimension "structure".
