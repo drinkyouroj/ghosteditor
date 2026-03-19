@@ -103,7 +103,7 @@ export function ManuscriptPage() {
             {manuscript.word_count_est && (
               <span>{manuscript.word_count_est.toLocaleString()} words</span>
             )}
-            {totalChapters > 0 && <span>{totalChapters} chapters</span>}
+            {totalChapters > 0 && <span>{totalChapters} {isNonfiction ? 'sections' : 'chapters'}</span>}
           </div>
         </div>
         <div className="ms-actions">
@@ -178,7 +178,7 @@ export function ManuscriptPage() {
                 />
               </div>
               <span className="progress-count">
-                {analyzedCount} of {totalChapters} chapters analyzed
+                {analyzedCount} of {totalChapters} {isNonfiction ? 'sections' : 'chapters'} analyzed
               </span>
             </div>
           )}
@@ -204,7 +204,7 @@ export function ManuscriptPage() {
 
       {manuscript.chapters.length > 0 && (
         <div className="chapter-list">
-          <h2>Chapters</h2>
+          <h2>{isNonfiction ? 'Sections' : 'Chapters'}</h2>
           <table>
             <thead>
               <tr>

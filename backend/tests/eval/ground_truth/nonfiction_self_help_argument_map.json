@@ -1,0 +1,7 @@
+{
+    "central_thesis": "morning",
+    "expected_thread_count_min": 3,
+    "expected_evidence_types": ["study", "statistic", "framework"],
+    "expected_voice_register": "authoritative",
+    "expected_format_detection": "self_help"
+}
