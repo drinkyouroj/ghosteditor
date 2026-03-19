@@ -1055,40 +1055,9 @@ async def detect_chapters(text: str, document_type: str | None = None) -> tuple[
     warnings = []
     chapters = []
 
-    # --- Nonfiction path: header detection + chunking (no LLM) ---
-    if document_type == "nonfiction":
-        logger.info("Using nonfiction section detection path")
-        nf_chapters, split_method = _detect_nonfiction_sections(text)
+    is_nonfiction = document_type == "nonfiction"
 
-        if split_method == "chunked":
-            warnings.append(
-                "No clear section headers were detected in your manuscript. "
-                "It has been automatically divided into sections for analysis."
-            )
-
-        # Merge short sections
-        nf_chapters = _merge_short_sections(nf_chapters)
-
-        # Cap at MAX_CHAPTERS
-        if len(nf_chapters) > MAX_CHAPTERS:
-            logger.warning(
-                f"Nonfiction splitting yielded {len(nf_chapters)} sections "
-                f"(max {MAX_CHAPTERS}). Falling back to chunking."
-            )
-            nf_chapters = _chunk_at_paragraphs(text, NONFICTION_CHUNK_TARGET_WORDS)
-            nf_chapters = _merge_short_sections(nf_chapters)
-
-        # Ensure split_method is set
-        for ch in nf_chapters:
-            ch.setdefault("split_method", split_method)
-
-        logger.info(
-            f"Nonfiction final split: {len(nf_chapters)} sections "
-            f"(method={split_method})"
-        )
-        return nf_chapters, warnings
-
-    # --- Tier 1: LLM-assisted splitting ---
+    # --- Tier 1: LLM-assisted splitting (fiction and nonfiction) ---
     try:
         model = settings.llm_model_splitting or settings.llm_model_analysis
         sample = _sample_manuscript(text)
@@ -1133,28 +1102,44 @@ async def detect_chapters(text: str, document_type: str | None = None) -> tuple[
             "has been split using basic pattern matching. You may want to retry."
         )
 
-    # --- Tier 2: Auto-split fallback ---
+    # --- Tier 2: Fallback splitting ---
     if not chapters:
-        if not warnings:
-            # LLM returned no sections (not an error, just no structure found)
-            warnings.append(
-                "No clear section structure was detected in your manuscript. "
-                "It has been automatically divided into sections for analysis. "
-                "Results may be less accurate."
-            )
-        chapters = _auto_split(text)
+        if is_nonfiction:
+            # Nonfiction fallback: try header patterns, then paragraph chunking
+            nf_chapters, nf_method = _detect_nonfiction_sections(text)
+            chapters = nf_chapters
+            if nf_method == "chunked" and not warnings:
+                warnings.append(
+                    "No clear section headers were detected in your manuscript. "
+                    "It has been automatically divided into sections for analysis."
+                )
+        else:
+            # Fiction fallback: auto-split at ~4K words
+            if not warnings:
+                warnings.append(
+                    "No clear section structure was detected in your manuscript. "
+                    "It has been automatically divided into sections for analysis. "
+                    "Results may be less accurate."
+                )
+            chapters = _auto_split(text)
 
-    # --- Tier 3: If auto-split produces only 1 section, try regex ---
+    # --- Tier 3: If still only 1 section, try regex (fiction) or chunking (nonfiction) ---
     if len(chapters) == 1:
-        regex_chapters = _detect_chapters_regex(text)
-        if len(regex_chapters) > 1:
-            # Regex found structure that auto-split missed
-            logger.info(f"Regex fallback found {len(regex_chapters)} chapters")
-            for ch in regex_chapters:
-                ch["split_method"] = "regex"
-            chapters = regex_chapters
-            # Clear the "no structure" warning since regex found some
-            warnings = []
+        if is_nonfiction:
+            # For nonfiction, chunk at paragraph boundaries
+            chunked = _chunk_at_paragraphs(text, NONFICTION_CHUNK_TARGET_WORDS)
+            if len(chunked) > 1:
+                logger.info(f"Nonfiction chunking fallback produced {len(chunked)} sections")
+                chapters = chunked
+                warnings = ["Manuscript was automatically divided into sections for analysis."]
+        else:
+            regex_chapters = _detect_chapters_regex(text)
+            if len(regex_chapters) > 1:
+                logger.info(f"Regex fallback found {len(regex_chapters)} chapters")
+                for ch in regex_chapters:
+                    ch["split_method"] = "regex"
+                chapters = regex_chapters
+                warnings = []
 
     # --- Post-processing ---
     # Only merge short sections for auto-split and regex methods.
