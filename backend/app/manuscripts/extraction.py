@@ -523,11 +523,15 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
     case-sensitive then case-insensitive.
     Returns character position or -1 if not found.
     """
-    # Build candidate markers: original, punctuation-stripped, first-line
+    # Build candidate markers: original, punctuation-stripped, underscore-stripped, first-line
     candidates = [marker]
     marker_stripped = marker.rstrip(".,;:!?")
     if marker_stripped != marker:
         candidates.append(marker_stripped)
+    # Strip Gutenberg italic/bold markers (underscores)
+    marker_no_underscores = marker.strip("_").rstrip(".,;:!?")
+    if marker_no_underscores != marker.strip():
+        candidates.append(marker_no_underscores)
     first_line = marker.split("\n")[0].strip()
     if first_line and first_line != marker.strip():
         candidates.append(first_line)
@@ -536,7 +540,8 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
         words = _normalize_whitespace(candidate).split()
         if not words:
             continue
-        pattern = r"\s+".join(re.escape(w) for w in words) + r"(?!\w)"
+        # Allow optional leading/trailing underscores (Gutenberg italic markers)
+        pattern = r"_?" + r"\s+".join(re.escape(w) for w in words) + r"_?(?!\w)"
 
         # Case-sensitive match from search_start
         try:
