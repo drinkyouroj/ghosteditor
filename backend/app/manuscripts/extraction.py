@@ -529,7 +529,7 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
 
     marker = _normalize_quotes(marker)
 
-    # Build candidate markers: original, cleaned, underscore-stripped, first-line
+    # Build candidate markers: original, cleaned, underscore-stripped, number-stripped, first-line
     # Strip trailing junk the LLM sometimes adds: quotes, parens, punctuation
     marker_clean = marker.strip("_\"\"''()[].,;:!? \t")
     candidates = [marker]
@@ -539,6 +539,12 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
     marker_no_underscores = marker.strip("_").strip("\"\"''()[].,;:!? \t")
     if marker_no_underscores not in candidates:
         candidates.append(marker_no_underscores)
+    # Strip leading number prefix: "1. Title" -> "Title", "10. Title" -> "Title"
+    # Gutenberg often separates the number from the title across lines
+    marker_no_number = re.sub(r"^\d+\.\s*", "", marker_clean)
+    if marker_no_number and marker_no_number != marker_clean and len(marker_no_number) > 5:
+        if marker_no_number not in candidates:
+            candidates.append(marker_no_number)
     first_line = marker.split("\n")[0].strip()
     if first_line and first_line not in candidates:
         candidates.append(first_line)
