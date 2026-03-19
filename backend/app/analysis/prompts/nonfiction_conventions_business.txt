@@ -21,3 +21,7 @@ Apply these conventions when analyzing sections of business or professional nonf
 9. SECTION SIGNPOSTING: Sections should begin with a clear statement of what the reader will learn or gain from reading the section. Flag sections that begin without signposting their value to the reader as Note with dimension "structure".
 
 10. RISK ACKNOWLEDGMENT: When recommending strategies or decisions, associated risks or potential downsides should be acknowledged. Flag sections that present strategies as risk-free or without tradeoffs as Warning with dimension "argument".
+
+11. FRAMEWORK ORIGINALITY: When introducing a business framework, model, or matrix, the author should clarify whether it is original or adapted from existing work (e.g., Porter's Five Forces, SWOT, Jobs-to-be-Done). Flag frameworks presented as novel that closely resemble well-known models without attribution as Note with dimension "evidence".
+
+12. SCALABILITY CONTEXT: Advice and strategies should indicate at what scale they apply — startup, mid-market, enterprise, or universal. Flag blanket recommendations that ignore organizational scale as Note with dimension "argument".
