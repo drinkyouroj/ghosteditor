@@ -749,6 +749,62 @@ def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: 
             "split_method": "llm",
         })
 
+    # Sanity check: if most chapters are very short (< 50 words) while one is
+    # huge, the markers probably matched in the ToC instead of the body text.
+    # Re-search with sequential positioning (each marker after the previous).
+    if len(chapters) >= 3:
+        short_count = sum(1 for ch in chapters if ch["word_count"] < 50)
+        if short_count > len(chapters) * 0.5:
+            logger.warning(
+                f"ToC match detected: {short_count}/{len(chapters)} chapters "
+                f"under 50 words. Re-searching markers sequentially."
+            )
+            # Re-find markers: each one must come after the previous one's position
+            # Start searching from the position of the last short chapter
+            last_short_pos = max(
+                pos for pos, title in positions
+                if len(text[pos:positions[positions.index((pos, title)) + 1][0]
+                    if positions.index((pos, title)) + 1 < len(positions)
+                    else len(text)].split()) < 50
+            ) if short_count > 0 else search_start
+
+            # Use a simpler approach: find the ToC end by looking for the last
+            # short segment, then re-search all markers after that point
+            toc_end = 0
+            for i, ch in enumerate(chapters):
+                if ch["word_count"] < 50 and i < len(chapters) - 1:
+                    # This chapter's end position is the next chapter's start
+                    toc_end = max(toc_end, positions[i][0] + len(ch["text"]) + 100)
+
+            if toc_end > search_start:
+                logger.info(f"Re-searching markers after ToC end position {toc_end}")
+                new_positions = []
+                for section in sections:
+                    marker = section.get("marker", "")
+                    title = section.get("title", marker)
+                    if not marker:
+                        continue
+                    pos = _find_marker_position(text, marker, toc_end)
+                    if pos != -1:
+                        new_positions.append((pos, title))
+
+                if len(new_positions) >= 2:
+                    new_positions.sort(key=lambda x: x[0])
+                    # Rebuild chapters from new positions
+                    chapters = []
+                    for i, (pos, title) in enumerate(new_positions):
+                        end = new_positions[i + 1][0] if i + 1 < len(new_positions) else len(text)
+                        chapter_text = text[pos:end].strip()
+                        word_count = len(chapter_text.split())
+                        chapters.append({
+                            "chapter_number": i + 1,
+                            "title": title,
+                            "text": chapter_text,
+                            "word_count": word_count,
+                            "split_method": "llm",
+                        })
+                    logger.info(f"Re-split produced {len(chapters)} sections after skipping ToC")
+
     logger.info(f"LLM splitting produced {len(chapters)} sections")
     return chapters
 
