@@ -1,0 +1,7 @@
+{
+    "central_thesis": "distributed",
+    "expected_thread_count_min": 3,
+    "expected_evidence_types": ["study", "data", "case_study"],
+    "expected_voice_register": "professional",
+    "expected_format_detection": "business"
+}
