@@ -21,3 +21,7 @@ Apply these conventions when analyzing sections of journalistic or long-form rep
 9. TRANSITION BETWEEN SOURCES: When shifting from one source's perspective to another's, the transition should be explicit. Flag abrupt shifts between sources without transition as Note with dimension "clarity".
 
 10. ENDING IMPACT: Section endings should leave the reader with a clear takeaway, a vivid image, or a forward-looking question — not trail off. Flag sections that end on exposition or a weak summary sentence as Note with dimension "structure".
+
+11. VERIFICATION SIGNALS: Claims of fact should show evidence of verification — multiple sources, documentary evidence, or on-the-record statements. Flag sections that rely on a single anonymous source for a major factual claim as Warning with dimension "evidence".
+
+12. SCOPE AND LIMITATIONS: Investigative or analytical pieces should acknowledge what the reporting could not access or confirm. Flag sections that present partial information as comprehensive without noting limitations as Note with dimension "argument".

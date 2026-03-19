@@ -21,3 +21,7 @@ Apply these conventions when analyzing sections of self-help or prescriptive non
 9. PROGRESSIVE COMPLEXITY: Sections should build on previously introduced concepts rather than introducing unrelated new frameworks. Flag sections that introduce major new concepts without connecting them to the book's established framework as Warning with dimension "structure".
 
 10. INCLUSIVE LANGUAGE: Advice should be framed in ways that acknowledge diverse reader circumstances. Flag advice that assumes a specific demographic, economic status, or life situation without acknowledging it as Note with dimension "tone".
+
+11. EVIDENCE QUALITY HIERARCHY: Self-help claims should distinguish between levels of evidence: peer-reviewed research > professional clinical experience > personal anecdote > received wisdom. Flag sections that present personal anecdotes or folk wisdom with the same authority as research-backed findings as Warning with dimension "evidence".
+
+12. TRANSFORMATION PROMISE CALIBRATION: Claims about what the reader will achieve should be realistic and qualified. Flag promises of dramatic transformation ("this will change your life", "guaranteed results") without caveats about individual variation, effort required, or limitations as Warning with dimension "argument".

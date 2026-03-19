@@ -70,9 +70,9 @@ Based on the structured data above, produce a document-level assessment as a JSO
 
 6. **top_strengths** — Array of 2-4 strings identifying the manuscript's strongest qualities. Be specific and reference actual content from the data (e.g., "Strong evidence base in sections 3-7 with diverse source types" not "good use of evidence").
 
-7. **top_priorities** — Array of 2-4 strings identifying the most important areas for revision, ordered by impact. Be specific and actionable (e.g., "Sections 12-15 contain 8 unsupported assertions about market size — add sources or reframe as opinion" not "needs more evidence").
+7. **top_priorities** — Array of 2-4 strings identifying the most important areas for revision, ordered by impact. Each priority must be a specific, actionable recommendation that the author can implement, not a vague observation. State what to change, where to change it, and how (e.g., "Sections 12-15 contain 8 unsupported assertions about market size — add sources or reframe as opinion" not "needs more evidence"; "Thread_3 is introduced in Section 2 but abandoned after Section 5 — either develop it with evidence in the later chapters or remove it to tighten the argument").
 
-8. **format_specific_notes** — A 1-3 sentence note on how well the manuscript adheres to the conventions of its nonfiction format ({nonfiction_format}). Reference specific convention violations or strengths observed in the per-section data. If the detected format differs from the declared format, note this discrepancy and its implications.
+8. **format_specific_notes** — Provide 2-3 sentences about how well the document adheres to the conventions of its detected format ({nonfiction_format}). Reference specific convention violations or strengths observed in the per-section data. If the format was not confidently detected (detected_format_confidence is "low"), note this and provide general nonfiction observations instead. If the detected format differs from the declared format, note this discrepancy and its implications.
 
 CRITICAL RULES:
 - Respond ONLY with valid JSON. No preamble, no explanation, no markdown code fences. Your entire response must be parseable by json.loads().

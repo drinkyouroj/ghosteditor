@@ -4,9 +4,9 @@ Nonfiction format: {nonfiction_format}
 
 Analyze the manuscript text and return a single JSON object with the following fields:
 
-1. **central_thesis** — The main argument, claim, or purpose of the document in one sentence. If the document does not state an explicit thesis, infer the most likely thesis from the content. If even inference is not possible, use null.
+1. **central_thesis** — The main argument, claim, or purpose of the document in one sentence. If the document does not state an explicit thesis, infer the most likely thesis from the content. If even inference is not possible, use null. For historical or legal texts, the "central_thesis" may be the author's interpretive framework or the common theme linking the cases/events, rather than a traditional academic thesis statement.
 
-2. **claimed_audience** — The intended reader as stated or strongly implied by the text (e.g., "startup founders", "graduate students in psychology", "general readers interested in history"). Use null if not determinable.
+2. **claimed_audience** — The intended reader as stated or strongly implied by the text. Be specific about *what type* of reader would benefit: identify their knowledge level, professional role, or situational context (e.g., "early-career product managers familiar with agile but new to portfolio strategy", "undergraduate history students studying the American Civil War era", "parents of children recently diagnosed with ADHD seeking practical daily strategies"). Avoid generic labels like "general readers" — if the audience is truly broad, describe what unifying interest or need brings them to this text. Use null if not determinable.
 
 3. **detected_format_confidence** — Your assessment of what nonfiction format this document is. Return as a JSON object with this exact structure:
    ```
@@ -29,11 +29,12 @@ Analyze the manuscript text and return a single JSON object with the following f
    - "claim": A one-sentence statement of the argument or claim
    - "first_seen_section": The section number (integer) where this thread first appears
    - "status": One of "open" (introduced but not yet resolved), "supported" (backed by evidence in the text), "unresolved" (raised but left without conclusion), "abandoned" (introduced and then dropped without resolution or follow-up)
+   - "supporting_evidence_count": Integer count of evidence items in the evidence_log that support this thread (i.e., entries whose supports_claim_id matches this thread's id). Set to 0 if no evidence has been logged yet for this thread.
    Include 1-15 threads. Capture the significant arguments, not every minor point.
 
 6. **evidence_log** — A log of the evidence, examples, and support the author uses. For each entry:
    - "section": The section number (integer) where this evidence appears
-   - "type": One of "statistic", "anecdote", "citation", "example", "assertion" (an unsupported claim presented as fact)
+   - "type": One of "statistic", "anecdote", "citation", "example", "assertion" (an unsupported claim presented as fact), "analogy", "expert_quote"
    - "summary": A one-sentence description of the evidence
    - "supports_claim_id": The thread ID from argument_threads that this evidence supports, or null if it does not clearly support any identified thread
    Cap this log at 50 entries maximum. Prioritize evidence that supports or undermines the central thesis. If the document contains more than 50 pieces of evidence, select the 50 most significant.

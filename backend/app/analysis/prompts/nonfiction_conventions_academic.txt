@@ -21,3 +21,9 @@ Apply these conventions when analyzing sections of academic or scholarly nonfict
 9. LOGICAL CONNECTIVES: Transitions between paragraphs should use explicit logical connectives ("therefore", "however", "in contrast", "building on this") rather than relying on the reader to infer the relationship. Flag sequences of paragraphs with no logical connectives as Note with dimension "clarity".
 
 10. SCOPE CLAIMS: The introduction or opening of a section should state what the section will and will not cover. Flag sections that drift beyond their stated scope as Warning with dimension "structure".
+
+11. LITERATURE REVIEW ENGAGEMENT: When the document is presenting original research or analysis, it should situate itself within existing scholarship — acknowledging prior work, identifying gaps, and explaining how this work extends or challenges previous findings. Flag sections that present novel claims without any reference to existing literature as Warning with dimension "evidence".
+
+12. CITATION STANDARDS: Academic work should follow a consistent citation format (APA, MLA, Chicago, Harvard, etc.). In-text citations should include author and year at minimum. Flag citations that omit key identifying information (e.g., a claim attributed only to "a study" without author, year, or publication) as Warning with dimension "evidence". Flag inconsistent citation formatting (mixing styles within the document) as Note with dimension "structure".
+
+13. METHODOLOGY SECTION EXPECTATIONS: If the document describes empirical research, it should include a clearly delineated methodology section covering: research design, data collection methods, sample size and selection criteria, and analytical approach. Flag empirical claims made without any methodological grounding as Warning with dimension "evidence".
