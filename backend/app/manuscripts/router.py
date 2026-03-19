@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from arq import create_pool
 from arq.connections import RedisSettings
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user, get_current_user_allow_provisional
@@ -22,7 +22,7 @@ async def _get_arq_pool():
     if _arq_pool is None:
         _arq_pool = await create_pool(RedisSettings.from_dsn(settings.redis_url))
     return _arq_pool
-from app.db.models import Chapter, ChapterStatus, DocumentType, Job, JobType, JobStatus, Manuscript, ManuscriptStatus, NonfictionFormat, PaymentStatus, SubscriptionStatus, User
+from app.db.models import Chapter, ChapterAnalysis, ChapterStatus, DocumentType, Job, JobType, JobStatus, Manuscript, ManuscriptStatus, NonfictionDocumentSummary, NonfictionFormat, NonfictionSectionResult, PaymentStatus, SubscriptionStatus, User
 from app.db.session import get_db
 
 FREE_TIER_MANUSCRIPT_LIMIT = 3  # Per DECISION_006 Amendment 4
@@ -333,6 +333,127 @@ async def start_chapter_analysis(
     await db.commit()
 
     return {"message": f"Analysis started for {len(chapters)} {section_label}", f"{section_label}_queued": len(chapters)}
+
+
+@router.post("/{manuscript_id}/reanalyze", status_code=202)
+async def reanalyze_manuscript(
+    manuscript_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Re-run analysis on a manuscript without re-uploading.
+
+    Clears existing analysis results (ChapterAnalysis or NonfictionSectionResult +
+    NonfictionDocumentSummary), resets chapter statuses to 'extracted', and
+    re-enqueues the first chapter for analysis.
+
+    Preserves the story bible (fiction) or argument map (nonfiction).
+    Rate-limited to 3 re-analyses per user per day.
+    """
+    # Rate limit: 3 re-analyses per day
+    await check_rate_limit(
+        str(user.id),
+        action="reanalyze",
+        max_requests=3,
+        window=timedelta(days=1),
+    )
+
+    # Fetch manuscript scoped to user
+    result = await db.execute(
+        select(Manuscript).where(
+            Manuscript.id == manuscript_id,
+            Manuscript.user_id == user.id,
+            Manuscript.deleted_at.is_(None),
+        )
+    )
+    manuscript = result.scalar_one_or_none()
+    if manuscript is None:
+        raise HTTPException(status_code=404, detail="Manuscript not found")
+
+    if manuscript.payment_status != PaymentStatus.paid:
+        raise HTTPException(status_code=402, detail="Payment required before analysis")
+
+    if manuscript.status not in (ManuscriptStatus.complete, ManuscriptStatus.error):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Manuscript must be in 'complete' or 'error' status to re-analyze (current: {manuscript.status.value})",
+        )
+
+    is_nonfiction = manuscript.document_type == DocumentType.nonfiction
+
+    # Get all chapter IDs for this manuscript
+    chapters_result = await db.execute(
+        select(Chapter).where(Chapter.manuscript_id == manuscript_id).order_by(Chapter.chapter_number)
+    )
+    chapters = chapters_result.scalars().all()
+
+    if not chapters:
+        section_label = "sections" if is_nonfiction else "chapters"
+        raise HTTPException(status_code=409, detail=f"No {section_label} found for this manuscript")
+
+    chapter_ids = [ch.id for ch in chapters]
+
+    # Clear existing analysis results
+    if is_nonfiction:
+        await db.execute(
+            delete(NonfictionSectionResult).where(
+                NonfictionSectionResult.chapter_id.in_(chapter_ids)
+            )
+        )
+        await db.execute(
+            delete(NonfictionDocumentSummary).where(
+                NonfictionDocumentSummary.manuscript_id == manuscript_id
+            )
+        )
+    else:
+        await db.execute(
+            delete(ChapterAnalysis).where(
+                ChapterAnalysis.chapter_id.in_(chapter_ids)
+            )
+        )
+
+    # Reset chapter statuses to 'extracted'
+    await db.execute(
+        update(Chapter)
+        .where(
+            Chapter.manuscript_id == manuscript_id,
+            Chapter.status.in_([ChapterStatus.analyzed, ChapterStatus.analyzing, ChapterStatus.error]),
+        )
+        .values(status=ChapterStatus.extracted)
+    )
+
+    # Update manuscript status to analyzing
+    manuscript.status = ManuscriptStatus.analyzing
+    await db.flush()
+
+    # Enqueue the first chapter for analysis (same chained pattern as /analyze)
+    first_chapter = chapters[0]
+    worker_func = "process_nonfiction_section_analysis" if is_nonfiction else "process_chapter_analysis"
+    step_label = "Section" if is_nonfiction else "Chapter"
+    job = Job(
+        manuscript_id=manuscript_id,
+        chapter_id=first_chapter.id,
+        job_type=JobType.chapter_analysis,
+        current_step=f"Queued: {step_label} {first_chapter.chapter_number} (re-analysis)",
+    )
+    db.add(job)
+
+    await db.flush()
+    await db.refresh(job)
+
+    try:
+        redis = await _get_arq_pool()
+        await redis.enqueue_job(
+            worker_func, str(job.id), str(manuscript_id), str(first_chapter.id),
+        )
+    except Exception:
+        await db.rollback()
+        raise HTTPException(status_code=503, detail="Job queue unavailable. Please try again.")
+
+    await db.commit()
+
+    section_label = "sections" if is_nonfiction else "chapters"
+    return {"message": f"Re-analysis started for {len(chapters)} {section_label}"}
 
 
 @router.get("/jobs/{job_id}", response_model=JobResponse)

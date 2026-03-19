@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
-import { getManuscript, startAnalysis, type ManuscriptDetail, ApiError } from '../api/client'
+import { getManuscript, startAnalysis, reanalyzeManuscript, type ManuscriptDetail, ApiError } from '../api/client'
 import Spinner from '../components/Spinner'
 import './ManuscriptPage.css'
 
@@ -32,6 +32,7 @@ export function ManuscriptPage() {
   const [manuscript, setManuscript] = useState<ManuscriptDetail | null>(null)
   const [error, setError] = useState('')
   const [analysisLoading, setAnalysisLoading] = useState(false)
+  const [reanalyzeLoading, setReanalyzeLoading] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const paymentStatus = searchParams.get('payment')
 
@@ -49,6 +50,23 @@ export function ManuscriptPage() {
       .then(() => fetchManuscript())
       .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to start analysis'))
       .finally(() => setAnalysisLoading(false))
+  }
+
+  const handleReanalyze = () => {
+    if (!id) return
+    const confirmed = window.confirm(
+      'This will clear all existing analysis results and re-run the analysis. ' +
+      (manuscript?.document_type === 'nonfiction'
+        ? 'Your argument map will be preserved.'
+        : 'Your story bible will be preserved.') +
+      ' Continue?'
+    )
+    if (!confirmed) return
+    setReanalyzeLoading(true)
+    reanalyzeManuscript(id)
+      .then(() => fetchManuscript())
+      .catch((err) => setError(err instanceof ApiError ? err.message : 'Failed to re-run analysis'))
+      .finally(() => setReanalyzeLoading(false))
   }
 
   useEffect(() => {
@@ -130,6 +148,15 @@ export function ManuscriptPage() {
               disabled={analysisLoading}
             >
               {analysisLoading ? 'Starting...' : manuscript.status === 'error' || isAnalysisStalled ? 'Retry Analysis' : 'Run Chapter Analysis'}
+            </button>
+          )}
+          {manuscript.status === 'complete' && manuscript.payment_status === 'paid' && (
+            <button
+              className="btn-secondary"
+              onClick={handleReanalyze}
+              disabled={reanalyzeLoading}
+            >
+              {reanalyzeLoading ? 'Re-running...' : 'Re-run Analysis'}
             </button>
           )}
         </div>
