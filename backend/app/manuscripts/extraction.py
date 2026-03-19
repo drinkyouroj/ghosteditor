@@ -164,6 +164,7 @@ MIN_CHAPTER_WORDS = 200
 TOC_THRESHOLD_WORDS = 50
 MAX_CHAPTERS = 150
 MAX_WORD_COUNT = 120_000
+NONFICTION_CHUNK_TARGET_WORDS = 1500
 
 
 # ---------------------------------------------------------------------------
@@ -457,7 +458,7 @@ SAMPLE_END_WORDS = 1000
 SAMPLE_FULL_THRESHOLD = 5000
 AUTO_SPLIT_TARGET_WORDS = 4000
 AUTO_SPLIT_WINDOW = 500  # words to search for a good break point
-SPLITTING_MAX_TOKENS = 4096
+SPLITTING_MAX_TOKENS = 8192
 
 # Visual separator patterns for auto-split
 _VISUAL_SEPARATORS = re.compile(
@@ -522,24 +523,45 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
     case-sensitive then case-insensitive.
     Returns character position or -1 if not found.
     """
-    # Build candidate markers: original, punctuation-stripped, first-line
+    # Normalize smart quotes/apostrophes to ASCII equivalents in both marker and text
+    def _normalize_quotes(s: str) -> str:
+        return s.replace("\u2018", "'").replace("\u2019", "'").replace("\u201c", '"').replace("\u201d", '"')
+
+    marker = _normalize_quotes(marker)
+
+    # Build candidate markers: original, cleaned, underscore-stripped, number-stripped, first-line
+    # Strip trailing junk the LLM sometimes adds: quotes, parens, punctuation
+    marker_clean = marker.strip("_\"\"''()[].,;:!? \t")
     candidates = [marker]
-    marker_stripped = marker.rstrip(".,;:!?")
-    if marker_stripped != marker:
-        candidates.append(marker_stripped)
+    if marker_clean != marker.strip():
+        candidates.append(marker_clean)
+    # Also try with underscores stripped but content kept
+    marker_no_underscores = marker.strip("_").strip("\"\"''()[].,;:!? \t")
+    if marker_no_underscores not in candidates:
+        candidates.append(marker_no_underscores)
+    # Strip leading number prefix: "1. Title" -> "Title", "10. Title" -> "Title"
+    # Gutenberg often separates the number from the title across lines
+    marker_no_number = re.sub(r"^\d+\.\s*", "", marker_clean)
+    if marker_no_number and marker_no_number != marker_clean and len(marker_no_number) > 5:
+        if marker_no_number not in candidates:
+            candidates.append(marker_no_number)
     first_line = marker.split("\n")[0].strip()
-    if first_line and first_line != marker.strip():
+    if first_line and first_line not in candidates:
         candidates.append(first_line)
+
+    # Normalize quotes in the search text too
+    search_text = _normalize_quotes(text)
 
     for candidate in candidates:
         words = _normalize_whitespace(candidate).split()
         if not words:
             continue
-        pattern = r"\s+".join(re.escape(w) for w in words) + r"(?!\w)"
+        # Allow optional leading/trailing underscores (Gutenberg italic markers)
+        pattern = r"_?" + r"\s+".join(re.escape(w) for w in words) + r"_?(?!\w)"
 
         # Case-sensitive match from search_start
         try:
-            for match in re.finditer(pattern, text[search_start:]):
+            for match in re.finditer(pattern, search_text[search_start:]):
                 actual_pos = search_start + match.start()
                 if candidate != marker:
                     logger.info(f"Matched marker variant {candidate!r} at pos={actual_pos}")
@@ -549,7 +571,7 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
 
         # Case-insensitive match from search_start
         try:
-            for match in re.finditer(pattern, text[search_start:], re.IGNORECASE):
+            for match in re.finditer(pattern, search_text[search_start:], re.IGNORECASE):
                 actual_pos = search_start + match.start()
                 if candidate != marker:
                     logger.info(f"Matched marker variant (ci) {candidate!r} at pos={actual_pos}")
@@ -748,6 +770,71 @@ def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: 
             "split_method": "llm",
         })
 
+    # Sanity check: if most chapters are very short (< 50 words) while one is
+    # huge, the markers probably matched in the ToC instead of the body text.
+    # Re-search sequentially: each marker must come after the previous match.
+    if len(chapters) >= 3:
+        short_count = sum(1 for ch in chapters if ch["word_count"] < 50)
+        if short_count > len(chapters) * 0.5:
+            logger.warning(
+                f"ToC match detected: {short_count}/{len(chapters)} chapters "
+                f"under 50 words. Re-searching markers sequentially."
+            )
+            # Find end of the ToC block: the last short chapter's end position.
+            # Everything after this is body text where markers should be re-found.
+            last_short_end = search_start
+            for i, ch in enumerate(chapters):
+                if ch["word_count"] < 50:
+                    # This short chapter ends where the next one starts
+                    if i + 1 < len(positions):
+                        last_short_end = max(last_short_end, positions[i + 1][0])
+                    else:
+                        last_short_end = max(last_short_end, positions[i][0] + 100)
+
+            # Re-search all markers sequentially starting after the ToC
+            cursor = last_short_end
+            new_positions = []
+            for section in sections:
+                marker = section.get("marker", "")
+                title = section.get("title", marker)
+                if not marker:
+                    continue
+                pos = _find_marker_position(text, marker, cursor)
+                if pos != -1 and pos >= cursor:
+                    new_positions.append((pos, title))
+                    cursor = pos + len(marker)  # next search starts after this match
+
+            if len(new_positions) >= 2:
+                # Verify the re-search produced reasonable splits
+                test_chapters = []
+                for i, (pos, title) in enumerate(new_positions):
+                    end = new_positions[i + 1][0] if i + 1 < len(new_positions) else len(text)
+                    word_count = len(text[pos:end].split())
+                    test_chapters.append(word_count)
+
+                new_short = sum(1 for wc in test_chapters if wc < 50)
+                if new_short <= len(test_chapters) * 0.3:
+                    # Good — rebuild chapters from new positions
+                    chapters = []
+                    for i, (pos, title) in enumerate(new_positions):
+                        end = new_positions[i + 1][0] if i + 1 < len(new_positions) else len(text)
+                        chapter_text = text[pos:end].strip()
+                        word_count = len(chapter_text.split())
+                        chapters.append({
+                            "chapter_number": i + 1,
+                            "title": title,
+                            "text": chapter_text,
+                            "word_count": word_count,
+                            "split_method": "llm",
+                        })
+                    logger.info(f"Sequential re-split produced {len(chapters)} sections")
+                else:
+                    logger.warning(
+                        f"Sequential re-search still produced {new_short}/{len(test_chapters)} "
+                        f"short chapters. Returning empty for fallback."
+                    )
+                    chapters = []  # Force fallback to tier 2
+
     logger.info(f"LLM splitting produced {len(chapters)} sections")
     return chapters
 
@@ -882,16 +969,175 @@ def _merge_short_sections(chapters: list[dict]) -> list[dict]:
     return merged
 
 
-async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
+# ---------------------------------------------------------------------------
+# Nonfiction section detection (per Gap #33 / DECISION_008)
+# ---------------------------------------------------------------------------
+
+# Header patterns for nonfiction: markdown #, ALL-CAPS lines, numbered sections
+# Optional leading/trailing underscores handle Gutenberg italic markers (_Title_)
+NONFICTION_HEADER_PATTERNS = [
+    # Markdown headers: # Title, ## Subtitle
+    re.compile(r"^(#{1,4}\s+.+)$", re.MULTILINE),
+    # ALL-CAPS lines (at least 3 words, to avoid false positives)
+    re.compile(r"^([A-Z][A-Z\s,:''\-]{10,})$", re.MULTILINE),
+    # Numbered sections: "1.", "1.1", "Section 1:", "Section 1." — with optional _underscores_
+    re.compile(r"^_?((?:Section\s+)?\d+(?:\.\d+)?\s*[.:]\s*.+?)_?\s*$", re.IGNORECASE | re.MULTILINE),
+    # Standalone section labels on their own line: Introduction, Preface, Conclusion, Epilogue, etc.
+    re.compile(r"^\s*((?:Introduction|Preface|Foreword|Prologue|Epilogue|Conclusion|Afterword|Appendix))\s*$", re.IGNORECASE | re.MULTILINE),
+    # "Part I", "Part 1", "Part One"
+    re.compile(
+        rf"^(Part\s+(?:\d+|{ROMAN_NUMERAL}|{CHAPTER_WORD_NUMBERS})\b[^\n]*)",
+        re.IGNORECASE | re.MULTILINE,
+    ),
+    # "Chapter N" headers (borrowed from fiction patterns — many nonfiction books use them)
+    re.compile(r"^_?(Chapter\s+\d+[^\n]*)_?\s*$", re.IGNORECASE | re.MULTILINE),
+]
+
+
+def _detect_nonfiction_sections(text: str) -> tuple[list[dict], str]:
+    """Detect sections in nonfiction manuscripts using header patterns.
+
+    Returns (chapters_list, split_method) where split_method is 'header' or 'chunked'.
+    Uses header detection first, falls back to chunking at ~1500 words at paragraph boundaries.
+    Does NOT use the LLM splitting path (unnecessary for structured nonfiction).
+    """
+    # Try header-based detection
+    split_positions = []
+    for pattern in NONFICTION_HEADER_PATTERNS:
+        for match in pattern.finditer(text):
+            header = match.group(1).strip()
+            pos = match.start(1)
+            # Skip very short matches that are likely false positives
+            if len(header) < 3:
+                continue
+            # Skip ALL-CAPS matches that look like single words or acronyms
+            if header.isupper() and len(header.split()) < 3:
+                continue
+            split_positions.append((pos, header))
+
+    # Deduplicate by position (different patterns may match the same header)
+    if split_positions:
+        split_positions.sort(key=lambda x: x[0])
+        deduped = [split_positions[0]]
+        for pos, title in split_positions[1:]:
+            if pos - deduped[-1][0] > 30:
+                deduped.append((pos, title))
+            else:
+                # Keep the longer title for overlapping matches
+                if len(title) > len(deduped[-1][1]):
+                    deduped[-1] = (deduped[-1][0], title)
+        split_positions = deduped
+
+    # Filter out TOC-like short segments
+    if split_positions:
+        filtered = []
+        for i, (pos, title) in enumerate(split_positions):
+            end = split_positions[i + 1][0] if i + 1 < len(split_positions) else len(text)
+            segment_words = len(text[pos:end].split())
+            if segment_words >= TOC_THRESHOLD_WORDS:
+                filtered.append((pos, title))
+        split_positions = filtered
+
+    # If we found enough headers (at least 2), use header-based splitting
+    if len(split_positions) >= 2:
+        chapters = []
+        for i, (pos, title) in enumerate(split_positions):
+            end = split_positions[i + 1][0] if i + 1 < len(split_positions) else len(text)
+            chapter_text = text[pos:end].strip()
+            word_count = len(chapter_text.split())
+            chapters.append({
+                "chapter_number": i + 1,
+                "title": title.lstrip("#").strip(),
+                "text": chapter_text,
+                "word_count": word_count,
+                "split_method": "header",
+            })
+
+        # Capture pre-header text if substantial
+        pre_header_text = text[:split_positions[0][0]].strip()
+        pre_header_words = len(pre_header_text.split()) if pre_header_text else 0
+        if pre_header_words >= MIN_CHAPTER_WORDS:
+            chapters.insert(0, {
+                "chapter_number": 0,
+                "title": "Introduction",
+                "text": pre_header_text,
+                "word_count": pre_header_words,
+                "split_method": "header",
+            })
+            # Renumber
+            for i, ch in enumerate(chapters):
+                ch["chapter_number"] = i + 1
+
+        logger.info(f"Nonfiction header detection found {len(chapters)} sections")
+        return chapters, "header"
+
+    # Fallback: chunk at ~1500 words at paragraph boundaries
+    logger.info("No nonfiction headers detected, falling back to paragraph-boundary chunking")
+    return _chunk_at_paragraphs(text, NONFICTION_CHUNK_TARGET_WORDS), "chunked"
+
+
+def _chunk_at_paragraphs(text: str, target_words: int) -> list[dict]:
+    """Split text into chunks of approximately target_words at paragraph boundaries."""
+    paragraphs = re.split(r"\n\s*\n", text)
+    chunks = []
+    current_chunk = []
+    current_word_count = 0
+
+    for para in paragraphs:
+        para = para.strip()
+        if not para:
+            continue
+        para_words = len(para.split())
+
+        if current_word_count + para_words > target_words and current_chunk:
+            chunk_text = "\n\n".join(current_chunk)
+            chunks.append({
+                "chapter_number": len(chunks) + 1,
+                "title": f"Section {len(chunks) + 1}",
+                "text": chunk_text,
+                "word_count": len(chunk_text.split()),
+                "split_method": "chunked",
+            })
+            current_chunk = [para]
+            current_word_count = para_words
+        else:
+            current_chunk.append(para)
+            current_word_count += para_words
+
+    # Don't forget the last chunk
+    if current_chunk:
+        chunk_text = "\n\n".join(current_chunk)
+        chunks.append({
+            "chapter_number": len(chunks) + 1,
+            "title": f"Section {len(chunks) + 1}",
+            "text": chunk_text,
+            "word_count": len(chunk_text.split()),
+            "split_method": "chunked",
+        })
+
+    logger.info(f"Paragraph chunking produced {len(chunks)} sections at ~{target_words} words each")
+    return chunks
+
+
+async def detect_chapters(text: str, document_type: str | None = None) -> tuple[list[dict], list[str]]:
     """Detect chapter/section boundaries using LLM-assisted structure detection.
+
+    Args:
+        text: The full manuscript text.
+        document_type: Optional. When 'nonfiction', uses header detection + paragraph
+            chunking instead of the LLM splitting path (per DECISION_008).
 
     Returns (chapters_list, warnings_list).
     Each chapter dict has: chapter_number, title, text, word_count, split_method.
 
-    Fallback chain per DECISION_007:
+    Fallback chain per DECISION_007 (fiction / default):
     1. LLM-assisted splitting (sends sample to LLM for structure detection)
     2. Auto-split at ~4K words at natural break points
     3. Regex-based chapter detection (legacy)
+
+    Nonfiction path (per DECISION_008):
+    1. Header detection (markdown #, ALL-CAPS, numbered sections)
+    2. Paragraph-boundary chunking at ~1500 words
     """
     from app.analysis.llm_client import LLMError, call_llm
     from app.analysis.json_repair import parse_json_response
@@ -900,7 +1146,9 @@ async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
     warnings = []
     chapters = []
 
-    # --- Tier 1: LLM-assisted splitting ---
+    is_nonfiction = document_type == "nonfiction"
+
+    # --- Tier 1: LLM-assisted splitting (fiction and nonfiction) ---
     try:
         model = settings.llm_model_splitting or settings.llm_model_analysis
         sample = _sample_manuscript(text)
@@ -945,28 +1193,57 @@ async def detect_chapters(text: str) -> tuple[list[dict], list[str]]:
             "has been split using basic pattern matching. You may want to retry."
         )
 
-    # --- Tier 2: Auto-split fallback ---
+    # --- Tier 2: Fallback splitting ---
     if not chapters:
-        if not warnings:
-            # LLM returned no sections (not an error, just no structure found)
-            warnings.append(
-                "No clear section structure was detected in your manuscript. "
-                "It has been automatically divided into sections for analysis. "
-                "Results may be less accurate."
-            )
-        chapters = _auto_split(text)
+        if is_nonfiction:
+            # Nonfiction fallback chain:
+            # 2a. Try nonfiction header patterns (markdown #, ALL-CAPS, numbered)
+            nf_chapters, nf_method = _detect_nonfiction_sections(text)
+            if nf_method == "header":
+                chapters = nf_chapters
+            else:
+                # 2b. Try fiction regex patterns — many nonfiction books use
+                # "Chapter N" or numbered section headers that regex catches
+                regex_chapters = _detect_chapters_regex(text)
+                if len(regex_chapters) > 1:
+                    logger.info(f"Nonfiction regex fallback found {len(regex_chapters)} chapters")
+                    for ch in regex_chapters:
+                        ch["split_method"] = "regex"
+                    chapters = regex_chapters
+                else:
+                    # 2c. Fall back to paragraph chunking
+                    chapters = nf_chapters  # the chunked result
+                    if not warnings:
+                        warnings.append(
+                            "No clear section headers were detected in your manuscript. "
+                            "It has been automatically divided into sections for analysis."
+                        )
+        else:
+            # Fiction fallback: auto-split at ~4K words
+            if not warnings:
+                warnings.append(
+                    "No clear section structure was detected in your manuscript. "
+                    "It has been automatically divided into sections for analysis. "
+                    "Results may be less accurate."
+                )
+            chapters = _auto_split(text)
 
-    # --- Tier 3: If auto-split produces only 1 section, try regex ---
+    # --- Tier 3: If still only 1 section, try additional fallbacks ---
     if len(chapters) == 1:
-        regex_chapters = _detect_chapters_regex(text)
-        if len(regex_chapters) > 1:
-            # Regex found structure that auto-split missed
-            logger.info(f"Regex fallback found {len(regex_chapters)} chapters")
-            for ch in regex_chapters:
-                ch["split_method"] = "regex"
-            chapters = regex_chapters
-            # Clear the "no structure" warning since regex found some
-            warnings = []
+        if is_nonfiction:
+            chunked = _chunk_at_paragraphs(text, NONFICTION_CHUNK_TARGET_WORDS)
+            if len(chunked) > 1:
+                logger.info(f"Nonfiction chunking fallback produced {len(chunked)} sections")
+                chapters = chunked
+                warnings = ["Manuscript was automatically divided into sections for analysis."]
+        else:
+            regex_chapters = _detect_chapters_regex(text)
+            if len(regex_chapters) > 1:
+                logger.info(f"Regex fallback found {len(regex_chapters)} chapters")
+                for ch in regex_chapters:
+                    ch["split_method"] = "regex"
+                chapters = regex_chapters
+                warnings = []
 
     # --- Post-processing ---
     # Only merge short sections for auto-split and regex methods.

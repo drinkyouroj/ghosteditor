@@ -105,7 +105,11 @@ export function DashboardPage() {
                     {m.word_count_est && <span>{m.word_count_est.toLocaleString()} words</span>}
                     {m.chapter_count && <span>{m.chapter_count} {isNonfiction ? 'sections' : 'chapters'}</span>}
                     <span className={`status status-${m.status}`}>
-                      {STATUS_LABELS[m.status] ?? m.status}
+                      {m.status === 'bible_complete' && isNonfiction
+                        ? 'Argument map ready'
+                        : m.status === 'bible_generating' && isNonfiction
+                        ? 'Building argument map...'
+                        : STATUS_LABELS[m.status] ?? m.status}
                     </span>
                   </div>
                 </div>

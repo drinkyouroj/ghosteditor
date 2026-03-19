@@ -88,27 +88,24 @@ def upgrade() -> None:
     )
 
     # --- Create nonfiction_section_results table ---
+    # Use sa.Text columns with CHECK constraints for enums to avoid
+    # SQLAlchemy's DDL event listener trying to re-create enum types
+    # that already exist (causes DuplicateObjectError on partial retry).
     op.create_table(
         "nonfiction_section_results",
         sa.Column("id", UUID(as_uuid=True), primary_key=True, server_default=sa.text("gen_random_uuid()")),
         sa.Column("chapter_id", UUID(as_uuid=True), sa.ForeignKey("chapters.id", ondelete="CASCADE"),
                   nullable=False),
         sa.Column("section_results_json", JSONB, nullable=False),
-        sa.Column(
-            "dimension",
-            sa.Enum("argument", "evidence", "clarity", "structure", "tone",
-                    name="nonfiction_dimension", create_type=False),
-            nullable=False,
-        ),
-        sa.Column(
-            "section_detection_method",
-            sa.Enum("header", "chunked", name="section_detection_method", create_type=False),
-            nullable=False,
-        ),
+        sa.Column("dimension", sa.Text, nullable=False),
+        sa.Column("section_detection_method", sa.Text, nullable=False),
         sa.Column("prompt_version", sa.Text, nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.text("now()")),
         sa.UniqueConstraint("chapter_id", "dimension", "prompt_version"),
     )
+    # Cast columns to use the enum types we already created
+    op.execute("ALTER TABLE nonfiction_section_results ALTER COLUMN dimension TYPE nonfiction_dimension USING dimension::nonfiction_dimension")
+    op.execute("ALTER TABLE nonfiction_section_results ALTER COLUMN section_detection_method TYPE section_detection_method USING section_detection_method::section_detection_method")
     # Composite index for common query: all results of dimension X for chapter Y
     op.create_index(
         "ix_nonfiction_section_results_chapter_dimension",

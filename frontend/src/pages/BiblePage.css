@@ -1,3 +1,44 @@
+/* Drift warning banner */
+.drift-warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: #fef3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  color: #664d03;
+  font-size: 0.875rem;
+}
+
+.drift-warning-content {
+  flex: 1;
+}
+
+.drift-warning-text {
+  margin: 0 0 0.25rem 0;
+}
+
+.drift-warning-text:last-child {
+  margin-bottom: 0;
+}
+
+.drift-warning-dismiss {
+  background: none;
+  border: 1px solid #664d03;
+  border-radius: 4px;
+  color: #664d03;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+
+.drift-warning-dismiss:hover {
+  background: rgba(102, 77, 3, 0.1);
+}
+
 .bible-header {
   margin-bottom: 1.5rem;
 }

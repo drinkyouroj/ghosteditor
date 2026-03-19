@@ -84,7 +84,7 @@ export function ManuscriptPage() {
   const isProcessing = PROCESSING_STATUSES.includes(manuscript.status)
   const analyzedCount = manuscript.chapters.filter((ch) => ch.status === 'analyzed').length
   const totalChapters = manuscript.chapters.length
-  const isNonfiction = (manuscript as ManuscriptDetail & { document_type?: string }).document_type === 'nonfiction'
+  const isNonfiction = manuscript.document_type === 'nonfiction'
 
   // Check if a chapter has been stuck in 'analyzing' for longer than the job timeout (600s)
   const STALL_THRESHOLD_MS = 600_000
@@ -161,7 +161,13 @@ export function ManuscriptPage() {
         <div className="ms-progress">
           <div className="progress-status">
             <span className="progress-dot" />
-            <span>{STATUS_LABELS[manuscript.status] ?? manuscript.status}</span>
+            <span>{
+              manuscript.status === 'bible_generating' && isNonfiction
+                ? 'Building argument map...'
+                : manuscript.status === 'bible_complete' && isNonfiction
+                ? 'Argument map ready'
+                : STATUS_LABELS[manuscript.status] ?? manuscript.status
+            }</span>
           </div>
           {manuscript.status === 'analyzing' && totalChapters > 0 && (
             <div className="progress-detail">

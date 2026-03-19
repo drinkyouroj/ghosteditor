@@ -28,6 +28,7 @@ from app.config import settings
 from app.db.models import Manuscript, User
 from app.db.session import get_db
 from app.email.sender import send_password_reset_email, send_verification_email
+from app.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -106,11 +107,13 @@ async def verify_email(token: str, db: AsyncSession = Depends(get_db)):
     """Verify email with token from verification email."""
     token_hash = hash_token(token)
 
+    # SEC-003: Only match unverified users and use FOR UPDATE to prevent race conditions
     result = await db.execute(
         select(User).where(
             User.verification_token == token_hash,
+            User.email_verified.is_(False),
             User.deleted_at.is_(None),
-        )
+        ).with_for_update()
     )
     user = result.scalar_one_or_none()
 
@@ -162,6 +165,12 @@ async def login(body: LoginRequest, response: Response, db: AsyncSession = Depen
     """Login with email and password. Only for full (non-provisional) users."""
     email = body.email.lower().strip()
 
+    # SEC-010: Rate limit login attempts per email
+    await check_rate_limit(
+        email, action="login", max_requests=10, window=timedelta(minutes=15),
+        user_email=email,
+    )
+
     result = await db.execute(select(User).where(User.email == email, User.deleted_at.is_(None)))
     user = result.scalar_one_or_none()
 
@@ -203,6 +212,12 @@ async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depend
     """Request password reset. Always returns 200 to prevent email enumeration."""
     email = body.email.lower().strip()
 
+    # SEC-011: Rate limit password reset requests per email (3 per hour)
+    await check_rate_limit(
+        email, action="password_reset", max_requests=3, window=timedelta(hours=1),
+        user_email=email,
+    )
+
     result = await db.execute(
         select(User).where(User.email == email, User.deleted_at.is_(None), User.is_provisional.is_(False))
     )
@@ -225,11 +240,12 @@ async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(
     """Reset password using token from email."""
     token_hash = hash_token(body.token)
 
+    # SEC-004: Use FOR UPDATE to prevent race conditions on password reset
     result = await db.execute(
         select(User).where(
             User.password_reset_token == token_hash,
             User.deleted_at.is_(None),
-        )
+        ).with_for_update()
     )
     user = result.scalar_one_or_none()
 
@@ -238,6 +254,10 @@ async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(
 
     if user.password_reset_token_expires and user.password_reset_token_expires < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Reset token has expired")
+
+    # Verify token is still present (not consumed by a concurrent request)
+    if user.password_reset_token is None:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
     user.password_hash = hash_password(body.new_password)
     user.password_reset_token = None

@@ -53,4 +53,4 @@ class TestIsTruncated:
         assert is_truncated("[1, 2, 3]") is False
 
     def test_empty_string(self):
-        assert is_truncated("") is False
+        assert is_truncated("") is True

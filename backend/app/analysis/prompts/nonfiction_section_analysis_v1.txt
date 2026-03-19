@@ -54,6 +54,8 @@ Analyze the section text below and return a JSON object with the following field
 
    Be CONSERVATIVE with critical severity. Authors trust this tool, and false critical flags erode that trust. When checking consistency, compare ONLY against the argument map above — do not invent prior claims or evidence.
 
+   {section_one_instruction}
+
    If this section was detected via chunked splitting (section_detection_method = "chunked"), be aware that section boundaries are artificial and may cut across argument boundaries. Do NOT flag issues caused by the chunking itself (e.g., "this section lacks a conclusion" when the conclusion is likely in the next chunk). Focus on issues within the text as written.
 
 5. **section_summary** — A 2-3 sentence summary of what this section covers and its role in the overall argument.

@@ -4,6 +4,24 @@ import { getArgumentMap, type ArgumentMap, type ArgumentThread, type EvidenceEnt
 import Spinner from '../components/Spinner'
 import './ArgumentMapPage.css'
 
+function DriftWarningBanner({ warnings }: { warnings: string[] }) {
+  const [dismissed, setDismissed] = useState(false)
+  if (dismissed || warnings.length === 0) return null
+
+  return (
+    <div className="drift-warning-banner">
+      <div className="drift-warning-content">
+        {warnings.map((w, i) => (
+          <p key={i} className="drift-warning-text">{w}</p>
+        ))}
+      </div>
+      <button className="drift-warning-dismiss" onClick={() => setDismissed(true)}>
+        Dismiss
+      </button>
+    </div>
+  )
+}
+
 const THREAD_STATUS_COLORS: Record<string, string> = {
   open: 'thread-open',
   supported: 'thread-supported',
@@ -47,6 +65,8 @@ export function ArgumentMapPage() {
   )
   if (!argMap) return <Spinner text="Loading argument map..." />
 
+  const warnings: string[] = argMap.warnings ?? []
+
   return (
     <div>
       <div className="argmap-header">
@@ -58,6 +78,8 @@ export function ArgumentMapPage() {
           </p>
         </div>
       </div>
+
+      <DriftWarningBanner warnings={warnings} />
 
       <div className="argmap-tabs">
         <button className={tab === 'thesis' ? 'active' : ''} onClick={() => setTab('thesis')}>
@@ -83,7 +105,7 @@ export function ArgumentMapPage() {
         {tab === 'evidence' && (
           <EvidenceTab
             entries={argMap.evidence_log ?? []}
-            condensed={argMap.evidence_log_condensed}
+            condensed={argMap.evidence_log_condensed ?? false}
           />
         )}
         {tab === 'voice' && <VoiceTab profile={argMap.voice_profile} />}

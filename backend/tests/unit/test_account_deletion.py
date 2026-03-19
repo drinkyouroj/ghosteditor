@@ -28,7 +28,9 @@ def _make_full_user(email: str = "delete@example.com") -> User:
 
 
 async def _login(client: AsyncClient, email: str, password: str = "password123"):
-    resp = await client.post("/auth/login", json={"email": email, "password": password})
+    from unittest.mock import patch
+    with patch("app.rate_limit._get_redis", side_effect=ConnectionError("Redis unavailable in test")):
+        resp = await client.post("/auth/login", json={"email": email, "password": password})
     assert resp.status_code == 200
     return resp
 
@@ -155,7 +157,9 @@ async def test_deleted_user_cannot_login(client: AsyncClient, db_session: AsyncS
     await _login(client, "nologin@example.com")
     await client.delete("/auth/account")
 
-    resp = await client.post("/auth/login", json={"email": "nologin@example.com", "password": "password123"})
+    from unittest.mock import patch as mock_patch
+    with mock_patch("app.rate_limit._get_redis", side_effect=ConnectionError("Redis unavailable in test")):
+        resp = await client.post("/auth/login", json={"email": "nologin@example.com", "password": "password123"})
     assert resp.status_code == 401
 
 
