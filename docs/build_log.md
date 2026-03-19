@@ -432,7 +432,45 @@
 - **Gap #40 (LARGE): Manual chapter splitting fallback UI** — The spec mentions a manual chapter splitting UI for cases where auto-detection fails. This requires significant UX design (drag-to-split interface, preview, undo) and is deferred to a future sprint.
 - **Gap #41 (MEDIUM): Word count "process in halves" UX** — The spec says to offer processing in halves for manuscripts over 120K words. Currently the code rejects them with an error. Implementing this requires upload flow changes, split-and-recombine logic, and progress tracking for two parallel processing jobs. Deferred to a future sprint.
 
+---
+
+## 2026-03-18 — Post-Review Integration Testing and Bug Fixes
+
+### Database Migration Fix
+- Migration 004 failed on production with `DuplicateObjectError` because SQLAlchemy's DDL event listener tried to re-create enum types despite `create_type=False`. Fixed by creating columns as Text first, then ALTERing to enum type.
+
+### Frontend API Integration Fixes
+- **Argument map API path**: `getArgumentMap()` was calling wrong endpoint. Fixed.
+- **Argument map response shape**: Backend returns data nested under `argument_map` key but frontend expected flat structure. Added `ArgumentMapResponse` interface with unwrapping logic.
+- **Vite proxy**: Missing `/argument-map` route in proxy config — API calls hit the SPA instead of backend. Added route.
+- **Nonfiction feedback normalization**: Backend returns `sections`/`sections_analyzed` but shared FeedbackPage expects `chapters`/`chapters_analyzed`. Added response normalization in `getNonfictionFeedback()`.
+- **Status labels**: Dashboard and ManuscriptPage now show "Building argument map..." and "Argument map ready" for nonfiction manuscripts instead of fiction labels.
+
+### Analysis Pipeline Fixes
+- **Argument map retry logic**: `argument_map.py` was missing the JSON repair/retry pipeline that `story_bible.py` and `chapter_analyzer.py` have. When `parse_json_response` returned `None`, it crashed instead of retrying. Added truncation detection, JSON retry with explicit instruction, and schema validation retry.
+- **Prompt template `.format()` crash**: `nonfiction_analyzer.py` and `nonfiction_synthesis.py` used Python `.format()` on prompt templates, which crashed with `IndexError` when manuscript text contained curly braces. Switched to sequential `.replace()` calls.
+- **Synthesis worker keyword mismatch**: Worker called `generate_document_synthesis(section_results=...)` but function expects `section_summaries=`. Fixed.
+- **Format inference**: When no `nonfiction_format` is specified, analyzer now infers format from the argument map's `detected_format_confidence` field.
+
+### Chapter Splitting Robustness (Gutenberg Books)
+Multiple fixes for the LLM-assisted chapter splitting when processing Project Gutenberg nonfiction (tested on "...and Justice for All" by William Kunstler):
+- **Nonfiction now uses LLM splitting**: Removed the bypass that skipped LLM splitting for nonfiction. Now uses the same LLM→header→regex→chunking fallback chain as fiction.
+- **ToC marker detection**: Added sanity check — if >50% of chapters are under 50 words, markers matched in the Table of Contents instead of body text. Re-searches sequentially after the ToC block.
+- **Gutenberg underscore markers**: `_find_marker_position` now allows optional leading/trailing underscores (`_Title_`) in regex patterns, matching Gutenberg italic formatting.
+- **Smart quote normalization**: Normalizes curly quotes (`''"`) to ASCII in both markers and search text.
+- **LLM marker artifact stripping**: Strips trailing `"`, `)`, `]` and other junk the LLM adds to markers.
+- **Number prefix stripping**: When marker is `1. Title`, also tries `Title` without the number — Gutenberg separates chapter numbers and titles across lines.
+- **Sequential re-search start position**: Fixed to start after the ToC block end rather than from the huge chapter's position.
+- **Nonfiction regex fallback**: Added fiction regex patterns as fallback step 2b between nonfiction headers and chunking.
+- **Splitting max tokens**: Increased from 4096 to 8192 to prevent truncation on books with 10+ chapters.
+
+### Test Suite
+- Fixed `test_verify_email_sets_cookie` to expect 302 redirect (not 200)
+- Fixed `test_empty_string` truncation test expectation (empty = truncated)
+- Fixed 23 test failures from review sprint agents: mock target mismatches for `_get_redis` singleton, `_get_webhook_session_factory`, async/sync `expire_all()`, synthesis schema field names
+- **Final result: 113 unit tests passing, 0 failures**
+
 ### Known limitations
-- Nonfiction section detection uses regex header patterns which may miss unconventional header formats — LLM-assisted detection was intentionally excluded per DECISION_008 (structured nonfiction doesn't need it)
+- Nonfiction section detection works well for structured books but may miss unconventional header formats in some Gutenberg texts (3 of 12 chapters missed on "...and Justice for All")
 - Eval harness requires LLM API key to run (`@pytest.mark.api`)
-- No ground truth eval for nonfiction yet (only structural validation)
+- Nonfiction eval has 2 ground truth files (academic, journalism) — remaining 3 formats have structural validation only
