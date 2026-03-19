@@ -163,7 +163,7 @@ class TestExportEndpoint:
         user = User(
             id=uuid.uuid4(),
             email="exporter@test.com",
-            hashed_password="fakehash",
+            password_hash="fakehash",
             is_provisional=False,
             email_verified=True,
         )
@@ -195,7 +195,7 @@ class TestExportEndpoint:
         user = User(
             id=uuid.uuid4(),
             email="exporter2@test.com",
-            hashed_password="fakehash",
+            password_hash="fakehash",
             is_provisional=False,
             email_verified=True,
         )
@@ -234,14 +234,14 @@ class TestExportEndpoint:
         owner = User(
             id=uuid.uuid4(),
             email="owner@test.com",
-            hashed_password="fakehash",
+            password_hash="fakehash",
             is_provisional=False,
             email_verified=True,
         )
         attacker = User(
             id=uuid.uuid4(),
             email="attacker@test.com",
-            hashed_password="fakehash",
+            password_hash="fakehash",
             is_provisional=False,
             email_verified=True,
         )
