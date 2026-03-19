@@ -114,7 +114,7 @@ export function FeedbackPage() {
       })
     : []
 
-  const typeLabels = isNonfiction ? { ...TYPE_LABELS, ...NONFICTION_TYPE_LABELS } : TYPE_LABELS
+  const typeLabels = isNonfiction ? NONFICTION_TYPE_LABELS : TYPE_LABELS
   const sidebarLabel = isNonfiction ? 'Sections' : 'Chapters'
   const itemPrefix = isNonfiction ? 'Sec.' : 'Ch.'
 
@@ -521,11 +521,11 @@ const SCORE_LEVEL_CLASS: Record<string, string> = {
   weak: 'score-low',
   // argument_coherence levels
   coherent: 'score-high',
-  mostly_coherent: 'score-high',
-  inconsistent: 'score-mid',
+  mostly_coherent: 'score-mid',
+  inconsistent: 'score-low',
   fragmented: 'score-low',
   // evidence_density levels
-  adequate: 'score-high',
+  adequate: 'score-mid',
   uneven: 'score-mid',
   sparse: 'score-low',
   // tone_consistency levels
