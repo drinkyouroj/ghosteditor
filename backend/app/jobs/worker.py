@@ -1335,6 +1335,104 @@ async def _purge_deleted_data(ctx):
         logger.info(f"Hard-purge complete: {len(users)} users permanently deleted")
 
 
+async def _recover_stuck_manuscripts(ctx):
+    """Recover manuscripts stuck in 'paid but not analyzing' state.
+
+    Scenario: Stripe webhook marks manuscript as paid, but the Redis enqueue
+    for chapter/section analysis fails. The manuscript sits at bible_complete +
+    paid forever. This cron detects those manuscripts after a 30-minute grace
+    period and re-enqueues the appropriate analysis job.
+
+    Runs every 15 minutes.
+    """
+    session_factory = _get_session_factory()
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=30)
+
+    async with session_factory() as session:
+        # Find manuscripts that are paid + bible_complete but not yet analyzing,
+        # with no recent updates (grace period), and not soft-deleted.
+        result = await session.execute(
+            select(Manuscript).where(
+                Manuscript.payment_status == PaymentStatus.paid,
+                Manuscript.status == ManuscriptStatus.bible_complete,
+                Manuscript.updated_at < cutoff,
+                Manuscript.deleted_at.is_(None),
+            )
+        )
+        stuck_manuscripts = result.scalars().all()
+
+        if not stuck_manuscripts:
+            return
+
+        recovered_count = 0
+        for manuscript in stuck_manuscripts:
+            # Find the first chapter with status 'extracted'
+            ch_result = await session.execute(
+                select(Chapter)
+                .where(
+                    Chapter.manuscript_id == manuscript.id,
+                    Chapter.status == ChapterStatus.extracted,
+                )
+                .order_by(Chapter.chapter_number)
+                .limit(1)
+            )
+            chapter = ch_result.scalar_one_or_none()
+
+            if chapter is None:
+                logger.warning(
+                    f"Stuck manuscript {manuscript.id} has no extracted chapters — skipping recovery"
+                )
+                continue
+
+            # Determine job type based on document type
+            is_nonfiction = manuscript.document_type == DocumentType.nonfiction
+            if is_nonfiction:
+                job_func = "process_nonfiction_section_analysis"
+            else:
+                job_func = "process_chapter_analysis"
+
+            # Create a Job row
+            job = Job(
+                manuscript_id=manuscript.id,
+                chapter_id=chapter.id,
+                job_type=JobType.chapter_analysis,
+                current_step="Queued (auto-recovered from stuck state)",
+            )
+            session.add(job)
+            await session.flush()
+            await session.refresh(job)
+
+            # Enqueue to Redis
+            try:
+                redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
+                await redis.enqueue_job(
+                    job_func,
+                    str(job.id),
+                    str(manuscript.id),
+                    str(chapter.id),
+                )
+            except Exception as enqueue_err:
+                logger.error(
+                    f"Failed to enqueue recovery job for manuscript {manuscript.id}: {enqueue_err}"
+                )
+                await session.rollback()
+                continue
+
+            # Update manuscript status to analyzing
+            manuscript.status = ManuscriptStatus.analyzing
+            await session.commit()
+
+            recovered_count += 1
+            logger.info(
+                f"Recovered stuck manuscript {manuscript.id} "
+                f"(type={manuscript.document_type.value}, chapter={chapter.id}): "
+                f"enqueued {job_func}"
+            )
+
+        if recovered_count > 0:
+            logger.info(f"Recovery cron: recovered {recovered_count} stuck manuscripts")
+
+
 async def process_drip_emails(ctx):
     """Process pending drip emails. Run periodically via arq cron."""
     session_factory = _get_session_factory()
@@ -1360,6 +1458,8 @@ class WorkerSettings:
         cron(process_drip_emails, minute=0),
         # Run GDPR hard purge daily at 03:00 UTC (SEC-008)
         cron(_purge_deleted_data, hour=3, minute=0),
+        # Recover manuscripts stuck in paid+bible_complete every 15 minutes
+        cron(_recover_stuck_manuscripts, minute={0, 15, 30, 45}),
     ]
     on_startup = _recover_stalled_jobs
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
