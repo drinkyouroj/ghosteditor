@@ -58,7 +58,7 @@ class TestRateLimit:
         mock_redis.expire = AsyncMock()
         mock_redis.aclose = AsyncMock()
 
-        with patch("app.rate_limit.aioredis.from_url", return_value=mock_redis):
+        with patch("app.rate_limit._get_redis", return_value=mock_redis):
             # Should not raise
             await check_rate_limit("user-123", action="upload", max_requests=5)
 
@@ -73,7 +73,7 @@ class TestRateLimit:
         mock_redis.ttl = AsyncMock(return_value=1800)
         mock_redis.aclose = AsyncMock()
 
-        with patch("app.rate_limit.aioredis.from_url", return_value=mock_redis):
+        with patch("app.rate_limit._get_redis", return_value=mock_redis):
             with pytest.raises(HTTPException) as exc_info:
                 await check_rate_limit("user-123", action="upload", max_requests=5)
             assert exc_info.value.status_code == 429
@@ -89,7 +89,7 @@ class TestRateLimit:
         mock_redis.expire = AsyncMock()
         mock_redis.aclose = AsyncMock()
 
-        with patch("app.rate_limit.aioredis.from_url", return_value=mock_redis):
+        with patch("app.rate_limit._get_redis", return_value=mock_redis):
             await check_rate_limit("user-123", action="upload")
 
         mock_redis.expire.assert_called_once()
@@ -99,6 +99,6 @@ class TestRateLimit:
         """If Redis is down, allow the request (fail open)."""
         from app.rate_limit import check_rate_limit
 
-        with patch("app.rate_limit.aioredis.from_url", side_effect=ConnectionError("Redis down")):
+        with patch("app.rate_limit._get_redis", side_effect=ConnectionError("Redis down")):
             # Should not raise — fail open
             await check_rate_limit("user-123", action="upload")

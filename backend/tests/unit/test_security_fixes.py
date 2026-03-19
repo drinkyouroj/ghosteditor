@@ -128,28 +128,35 @@ class TestStripeWebhookUserScoping:
         await db_session.commit()
         await db_session.refresh(ms)
 
+        ms_id = ms.id
+
         # Simulate webhook with user_b's ID but user_a's manuscript
         session_obj = MagicMock()
         session_obj.id = "cs_test_mismatch"
         session_obj.metadata = {
-            "manuscript_id": str(ms.id),
+            "manuscript_id": str(ms_id),
             "user_id": str(user_b.id),  # Wrong user!
         }
         session_obj.mode = "payment"
         session_obj.customer = "cus_test"
 
-        with patch("app.stripe.router.settings") as mock_settings:
-            mock_settings.database_url = db_session.get_bind().url.render_as_string(
-                hide_password=False
-            )
-            mock_settings.redis_url = "redis://localhost:6379/0"
+        from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession as AS
 
-            await _handle_checkout_completed(session_obj)
+        db_url = db_session.get_bind().url.render_as_string(hide_password=False)
+        engine = create_async_engine(db_url, echo=False)
+        factory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
+
+        with patch("app.stripe.router._get_webhook_session_factory", return_value=factory):
+            with patch("app.stripe.router.settings") as mock_settings:
+                mock_settings.redis_url = "redis://localhost:6379/0"
+                await _handle_checkout_completed(session_obj)
+
+        await engine.dispose()
 
         # Refresh and verify manuscript is still unpaid
-        await db_session.expire_all()
+        db_session.expire_all()
         result = await db_session.execute(
-            select(Manuscript).where(Manuscript.id == ms.id)
+            select(Manuscript).where(Manuscript.id == ms_id)
         )
         refreshed_ms = result.scalar_one()
         assert refreshed_ms.payment_status == PaymentStatus.unpaid
@@ -176,9 +183,9 @@ class TestVerificationTokenReuse:
         db_session.add(user)
         await db_session.commit()
 
-        # First verification — should succeed
-        resp1 = await client.get(f"/auth/verify-email?token={token}")
-        assert resp1.status_code == 200
+        # First verification — should succeed (302 redirect on success)
+        resp1 = await client.get(f"/auth/verify-email?token={token}", follow_redirects=False)
+        assert resp1.status_code == 302
 
         # Second verification — should fail because email_verified is now True
         resp2 = await client.get(f"/auth/verify-email?token={token}")
@@ -296,7 +303,7 @@ class TestLoginRateLimit:
         mock_redis.ttl = AsyncMock(return_value=600)
         mock_redis.aclose = AsyncMock()
 
-        with patch("app.rate_limit.aioredis.from_url", return_value=mock_redis):
+        with patch("app.rate_limit._get_redis", return_value=mock_redis):
             resp = await client.post(
                 "/auth/login",
                 json={"email": "ratelimit@example.com", "password": "password123"},
@@ -322,7 +329,7 @@ class TestPasswordResetRateLimit:
         mock_redis.ttl = AsyncMock(return_value=3000)
         mock_redis.aclose = AsyncMock()
 
-        with patch("app.rate_limit.aioredis.from_url", return_value=mock_redis):
+        with patch("app.rate_limit._get_redis", return_value=mock_redis):
             resp = await client.post(
                 "/auth/forgot-password",
                 json={"email": "reset-limit@example.com"},
@@ -371,7 +378,7 @@ class TestHardPurgeCron:
             await engine.dispose()
 
         # Verify the user is gone
-        await db_session.expire_all()
+        db_session.expire_all()
         result = await db_session.execute(select(User).where(User.id == user_id))
         assert result.scalar_one_or_none() is None
 
@@ -407,6 +414,6 @@ class TestHardPurgeCron:
             await engine.dispose()
 
         # Verify the user still exists
-        await db_session.expire_all()
+        db_session.expire_all()
         result = await db_session.execute(select(User).where(User.id == user_id))
         assert result.scalar_one_or_none() is not None

@@ -114,12 +114,13 @@ CANNED_SECTION_ANALYSIS = {
 
 CANNED_SYNTHESIS = {
     "overall_assessment": "Well-structured academic argument.",
-    "thesis_clarity_score": 8,
-    "evidence_sufficiency_score": 7,
-    "structural_coherence_score": 8,
-    "key_strengths": ["Strong citations"],
-    "key_weaknesses": ["Missing conclusion"],
-    "recommendations": ["Add conclusion"],
+    "thesis_clarity_score": "strong",
+    "argument_coherence": "coherent",
+    "evidence_density": "strong",
+    "tone_consistency": "consistent",
+    "top_strengths": ["Strong citations"],
+    "top_priorities": ["Add conclusion"],
+    "format_specific_notes": "Follows academic conventions well.",
 }
 
 
@@ -229,7 +230,9 @@ async def test_argument_map_generation_happy_path(nf_worker_db, nf_manuscript):
     db = nf_worker_db
     manuscript, chapter, user = nf_manuscript
 
-    job = await _create_job(db, manuscript.id)
+    ms_id = manuscript.id
+    job = await _create_job(db, ms_id)
+    job_id = job.id
 
     async def mock_call_llm(prompt, model, max_tokens):
         return json.dumps(CANNED_ARGUMENT_MAP)
@@ -238,16 +241,16 @@ async def test_argument_map_generation_happy_path(nf_worker_db, nf_manuscript):
     mock_redis.enqueue_job = AsyncMock()
 
     with (
-        patch("app.analysis.llm_client.call_llm", new=mock_call_llm),
+        patch("app.analysis.argument_map.call_llm", new=mock_call_llm),
         patch("app.jobs.worker.create_pool", return_value=mock_redis),
         patch("app.jobs.worker._get_session_factory") as mock_factory,
     ):
         mock_factory.return_value = _make_mock_session_factory(settings.database_url)
-        await process_argument_map_generation({}, str(job.id), str(manuscript.id))
+        await process_argument_map_generation({}, str(job_id), str(ms_id))
 
-    await db.expire_all()
+    db.expire_all()
     result = await db.execute(
-        select(ArgumentMap).where(ArgumentMap.manuscript_id == manuscript.id)
+        select(ArgumentMap).where(ArgumentMap.manuscript_id == ms_id)
     )
     argmap = result.scalar_one_or_none()
     assert argmap is not None, "ArgumentMap should be created"
@@ -265,21 +268,23 @@ async def test_argument_map_generation_llm_failure(nf_worker_db, nf_manuscript):
     db = nf_worker_db
     manuscript, chapter, user = nf_manuscript
 
-    job = await _create_job(db, manuscript.id)
+    ms_id = manuscript.id
+    job = await _create_job(db, ms_id)
+    job_id = job.id
 
     async def mock_call_llm_fail(prompt, model, max_tokens):
         raise Exception("LLM service temporarily overloaded")
 
     with (
-        patch("app.analysis.llm_client.call_llm", new=mock_call_llm_fail),
+        patch("app.analysis.argument_map.call_llm", new=mock_call_llm_fail),
         patch("app.jobs.worker.create_pool", return_value=AsyncMock(enqueue_job=AsyncMock())),
         patch("app.jobs.worker._get_session_factory") as mock_factory,
     ):
         mock_factory.return_value = _make_mock_session_factory(settings.database_url)
-        await process_argument_map_generation({}, str(job.id), str(manuscript.id))
+        await process_argument_map_generation({}, str(job_id), str(ms_id))
 
-    await db.expire_all()
-    result = await db.execute(select(Job).where(Job.id == job.id))
+    db.expire_all()
+    result = await db.execute(select(Job).where(Job.id == job_id))
     updated_job = result.scalar_one()
     # Should be either failed or re-queued for retry
     assert updated_job.status in (JobStatus.failed, JobStatus.pending)
@@ -296,31 +301,35 @@ async def test_section_analysis_happy_path(nf_worker_db, nf_manuscript):
     db = nf_worker_db
     manuscript, chapter, user = nf_manuscript
 
+    ms_id = manuscript.id
+    ch_id = chapter.id
+
     # Create argument map first (needed for section analysis)
     argmap = ArgumentMap(
-        manuscript_id=manuscript.id,
+        manuscript_id=ms_id,
         argument_map_json=CANNED_ARGUMENT_MAP,
         version=1,
     )
     db.add(argmap)
     await db.commit()
 
-    job = await _create_job(db, manuscript.id, chapter_id=chapter.id)
+    job = await _create_job(db, ms_id, chapter_id=ch_id)
+    job_id = job.id
 
     async def mock_call_llm(prompt, model, max_tokens):
         return json.dumps(CANNED_SECTION_ANALYSIS)
 
     with (
-        patch("app.analysis.llm_client.call_llm", new=mock_call_llm),
+        patch("app.analysis.nonfiction_analyzer.call_llm", new=mock_call_llm),
         patch("app.jobs.worker.create_pool", return_value=AsyncMock(enqueue_job=AsyncMock())),
         patch("app.jobs.worker._get_session_factory") as mock_factory,
     ):
         mock_factory.return_value = _make_mock_session_factory(settings.database_url)
         await process_nonfiction_section_analysis(
-            {}, str(job.id), str(manuscript.id), str(chapter.id)
+            {}, str(job_id), str(ms_id), str(ch_id)
         )
 
-    await db.expire_all()
+    db.expire_all()
     results = await db.execute(select(NonfictionSectionResult))
     section_results = results.scalars().all()
     assert len(section_results) >= 1, "At least one section result should be created"
@@ -337,31 +346,35 @@ async def test_section_analysis_llm_failure(nf_worker_db, nf_manuscript):
     db = nf_worker_db
     manuscript, chapter, user = nf_manuscript
 
+    ms_id = manuscript.id
+    ch_id = chapter.id
+
     argmap = ArgumentMap(
-        manuscript_id=manuscript.id,
+        manuscript_id=ms_id,
         argument_map_json=CANNED_ARGUMENT_MAP,
         version=1,
     )
     db.add(argmap)
     await db.commit()
 
-    job = await _create_job(db, manuscript.id, chapter_id=chapter.id)
+    job = await _create_job(db, ms_id, chapter_id=ch_id)
+    job_id = job.id
 
     async def mock_call_llm_fail(prompt, model, max_tokens):
         raise Exception("Connection timed out")
 
     with (
-        patch("app.analysis.llm_client.call_llm", new=mock_call_llm_fail),
+        patch("app.analysis.nonfiction_analyzer.call_llm", new=mock_call_llm_fail),
         patch("app.jobs.worker.create_pool", return_value=AsyncMock(enqueue_job=AsyncMock())),
         patch("app.jobs.worker._get_session_factory") as mock_factory,
     ):
         mock_factory.return_value = _make_mock_session_factory(settings.database_url)
         await process_nonfiction_section_analysis(
-            {}, str(job.id), str(manuscript.id), str(chapter.id)
+            {}, str(job_id), str(ms_id), str(ch_id)
         )
 
-    await db.expire_all()
-    result = await db.execute(select(Job).where(Job.id == job.id))
+    db.expire_all()
+    result = await db.execute(select(Job).where(Job.id == job_id))
     updated_job = result.scalar_one()
     assert updated_job.status in (JobStatus.failed, JobStatus.pending)
 
@@ -377,31 +390,34 @@ async def test_synthesis_happy_path(nf_worker_db, nf_manuscript):
     db = nf_worker_db
     manuscript, chapter, user = nf_manuscript
 
+    ms_id = manuscript.id
+
     argmap = ArgumentMap(
-        manuscript_id=manuscript.id,
+        manuscript_id=ms_id,
         argument_map_json=CANNED_ARGUMENT_MAP,
         version=1,
     )
     db.add(argmap)
     await db.commit()
 
-    job = await _create_job(db, manuscript.id)
+    job = await _create_job(db, ms_id)
+    job_id = job.id
 
     async def mock_call_llm(prompt, model, max_tokens):
         return json.dumps(CANNED_SYNTHESIS)
 
     with (
-        patch("app.analysis.llm_client.call_llm", new=mock_call_llm),
+        patch("app.analysis.nonfiction_synthesis.call_llm", new=mock_call_llm),
         patch("app.jobs.worker.create_pool", return_value=AsyncMock(enqueue_job=AsyncMock())),
         patch("app.jobs.worker._get_session_factory") as mock_factory,
     ):
         mock_factory.return_value = _make_mock_session_factory(settings.database_url)
-        await process_nonfiction_synthesis({}, str(job.id), str(manuscript.id))
+        await process_nonfiction_synthesis({}, str(job_id), str(ms_id))
 
-    await db.expire_all()
+    db.expire_all()
     result = await db.execute(
         select(NonfictionDocumentSummary).where(
-            NonfictionDocumentSummary.manuscript_id == manuscript.id
+            NonfictionDocumentSummary.manuscript_id == ms_id
         )
     )
     summary = result.scalar_one_or_none()
@@ -420,28 +436,31 @@ async def test_synthesis_llm_failure(nf_worker_db, nf_manuscript):
     db = nf_worker_db
     manuscript, chapter, user = nf_manuscript
 
+    ms_id = manuscript.id
+
     argmap = ArgumentMap(
-        manuscript_id=manuscript.id,
+        manuscript_id=ms_id,
         argument_map_json=CANNED_ARGUMENT_MAP,
         version=1,
     )
     db.add(argmap)
     await db.commit()
 
-    job = await _create_job(db, manuscript.id)
+    job = await _create_job(db, ms_id)
+    job_id = job.id
 
     async def mock_call_llm_fail(prompt, model, max_tokens):
         raise Exception("API rate limit exceeded")
 
     with (
-        patch("app.analysis.llm_client.call_llm", new=mock_call_llm_fail),
+        patch("app.analysis.nonfiction_synthesis.call_llm", new=mock_call_llm_fail),
         patch("app.jobs.worker.create_pool", return_value=AsyncMock(enqueue_job=AsyncMock())),
         patch("app.jobs.worker._get_session_factory") as mock_factory,
     ):
         mock_factory.return_value = _make_mock_session_factory(settings.database_url)
-        await process_nonfiction_synthesis({}, str(job.id), str(manuscript.id))
+        await process_nonfiction_synthesis({}, str(job_id), str(ms_id))
 
-    await db.expire_all()
-    result = await db.execute(select(Job).where(Job.id == job.id))
+    db.expire_all()
+    result = await db.execute(select(Job).where(Job.id == job_id))
     updated_job = result.scalar_one()
     assert updated_job.status in (JobStatus.failed, JobStatus.pending)

@@ -46,8 +46,8 @@ async def test_verify_email_sets_cookie(client: AsyncClient, db_session: AsyncSe
     db_session.add(user)
     await db_session.commit()
 
-    resp = await client.get(f"/auth/verify-email?token={token}")
-    assert resp.status_code == 200
+    resp = await client.get(f"/auth/verify-email?token={token}", follow_redirects=False)
+    assert resp.status_code == 302
     assert "access_token" in resp.cookies
 
 

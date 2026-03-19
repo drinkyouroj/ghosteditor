@@ -40,6 +40,7 @@ def _make_user(email: str = "stripe-enh@example.com", **kwargs) -> User:
 @pytest.mark.asyncio
 async def test_checkout_completed_handler_marks_paid(db_session: AsyncSession):
     """_handle_checkout_completed should set payment_status=paid on the manuscript."""
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession as AS
     from app.stripe.router import _handle_checkout_completed
 
     user = _make_user("checkout-handler@example.com")
@@ -57,21 +58,28 @@ async def test_checkout_completed_handler_marks_paid(db_session: AsyncSession):
     await db_session.commit()
     await db_session.refresh(ms)
 
+    ms_id = ms.id
+    user_id = user.id
+
     session_obj = MagicMock()
     session_obj.id = "cs_handler_test_123"
-    session_obj.metadata = {"manuscript_id": str(ms.id), "user_id": str(user.id)}
+    session_obj.metadata = {"manuscript_id": str(ms_id), "user_id": str(user_id)}
     session_obj.mode = "payment"
     session_obj.customer = "cus_handler_test"
 
-    with patch("app.stripe.router.settings") as mock_settings:
-        mock_settings.database_url = db_session.get_bind().url.render_as_string(hide_password=False)
-        mock_settings.redis_url = "redis://localhost:6380/0"
+    db_url = db_session.get_bind().url.render_as_string(hide_password=False)
+    engine = create_async_engine(db_url, echo=False)
+    factory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
 
-        with patch("app.stripe.router.create_pool", new_callable=AsyncMock):
+    with patch("app.stripe.router._get_webhook_session_factory", return_value=factory):
+        with patch("app.stripe.router.settings") as mock_settings:
+            mock_settings.redis_url = "redis://localhost:6380/0"
             await _handle_checkout_completed(session_obj)
 
-    await db_session.expire_all()
-    result = await db_session.execute(select(Manuscript).where(Manuscript.id == ms.id))
+    await engine.dispose()
+
+    db_session.expire_all()
+    result = await db_session.execute(select(Manuscript).where(Manuscript.id == ms_id))
     updated_ms = result.scalar_one()
     assert updated_ms.payment_status == PaymentStatus.paid
     assert updated_ms.stripe_session_id == "cs_handler_test_123"
@@ -80,6 +88,7 @@ async def test_checkout_completed_handler_marks_paid(db_session: AsyncSession):
 @pytest.mark.asyncio
 async def test_checkout_completed_idempotent_duplicate(db_session: AsyncSession):
     """Duplicate webhook with same session_id should be a no-op."""
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession as AS
     from app.stripe.router import _handle_checkout_completed
 
     user = _make_user("checkout-idem@example.com")
@@ -98,22 +107,28 @@ async def test_checkout_completed_idempotent_duplicate(db_session: AsyncSession)
     await db_session.commit()
     await db_session.refresh(ms)
 
+    ms_id = ms.id
+    user_id = user.id
+
     session_obj = MagicMock()
     session_obj.id = "cs_duplicate_123"
-    session_obj.metadata = {"manuscript_id": str(ms.id), "user_id": str(user.id)}
+    session_obj.metadata = {"manuscript_id": str(ms_id), "user_id": str(user_id)}
     session_obj.mode = "payment"
     session_obj.customer = "cus_dup_test"
 
-    with patch("app.stripe.router.settings") as mock_settings:
-        mock_settings.database_url = db_session.get_bind().url.render_as_string(hide_password=False)
-        mock_settings.redis_url = "redis://localhost:6380/0"
+    db_url = db_session.get_bind().url.render_as_string(hide_password=False)
+    engine = create_async_engine(db_url, echo=False)
+    factory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
 
+    with patch("app.stripe.router._get_webhook_session_factory", return_value=factory):
         # Should return early without error
         await _handle_checkout_completed(session_obj)
 
+    await engine.dispose()
+
     # Manuscript should remain unchanged
-    await db_session.expire_all()
-    result = await db_session.execute(select(Manuscript).where(Manuscript.id == ms.id))
+    db_session.expire_all()
+    result = await db_session.execute(select(Manuscript).where(Manuscript.id == ms_id))
     updated_ms = result.scalar_one()
     assert updated_ms.payment_status == PaymentStatus.paid
     assert updated_ms.stripe_session_id == "cs_duplicate_123"
@@ -122,6 +137,7 @@ async def test_checkout_completed_idempotent_duplicate(db_session: AsyncSession)
 @pytest.mark.asyncio
 async def test_checkout_completed_nonexistent_manuscript(db_session: AsyncSession):
     """Webhook for non-existent manuscript should not crash."""
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession as AS
     from app.stripe.router import _handle_checkout_completed
 
     session_obj = MagicMock()
@@ -133,12 +149,15 @@ async def test_checkout_completed_nonexistent_manuscript(db_session: AsyncSessio
     session_obj.mode = "payment"
     session_obj.customer = "cus_nonexistent"
 
-    with patch("app.stripe.router.settings") as mock_settings:
-        mock_settings.database_url = db_session.get_bind().url.render_as_string(hide_password=False)
-        mock_settings.redis_url = "redis://localhost:6380/0"
+    db_url = db_session.get_bind().url.render_as_string(hide_password=False)
+    engine = create_async_engine(db_url, echo=False)
+    factory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
 
+    with patch("app.stripe.router._get_webhook_session_factory", return_value=factory):
         # Should return gracefully without error
         await _handle_checkout_completed(session_obj)
+
+    await engine.dispose()
 
 
 @pytest.mark.asyncio
@@ -152,17 +171,15 @@ async def test_checkout_completed_missing_metadata(db_session: AsyncSession):
     session_obj.mode = "payment"
     session_obj.customer = "cus_no_meta"
 
-    with patch("app.stripe.router.settings") as mock_settings:
-        mock_settings.database_url = db_session.get_bind().url.render_as_string(hide_password=False)
-        mock_settings.redis_url = "redis://localhost:6380/0"
-
-        # Should return early without error
-        await _handle_checkout_completed(session_obj)
+    # Missing metadata means the handler returns early before using session factory
+    # So no factory mock needed
+    await _handle_checkout_completed(session_obj)
 
 
 @pytest.mark.asyncio
 async def test_subscription_cancelled_handler_sets_free(db_session: AsyncSession):
     """_handle_subscription_cancelled should set user to free tier."""
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession as AS
     from app.stripe.router import _handle_subscription_cancelled
 
     user = _make_user(
@@ -174,16 +191,22 @@ async def test_subscription_cancelled_handler_sets_free(db_session: AsyncSession
     await db_session.commit()
     await db_session.refresh(user)
 
+    user_id = user.id
+
     sub_obj = MagicMock()
     sub_obj.customer = "cus_cancel_direct"
 
-    with patch("app.stripe.router.settings") as mock_settings:
-        mock_settings.database_url = db_session.get_bind().url.render_as_string(hide_password=False)
+    db_url = db_session.get_bind().url.render_as_string(hide_password=False)
+    engine = create_async_engine(db_url, echo=False)
+    factory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
 
+    with patch("app.stripe.router._get_webhook_session_factory", return_value=factory):
         await _handle_subscription_cancelled(sub_obj)
 
-    await db_session.expire_all()
-    result = await db_session.execute(select(User).where(User.id == user.id))
+    await engine.dispose()
+
+    db_session.expire_all()
+    result = await db_session.execute(select(User).where(User.id == user_id))
     updated_user = result.scalar_one()
     assert updated_user.subscription_status == SubscriptionStatus.free
 
@@ -191,13 +214,18 @@ async def test_subscription_cancelled_handler_sets_free(db_session: AsyncSession
 @pytest.mark.asyncio
 async def test_subscription_cancelled_nonexistent_customer(db_session: AsyncSession):
     """Cancellation for non-existent customer should not crash."""
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession as AS
     from app.stripe.router import _handle_subscription_cancelled
 
     sub_obj = MagicMock()
     sub_obj.customer = "cus_doesnt_exist"
 
-    with patch("app.stripe.router.settings") as mock_settings:
-        mock_settings.database_url = db_session.get_bind().url.render_as_string(hide_password=False)
+    db_url = db_session.get_bind().url.render_as_string(hide_password=False)
+    engine = create_async_engine(db_url, echo=False)
+    factory = async_sessionmaker(engine, class_=AS, expire_on_commit=False)
 
+    with patch("app.stripe.router._get_webhook_session_factory", return_value=factory):
         # Should return gracefully
         await _handle_subscription_cancelled(sub_obj)
+
+    await engine.dispose()
