@@ -1008,10 +1008,12 @@ NONFICTION_HEADER_PATTERNS = [
     re.compile(r"^(#{1,4}\s+.+)$", re.MULTILINE),
     # ALL-CAPS lines (at least 3 words, to avoid false positives)
     re.compile(r"^([A-Z][A-Z\s,:''\-]{10,})$", re.MULTILINE),
-    # Numbered sections: "1.", "1.1", "Section 1:", "Section 1." — with optional _underscores_
-    re.compile(r"^_?((?:Section\s+)?\d+(?:\.\d+)?\s*[.:]\s*.+?)_?\s*$", re.IGNORECASE | re.MULTILINE),
+    # Numbered sections: "1.", "1.1", "Section 1:", "Section 1." — with optional _underscores_ and leading whitespace
+    re.compile(r"^\s*_?((?:Section\s+)?\d+(?:\.\d+)?\s*[.:]\s*.+?)_?\s*$", re.IGNORECASE | re.MULTILINE),
     # Standalone section labels on their own line: Introduction, Preface, Conclusion, Epilogue, etc.
     re.compile(r"^\s*((?:Introduction|Preface|Foreword|Prologue|Epilogue|Conclusion|Afterword|Appendix))\s*$", re.IGNORECASE | re.MULTILINE),
+    # Gutenberg italic titles: _Title Text Here_ on their own line (at least 3 words to avoid false positives)
+    re.compile(r"^(_[A-Z][^_\n]{8,}_)\s*$", re.MULTILINE),
     # "Part I", "Part 1", "Part One"
     re.compile(
         rf"^(Part\s+(?:\d+|{ROMAN_NUMERAL}|{CHAPTER_WORD_NUMBERS})\b[^\n]*)",
