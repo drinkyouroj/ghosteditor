@@ -7,6 +7,9 @@ LLM API calls and are marked with @pytest.mark.api.
 Ground truth files:
     ground_truth/nonfiction_academic_argument_map.json
     ground_truth/nonfiction_journalism_argument_map.json
+    ground_truth/nonfiction_personal_essay_argument_map.json
+    ground_truth/nonfiction_self_help_argument_map.json
+    ground_truth/nonfiction_business_argument_map.json
 
 Each ground truth specifies:
     - central_thesis: expected substring in the central thesis
@@ -26,6 +29,9 @@ GROUND_TRUTH_DIR = Path(__file__).parent / "ground_truth"
 NONFICTION_GROUND_TRUTH_FILES = {
     "academic": "nonfiction_academic_argument_map.json",
     "journalism": "nonfiction_journalism_argument_map.json",
+    "personal_essay": "nonfiction_personal_essay_argument_map.json",
+    "self_help": "nonfiction_self_help_argument_map.json",
+    "business": "nonfiction_business_argument_map.json",
 }
 
 

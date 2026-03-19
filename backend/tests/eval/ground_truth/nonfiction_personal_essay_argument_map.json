@@ -1,0 +1,7 @@
+{
+    "central_thesis": "attention",
+    "expected_thread_count_min": 3,
+    "expected_evidence_types": ["anecdote", "observation", "reflection"],
+    "expected_voice_register": "conversational",
+    "expected_format_detection": "personal_essay"
+}
