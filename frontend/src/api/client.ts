@@ -404,6 +404,10 @@ export interface NonfictionFeedback extends ManuscriptFeedback {
   document_summary: NonfictionDocumentSummary | null
 }
 
+export function getExportFeedbackUrl(manuscriptId: string, format: 'pdf' | 'docx'): string {
+  return `${BASE}/bible/${manuscriptId}/feedback/export?format=${format}`
+}
+
 export async function getNonfictionFeedback(manuscriptId: string, filters?: { severity?: string; issue_type?: string }): Promise<NonfictionFeedback> {
   const params = new URLSearchParams()
   if (filters?.severity) params.set('severity', filters.severity)
