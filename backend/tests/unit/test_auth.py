@@ -1,3 +1,5 @@
+from unittest.mock import AsyncMock, patch
+
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
@@ -6,6 +8,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.security import generate_token, hash_token
 from app.db.models import User
+
+
+@pytest.fixture(autouse=True)
+def mock_rate_limit():
+    """Disable rate limiting for auth tests to prevent 429 interference."""
+    with patch("app.auth.router.check_rate_limit", new_callable=AsyncMock):
+        yield
 
 
 @pytest.mark.asyncio
