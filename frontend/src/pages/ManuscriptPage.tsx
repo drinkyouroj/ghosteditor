@@ -24,17 +24,26 @@ const CHAPTER_STATUS_LABELS: Record<string, string> = {
 }
 
 const PROCESSING_STATUSES = ['uploading', 'extracting', 'bible_generating', 'analyzing']
+
+const PROCESSING_TIME_HINTS: Record<string, string> = {
+  extracting: 'Usually takes a few seconds',
+  bible_generating: 'Usually takes 10\u201330 seconds',
+  analyzing: 'Each chapter takes 15\u201330 seconds',
+}
 const POLL_INTERVAL = 5000
 
 export function ManuscriptPage() {
   const { id } = useParams<{ id: string }>()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [manuscript, setManuscript] = useState<ManuscriptDetail | null>(null)
   const [error, setError] = useState('')
   const [analysisLoading, setAnalysisLoading] = useState(false)
   const [reanalyzeLoading, setReanalyzeLoading] = useState(false)
+  const [showCompletionBanner, setShowCompletionBanner] = useState(false)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const prevStatusRef = useRef<string | null>(null)
   const paymentStatus = searchParams.get('payment')
+  const justCompleted = searchParams.get('just_completed') === 'true'
 
   const fetchManuscript = () => {
     if (!id) return
@@ -88,6 +97,25 @@ export function ManuscriptPage() {
       if (pollRef.current) clearInterval(pollRef.current)
     }
   }, [manuscript?.status])
+
+  // Detect transition to 'complete' and show completion banner
+  useEffect(() => {
+    if (!manuscript) return
+    const prev = prevStatusRef.current
+    if (prev && PROCESSING_STATUSES.includes(prev) && manuscript.status === 'complete') {
+      setSearchParams((params) => {
+        params.set('just_completed', 'true')
+        return params
+      }, { replace: true })
+      setShowCompletionBanner(true)
+    }
+    prevStatusRef.current = manuscript.status
+  }, [manuscript?.status])
+
+  // Show banner if arriving via just_completed param
+  useEffect(() => {
+    if (justCompleted) setShowCompletionBanner(true)
+  }, [justCompleted])
 
   if (error) return (
     <div className="error-card">
@@ -169,13 +197,24 @@ export function ManuscriptPage() {
         </div>
       )}
 
-      {/* Paywall prompt — bible complete but unpaid */}
-      {manuscript.status === 'bible_complete' && manuscript.payment_status === 'unpaid' && (
+      {/* Completion banner */}
+      {showCompletionBanner && manuscript.status === 'complete' && (
+        <div className="ms-completion-banner">
+          Analysis complete! Click &lsquo;View Feedback&rsquo; to see your developmental editing results.
+        </div>
+      )}
+
+      {/* Paywall prompt — bible/argmap complete but unpaid */}
+      {(manuscript.status === 'bible_complete' || manuscript.status === 'argmap_complete') && manuscript.payment_status === 'unpaid' && (
         <div className="ms-paywall">
-          <h3>Your story bible is ready!</h3>
+          <h3>{isNonfiction ? 'Your argument map is ready!' : 'Your story bible is ready!'}</h3>
           <p>
-            Unlock full chapter-by-chapter developmental editing analysis:
-            consistency checks, pacing feedback, and genre convention scoring.
+            Your free preview includes the {isNonfiction ? 'Argument Map' : 'Story Bible'} above.
+            {' '}Full {isNonfiction ? 'section-by-section' : 'chapter-by-chapter'} developmental editing analysis
+            {isNonfiction
+              ? ' — argument quality, clarity, and format convention scoring — '
+              : ' — consistency checks, pacing feedback, and genre convention scoring — '}
+            requires payment.
           </p>
           <Link to={`/manuscripts/${id}/pricing`} className="btn-primary">
             Unlock Full Analysis
@@ -195,6 +234,15 @@ export function ManuscriptPage() {
                 ? 'Argument map ready'
                 : STATUS_LABELS[manuscript.status] ?? manuscript.status
             }</span>
+            {PROCESSING_TIME_HINTS[manuscript.status] && (
+              <span className="progress-time-hint">
+                {isNonfiction && manuscript.status === 'analyzing'
+                  ? 'Each section takes 15\u201330 seconds'
+                  : isNonfiction && manuscript.status === 'bible_generating'
+                  ? 'Usually takes 10\u201330 seconds'
+                  : PROCESSING_TIME_HINTS[manuscript.status]}
+              </span>
+            )}
           </div>
           {manuscript.status === 'analyzing' && totalChapters > 0 && (
             <div className="progress-detail">
@@ -209,6 +257,9 @@ export function ManuscriptPage() {
               </span>
             </div>
           )}
+          <p className="progress-background-note">
+            You can close this tab and come back later — processing continues in the background.
+          </p>
         </div>
       )}
 
