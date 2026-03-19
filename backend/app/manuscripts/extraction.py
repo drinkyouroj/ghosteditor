@@ -780,15 +780,19 @@ def _split_by_markers(text: str, sections: list[dict], front_matter_end_marker: 
                 f"ToC match detected: {short_count}/{len(chapters)} chapters "
                 f"under 50 words. Re-searching markers sequentially."
             )
-            # Find where the bulk content starts (the one huge chapter)
-            huge_chapter = max(chapters, key=lambda c: c["word_count"])
-            huge_idx = chapters.index(huge_chapter)
-            # The huge chapter's start position in the text
-            huge_start = positions[huge_idx][0] if huge_idx < len(positions) else search_start
+            # Find end of the ToC block: the last short chapter's end position.
+            # Everything after this is body text where markers should be re-found.
+            last_short_end = search_start
+            for i, ch in enumerate(chapters):
+                if ch["word_count"] < 50:
+                    # This short chapter ends where the next one starts
+                    if i + 1 < len(positions):
+                        last_short_end = max(last_short_end, positions[i + 1][0])
+                    else:
+                        last_short_end = max(last_short_end, positions[i][0] + 100)
 
-            # Re-search all markers sequentially starting from before the huge chapter
-            # Each marker must be found AFTER the previous one
-            cursor = max(search_start, huge_start - 200)  # small buffer before huge chapter start
+            # Re-search all markers sequentially starting after the ToC
+            cursor = last_short_end
             new_positions = []
             for section in sections:
                 marker = section.get("marker", "")
