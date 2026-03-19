@@ -1,13 +1,23 @@
 # GhostEditor
 
-AI-powered developmental editing for self-published authors. Upload a manuscript, get a structured Story Bible and chapter-by-chapter feedback on consistency, pacing, and genre conventions.
+AI-powered developmental editing for self-published authors. Upload a manuscript — fiction or nonfiction — and get structured, chapter-by-chapter feedback on consistency, argument quality, pacing, and genre or format conventions.
 
 ## How It Works
 
-1. **Upload** a manuscript (DOCX, PDF, or TXT)
+### Fiction
+
+1. **Upload** a manuscript (DOCX, PDF, or TXT) and select your genre
 2. **Story Bible** is generated automatically from Chapter 1 — characters, timeline, settings, world rules, voice profile, plot threads
-3. **Chapter Analysis** runs sequentially, updating the bible and flagging issues against it: continuity errors, pacing problems, genre convention violations
+3. **Chapter Analysis** runs sequentially, updating the bible and flagging issues: continuity errors, pacing problems, genre convention violations
 4. **Feedback Dashboard** shows results organized by chapter and severity (Critical / Warning / Note)
+
+### Nonfiction
+
+1. **Upload** a manuscript and select a nonfiction format (Academic, Personal Essay, Journalism, Self-Help, or Business)
+2. **Argument Map** is generated — central thesis, argument threads, evidence log, voice profile, structural markers
+3. **Section Analysis** evaluates each section across five dimensions: argument structure, evidence quality, clarity, organization, and tone — with format-specific conventions applied
+4. **Document Synthesis** produces an overall assessment with scores for thesis clarity, argument coherence, evidence density, and tone consistency, plus prioritized recommendations
+5. **Feedback Dashboard** shows per-section results with dimension filtering and a document summary panel
 
 ## Architecture
 
@@ -17,10 +27,11 @@ React (Vite)  →  FastAPI  →  Claude API (Sonnet + Haiku)
               PostgreSQL + Redis (arq) + S3/MinIO
 ```
 
-- **Story Bible generation**: Claude Sonnet — builds and incrementally updates a structured JSON bible per chapter
-- **Chapter analysis**: Claude Haiku — flags issues against the bible with severity, location, and suggestions
-- **Job queue**: arq (Redis) — sequential chapter processing with retry and stall recovery
-- **Storage**: PostgreSQL (manuscripts, bibles, analysis results), S3/MinIO (original files)
+- **Story Bible / Argument Map generation**: Claude — builds a structured JSON representation of the manuscript's core elements
+- **Chapter / Section analysis**: Claude — flags issues against the bible or argument map with severity, location, and suggestions
+- **Document synthesis** (nonfiction): Claude — produces a document-level assessment from structured analysis data
+- **Job queue**: arq (Redis) — sequential processing with retry, stall recovery, and stuck-manuscript auto-recovery
+- **Storage**: PostgreSQL (manuscripts, bibles, argument maps, analysis results), S3/MinIO (original files)
 
 ## Quick Start
 
@@ -71,25 +82,32 @@ npm run dev
 ```
 ├── backend/
 │   ├── app/
-│   │   ├── analysis/        # Claude API integration, prompts, JSON repair
+│   │   ├── analysis/        # Claude API, prompts, JSON repair, export
+│   │   │   ├── prompts/     # Versioned prompt files (bible, analysis, splitting, nonfiction)
+│   │   │   ├── story_bible.py / argument_map.py   # Fiction / nonfiction generation
+│   │   │   ├── chapter_analyzer.py / nonfiction_analyzer.py
+│   │   │   └── nonfiction_synthesis.py
 │   │   ├── auth/            # JWT auth, registration, password reset
-│   │   ├── manuscripts/     # Upload, extraction, chapter detection
-│   │   ├── jobs/            # arq worker, stall recovery
+│   │   ├── manuscripts/     # Upload, extraction, chapter/section detection
+│   │   ├── jobs/            # arq worker, stall recovery, GDPR purge cron
+│   │   ├── email/           # Resend integration, drip sequences
+│   │   ├── stripe/          # Checkout, webhooks, subscriptions
 │   │   └── db/              # SQLAlchemy models, Alembic migrations
 │   └── tests/
-│       ├── eval/            # Prompt eval harness (Gutenberg samples)
-│       └── unit/
+│       ├── eval/            # Prompt eval harness (5 fiction + 5 nonfiction samples)
+│       └── unit/            # 138+ unit tests
 ├── frontend/src/
-│   ├── pages/               # Dashboard, manuscript, feedback, bible views
+│   ├── pages/               # Dashboard, manuscript, feedback, bible, argument map views
 │   ├── components/          # Shared UI components
-│   └── api/                 # API client
+│   ├── api/                 # Typed API client
+│   └── __tests__/           # Vitest smoke tests
 ├── infra/
 │   └── docker-compose.yml
 └── docs/
     ├── blueprint.md         # Full MVP specification
-    ├── decisions/           # Adversarial protocol decision records
-    ├── build_log.md         # Development progress
-    └── eval_log.md          # Prompt evaluation results
+    ├── decisions/           # Adversarial protocol decision records (DECISION-001 through 011)
+    ├── review/              # Codebase audit report
+    └── build_log.md         # Development progress
 ```
 
 ## Development Process
@@ -99,13 +117,16 @@ All significant design decisions go through a three-agent adversarial review (Ar
 ## Tests
 
 ```bash
+# Backend unit tests (138+)
 cd backend
-
-# Unit tests
 PYTHONPATH=. .venv/bin/pytest tests/unit/ -v
 
-# Eval harness (requires ANTHROPIC_API_KEY)
-PYTHONPATH=. .venv/bin/pytest tests/eval/ -v
+# Backend eval harness (requires ANTHROPIC_API_KEY — costs real API money)
+PYTHONPATH=. .venv/bin/pytest tests/eval/ -v -m api
+
+# Frontend smoke tests
+cd frontend
+npm test
 ```
 
 ## License
