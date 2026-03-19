@@ -213,6 +213,12 @@ export function startAnalysis(manuscriptId: string) {
   })
 }
 
+export function reanalyzeManuscript(manuscriptId: string) {
+  return request<{ message: string }>(`/manuscripts/${manuscriptId}/reanalyze`, {
+    method: 'POST',
+  })
+}
+
 // --- Story Bible ---
 
 export interface StoryBible {
