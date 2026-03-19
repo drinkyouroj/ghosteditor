@@ -1166,14 +1166,28 @@ async def detect_chapters(text: str, document_type: str | None = None) -> tuple[
     # --- Tier 2: Fallback splitting ---
     if not chapters:
         if is_nonfiction:
-            # Nonfiction fallback: try header patterns, then paragraph chunking
+            # Nonfiction fallback chain:
+            # 2a. Try nonfiction header patterns (markdown #, ALL-CAPS, numbered)
             nf_chapters, nf_method = _detect_nonfiction_sections(text)
-            chapters = nf_chapters
-            if nf_method == "chunked" and not warnings:
-                warnings.append(
-                    "No clear section headers were detected in your manuscript. "
-                    "It has been automatically divided into sections for analysis."
-                )
+            if nf_method == "header":
+                chapters = nf_chapters
+            else:
+                # 2b. Try fiction regex patterns — many nonfiction books use
+                # "Chapter N" or numbered section headers that regex catches
+                regex_chapters = _detect_chapters_regex(text)
+                if len(regex_chapters) > 1:
+                    logger.info(f"Nonfiction regex fallback found {len(regex_chapters)} chapters")
+                    for ch in regex_chapters:
+                        ch["split_method"] = "regex"
+                    chapters = regex_chapters
+                else:
+                    # 2c. Fall back to paragraph chunking
+                    chapters = nf_chapters  # the chunked result
+                    if not warnings:
+                        warnings.append(
+                            "No clear section headers were detected in your manuscript. "
+                            "It has been automatically divided into sections for analysis."
+                        )
         else:
             # Fiction fallback: auto-split at ~4K words
             if not warnings:
@@ -1184,10 +1198,9 @@ async def detect_chapters(text: str, document_type: str | None = None) -> tuple[
                 )
             chapters = _auto_split(text)
 
-    # --- Tier 3: If still only 1 section, try regex (fiction) or chunking (nonfiction) ---
+    # --- Tier 3: If still only 1 section, try additional fallbacks ---
     if len(chapters) == 1:
         if is_nonfiction:
-            # For nonfiction, chunk at paragraph boundaries
             chunked = _chunk_at_paragraphs(text, NONFICTION_CHUNK_TARGET_WORDS)
             if len(chunked) > 1:
                 logger.info(f"Nonfiction chunking fallback produced {len(chunked)} sections")
