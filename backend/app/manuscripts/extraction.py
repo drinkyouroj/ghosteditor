@@ -523,18 +523,28 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
     case-sensitive then case-insensitive.
     Returns character position or -1 if not found.
     """
-    # Build candidate markers: original, punctuation-stripped, underscore-stripped, first-line
+    # Normalize smart quotes/apostrophes to ASCII equivalents in both marker and text
+    def _normalize_quotes(s: str) -> str:
+        return s.replace("\u2018", "'").replace("\u2019", "'").replace("\u201c", '"').replace("\u201d", '"')
+
+    marker = _normalize_quotes(marker)
+
+    # Build candidate markers: original, cleaned, underscore-stripped, first-line
+    # Strip trailing junk the LLM sometimes adds: quotes, parens, punctuation
+    marker_clean = marker.strip("_\"\"''()[].,;:!? \t")
     candidates = [marker]
-    marker_stripped = marker.rstrip(".,;:!?")
-    if marker_stripped != marker:
-        candidates.append(marker_stripped)
-    # Strip Gutenberg italic/bold markers (underscores)
-    marker_no_underscores = marker.strip("_").rstrip(".,;:!?")
-    if marker_no_underscores != marker.strip():
+    if marker_clean != marker.strip():
+        candidates.append(marker_clean)
+    # Also try with underscores stripped but content kept
+    marker_no_underscores = marker.strip("_").strip("\"\"''()[].,;:!? \t")
+    if marker_no_underscores not in candidates:
         candidates.append(marker_no_underscores)
     first_line = marker.split("\n")[0].strip()
-    if first_line and first_line != marker.strip():
+    if first_line and first_line not in candidates:
         candidates.append(first_line)
+
+    # Normalize quotes in the search text too
+    search_text = _normalize_quotes(text)
 
     for candidate in candidates:
         words = _normalize_whitespace(candidate).split()
@@ -545,7 +555,7 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
 
         # Case-sensitive match from search_start
         try:
-            for match in re.finditer(pattern, text[search_start:]):
+            for match in re.finditer(pattern, search_text[search_start:]):
                 actual_pos = search_start + match.start()
                 if candidate != marker:
                     logger.info(f"Matched marker variant {candidate!r} at pos={actual_pos}")
@@ -555,7 +565,7 @@ def _find_marker_position(text: str, marker: str, search_start: int = 0) -> int:
 
         # Case-insensitive match from search_start
         try:
-            for match in re.finditer(pattern, text[search_start:], re.IGNORECASE):
+            for match in re.finditer(pattern, search_text[search_start:], re.IGNORECASE):
                 actual_pos = search_start + match.start()
                 if candidate != marker:
                     logger.info(f"Matched marker variant (ci) {candidate!r} at pos={actual_pos}")
