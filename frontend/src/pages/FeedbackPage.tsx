@@ -4,6 +4,7 @@ import {
   getManuscript,
   getManuscriptFeedback,
   getNonfictionFeedback,
+  getExportFeedbackUrl,
   type ManuscriptFeedback,
   type NonfictionFeedback,
   type NonfictionDocumentSummary,
@@ -69,6 +70,13 @@ export function FeedbackPage() {
   const [severityFilter, setSeverityFilter] = useState<string>('')
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [expandedIssue, setExpandedIssue] = useState<number | null>(null)
+  const [exportOpen, setExportOpen] = useState(false)
+
+  const handleExport = (format: 'pdf' | 'docx') => {
+    if (!id) return
+    setExportOpen(false)
+    window.open(getExportFeedbackUrl(id, format), '_blank')
+  }
 
   const fetchFeedback = useCallback(async () => {
     if (!id) return
@@ -125,6 +133,20 @@ export function FeedbackPage() {
           <Link to={`/manuscripts/${id}`} className="back-link">Back to manuscript</Link>
           <h1>{feedback.title}</h1>
           {feedback.genre && <span className="feedback-genre">{feedback.genre}</span>}
+        </div>
+        <div className="export-dropdown-container">
+          <button
+            className="btn-export"
+            onClick={() => setExportOpen(!exportOpen)}
+          >
+            Export
+          </button>
+          {exportOpen && (
+            <div className="export-dropdown">
+              <button onClick={() => handleExport('pdf')}>Export as PDF</button>
+              <button onClick={() => handleExport('docx')}>Export as DOCX</button>
+            </div>
+          )}
         </div>
       </div>
 
