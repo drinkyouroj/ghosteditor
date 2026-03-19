@@ -420,7 +420,20 @@ export async function getNonfictionFeedback(manuscriptId: string, filters?: { se
       chapters_analyzed: (summary.sections_analyzed as number) ?? 0,
       chapters_total: (summary.sections_total as number) ?? 0,
     },
-    chapters: (raw.sections as ChapterFeedback[]) ?? [],
+    chapters: ((raw.sections as Record<string, unknown>[]) ?? []).map((section) => {
+      const issues = ((section.issues as Record<string, unknown>[]) ?? []).map((issue) => ({
+        type: (issue.dimension as string) ?? (issue.type as string) ?? '',
+        severity: (issue.severity as string) ?? 'note',
+        chapter_location: (issue.location as string) ?? (issue.chapter_location as string) ?? '',
+        description: (issue.description as string) ?? '',
+        original_text: (issue.original_text as string) ?? null,
+        suggestion: (issue.suggestion as string) ?? '',
+      }))
+      return {
+        ...section,
+        issues,
+      } as ChapterFeedback
+    }),
     document_summary: (raw.document_summary as NonfictionDocumentSummary) ?? null,
   }
 }
