@@ -76,7 +76,21 @@ export function DashboardPage() {
       {manuscripts.length === 0 ? (
         <div className="empty-state">
           <h2>No manuscripts yet</h2>
-          <p>Upload your first manuscript to get started with AI-powered developmental editing.</p>
+          <p>
+            GhostEditor reads your manuscript chapter-by-chapter and gives you
+            professional developmental editing feedback — consistency checks,
+            pacing analysis, and genre convention scoring.
+          </p>
+          <div className="empty-modes">
+            <div className="empty-mode-card">
+              <span className="mode-badge mode-fiction">Fiction</span>
+              <span className="empty-mode-desc">Story Bible + Chapter Analysis</span>
+            </div>
+            <div className="empty-mode-card">
+              <span className="mode-badge mode-nonfiction">Nonfiction</span>
+              <span className="empty-mode-desc">Argument Map + Section Analysis</span>
+            </div>
+          </div>
           <Link to="/upload" className="btn-primary">Upload Manuscript</Link>
         </div>
       ) : (

@@ -143,6 +143,11 @@ export function UploadPage() {
                 <span className="radio-label">Nonfiction / Essay</span>
               </label>
             </div>
+            <p className="document-type-hint">
+              {documentType === 'fiction'
+                ? 'Builds a Story Bible (characters, timeline, world rules) and analyzes each chapter for consistency, pacing, and genre conventions.'
+                : 'Builds an Argument Map (thesis, evidence, structure) and analyzes each section for argument quality, clarity, and format conventions.'}
+            </p>
           </fieldset>
 
           {documentType === 'fiction' ? (
