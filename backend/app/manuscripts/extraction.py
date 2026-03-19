@@ -458,7 +458,7 @@ SAMPLE_END_WORDS = 1000
 SAMPLE_FULL_THRESHOLD = 5000
 AUTO_SPLIT_TARGET_WORDS = 4000
 AUTO_SPLIT_WINDOW = 500  # words to search for a good break point
-SPLITTING_MAX_TOKENS = 4096
+SPLITTING_MAX_TOKENS = 8192
 
 # Visual separator patterns for auto-split
 _VISUAL_SEPARATORS = re.compile(
