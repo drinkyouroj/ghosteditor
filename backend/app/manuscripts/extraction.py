@@ -954,18 +954,23 @@ def _merge_short_sections(chapters: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 # Header patterns for nonfiction: markdown #, ALL-CAPS lines, numbered sections
+# Optional leading/trailing underscores handle Gutenberg italic markers (_Title_)
 NONFICTION_HEADER_PATTERNS = [
     # Markdown headers: # Title, ## Subtitle
     re.compile(r"^(#{1,4}\s+.+)$", re.MULTILINE),
     # ALL-CAPS lines (at least 3 words, to avoid false positives)
     re.compile(r"^([A-Z][A-Z\s,:''\-]{10,})$", re.MULTILINE),
-    # Numbered sections: "1.", "1.1", "Section 1:", "Section 1."
-    re.compile(r"^((?:Section\s+)?\d+(?:\.\d+)?\s*[.:]\s*.+)$", re.IGNORECASE | re.MULTILINE),
+    # Numbered sections: "1.", "1.1", "Section 1:", "Section 1." — with optional _underscores_
+    re.compile(r"^_?((?:Section\s+)?\d+(?:\.\d+)?\s*[.:]\s*.+?)_?\s*$", re.IGNORECASE | re.MULTILINE),
+    # Standalone section labels on their own line: Introduction, Preface, Conclusion, Epilogue, etc.
+    re.compile(r"^\s*((?:Introduction|Preface|Foreword|Prologue|Epilogue|Conclusion|Afterword|Appendix))\s*$", re.IGNORECASE | re.MULTILINE),
     # "Part I", "Part 1", "Part One"
     re.compile(
         rf"^(Part\s+(?:\d+|{ROMAN_NUMERAL}|{CHAPTER_WORD_NUMBERS})\b[^\n]*)",
         re.IGNORECASE | re.MULTILINE,
     ),
+    # "Chapter N" headers (borrowed from fiction patterns — many nonfiction books use them)
+    re.compile(r"^_?(Chapter\s+\d+[^\n]*)_?\s*$", re.IGNORECASE | re.MULTILINE),
 ]
 
 
