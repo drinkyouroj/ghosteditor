@@ -1223,6 +1223,20 @@ async def detect_chapters(text: str, document_type: str | None = None) -> tuple[
             "has been split using basic pattern matching. You may want to retry."
         )
 
+    # --- Quality check on LLM split ---
+    # If one chapter has >70% of total words, the split is lopsided (probably
+    # matched a few ToC/heading entries but missed the actual body structure).
+    # Discard and let fallback splitting try.
+    if chapters and len(chapters) >= 2:
+        total_words = sum(ch["word_count"] for ch in chapters)
+        max_words = max(ch["word_count"] for ch in chapters)
+        if total_words > 0 and max_words / total_words > 0.7:
+            logger.warning(
+                f"LLM split is lopsided: largest chapter has {max_words}/{total_words} words "
+                f"({max_words/total_words:.0%}). Discarding for fallback."
+            )
+            chapters = []
+
     # --- Tier 2: Fallback splitting ---
     if not chapters:
         if is_nonfiction:
