@@ -32,6 +32,10 @@ from app.rate_limit import check_rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# Auth links (verify-email, reset-password) must point to the backend API,
+# not the frontend, because they are backend endpoints that set cookies and redirect.
+_AUTH_LINK_BASE = settings.api_base_url or settings.base_url
+
 COOKIE_SECURE = settings.jwt_secret_key != "change-me-in-production"
 
 
@@ -81,7 +85,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
             existing.verification_token = hash_token(token)
             existing.verification_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
             await db.commit()
-            verification_url = f"{settings.base_url}/auth/verify-email?token={token}"
+            verification_url = f"{_AUTH_LINK_BASE}/auth/verify-email?token={token}"
             send_verification_email(existing.email, verification_url)
         # For existing verified users, do nothing (no info leak)
     else:
@@ -94,7 +98,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
         )
         db.add(user)
         await db.commit()
-        verification_url = f"{settings.base_url}/auth/verify-email?token={token}"
+        verification_url = f"{_AUTH_LINK_BASE}/auth/verify-email?token={token}"
         send_verification_email(email, verification_url)
 
     # Constant-time delay to mask timing differences (JUDGE amendment)
@@ -228,7 +232,7 @@ async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depend
         user.password_reset_token = hash_token(token)
         user.password_reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
         await db.commit()
-        reset_url = f"{settings.base_url}/auth/reset-password?token={token}"
+        reset_url = f"{_AUTH_LINK_BASE}/auth/reset-password?token={token}"
         send_password_reset_email(user.email, reset_url)
 
     await asyncio.sleep(0.3)

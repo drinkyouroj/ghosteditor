@@ -67,6 +67,7 @@ class Settings(BaseSettings):
 
     # App
     base_url: str = "http://localhost:5173"  # Frontend URL for emails and Stripe redirects
+    api_base_url: str = ""  # Backend API URL for auth links (verify-email, reset-password). Falls back to base_url if empty.
 
     model_config = {"env_file": ".env", "extra": "ignore"}
 
