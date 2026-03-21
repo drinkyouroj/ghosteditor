@@ -18,7 +18,7 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-FROM_EMAIL = "GhostEditor <noreply@ghosteditor.com>"
+FROM_EMAIL = settings.from_email
 
 
 def _send(to: str, subject: str, html: str) -> str | None:

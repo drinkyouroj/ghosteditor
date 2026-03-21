@@ -55,6 +55,7 @@ class Settings(BaseSettings):
 
     # Email
     resend_api_key: str = ""
+    from_email: str = "GhostEditor <onboarding@resend.dev>"  # Override with verified domain
 
     # Stripe
     stripe_secret_key: str = ""
