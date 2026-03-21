@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || ''
+const BASE = import.meta.env.VITE_API_URL ?? ''
 
 export const TIMEOUT_DEFAULT = 30_000
 export const TIMEOUT_UPLOAD = 120_000
